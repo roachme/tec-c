@@ -3,6 +3,7 @@
 ### Added
 
 - `cli`: Add skeleton for plugin output
+- `cli/sync`: Add support for alias "-"
 
 ### Changed
 

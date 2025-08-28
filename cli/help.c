@@ -244,6 +244,9 @@ struct help helptab[] = {
      .synop = "Usage: " PROGRAM " sync [OPTION]... [ID]...\n",
      .desc_short = "Synchronize (with) task.\n",
      .desc_long = "\n\
+    Swtich to task ID. The default ID is the current task ID.\n\
+    If ID is \"-\", switch to previous task ID, if exists.\n\
+    \n\
     Options:\n\
       -b BRD  board name (default is current)\n\
       -n      do not update toggles\n\

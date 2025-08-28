@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "tec.h"
 #include "aux/toggle.h"
 #include "aux/config.h"
@@ -50,8 +52,16 @@ int tec_cli_sync(int argc, char **argv, tec_ctx_t * ctx)
         return status;
 
     i = optind;
+
+    /* Alias to switch to previous task ID.  */
+    if (argv[i] && strcmp("-", argv[i]) == 0) {
+        argv[i] = NULL;         /* NULL it cuz it's an alias and illegal task ID.  */
+        if ((status = toggle_task_get_prev(teccfg.base.task, &args)))
+            return elog(1, errfmt, "PREV", "could not get previous task ID");
+    }
+
     do {
-        args.taskid = argv[i];
+        args.taskid = args.taskid != NULL ? args.taskid : argv[i];
 
         if ((status = check_arg_task(&args, errfmt, quiet)))
             continue;
