@@ -385,9 +385,9 @@ int main(int argc, char **argv)
     else if (tec_config_set_options(&opts))
         return elog(1, "could set config options");
 
-    if ((builtin = is_builtin(cmd)) != NULL)
-        return run_builtin(argc - i, argv + i, builtin);
-    else if (is_plugin(teccfg.base.pgn, cmd) == true)
+    if (is_plugin(teccfg.base.pgn, cmd) == true)
         return run_plugin(argc - i, argv + i);
+    else if ((builtin = is_builtin(cmd)) != NULL)
+        return run_builtin(argc - i, argv + i, builtin);
     return elog(1, "'%s': no such command or plugin", cmd);
 }
