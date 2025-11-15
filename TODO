@@ -11,6 +11,7 @@ Priorities:
   mid  - constant stuff like make it faster, smaller, etc.
   low  - when you get time
 
+
 Bugs:
 + 1. Command `tec col prev <TASKID>` moves task to column 'prev' even if no current task ID is set.
   2. Command `tec move` can't move multiple task to another project.
@@ -20,6 +21,7 @@ Bugs:
   5. NULL-termination should follow `strncpy(dst, src, len)`. In case `src`
      is equal to `len` it'll end without '\0'. Checked it with valgrind.
   6. Command `tec move` does not work after adding new feature to support boards.
+
 
 Ideas:
   1. Replace cat & ls hooks with reading from file. Gonna highly optimize
@@ -46,6 +48,7 @@ Ideas:
  20. Add support to unit module not to change file content if new data is the same as old ones.
  21. Prevent column update when new column name is the same as old. Same about units
 
+
 Prio: high
 + 1. Write config file parser and define config itself.
   2. Find a good way to invoke hooks
@@ -63,6 +66,7 @@ Prio: high
 +14. `struct unit` is duplicated in tec.h and unit.h
 +15. Move `tec find` to plugin.
 +16. Move hooks to cli part.
+ 17. Move .pgn to .tec in base directory
 
 
 Prio: mid
@@ -77,6 +81,7 @@ Prio: mid
   9. Delete option `-A' from command `tec list`. Cuz i can use option `-a'
 +10. Module unit has unit_set() and unit_add(). Delete unit_add() cuz unit_set()
      will check if key exists and change it its value or adds new key-value in the end.
+
 
 Prio: low
   1. Add command autocomplitions
