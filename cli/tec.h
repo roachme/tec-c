@@ -19,7 +19,7 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
-#define IDSIZ           10
+#define IDSIZ           8
 #define BRDSIZ          10
 #define PRJSIZ          10
 #define CMDSIZ          10
