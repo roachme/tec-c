@@ -175,24 +175,6 @@ struct help helptab[] = {
     Under development\n"},
     {
      .tag = TAGBASIC,
-     .name = "prev",
-     .synop = "Usage: " PROGRAM " prev [OPTION]...\n",
-     .desc_short = "Switch to previous task.\n",
-     .desc_long = "\n\
-    Options:\n\
-      -b BRD  board name (default is current)\n\
-      -h      show this help and exit\n\
-      -p PRJ  project name (default is current)\n\
-      -q      do not write anything to standard error output\n\
-    \n\
-    Arguments:\n\
-      BRD     board name (default is current)\n\
-      PRJ     project name (default is current)\n\
-    \n\
-    Exit status:\n\
-    Return success if previous task and current project exists, otherwise fail\n"},
-    {
-     .tag = TAGBASIC,
      .name = "set",
      .synop = "Usage: " PROGRAM " set OPTION... [ID]...\n",
      .desc_short = "Set task unit values.\n",

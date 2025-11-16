@@ -22,6 +22,10 @@
 - `cli/aux/plugin`: Add error messages
 - `cli`: Style code
 
+### Deleted
+
+- `cli`: Detele command `prev`
+
 
 ## [0.1.2] - (2025-08-06)
 

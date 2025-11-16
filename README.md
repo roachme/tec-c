@@ -105,7 +105,6 @@ Usage: tec [OPTION]... COMMAND|PLUGIN
       del        - Delete task from project.
       list       - List project tasks.
       move       - Move (rename) tasks (under development).
-      prev       - Switch to previous task.
       set        - Set task unit values.
       show       - Show task unit values.
       sync       - Synchronize (with) task.

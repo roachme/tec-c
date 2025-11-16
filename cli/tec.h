@@ -100,7 +100,6 @@ int tec_cli_init(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_list(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_move(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_plugin(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_prev(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_project(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_set(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_show(int argc, char **argv, tec_ctx_t * ctx);
