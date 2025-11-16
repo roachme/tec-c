@@ -22,6 +22,7 @@
 - `lib`: Fix API MACRO name
 - `cli/aux/plugin`: Add error messages
 - `cli`: Style code
+- `cli`: Move command `version` to new file
 
 ### Deleted
 

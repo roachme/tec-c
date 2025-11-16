@@ -108,12 +108,6 @@ static int valid_toggle(char *tog)
     return -1;
 }
 
-int tec_cli_version(int argc, char **argv, tec_ctx_t *ctx)
-{
-    printf("%s version %s\n", PROGRAM, VERSION);
-    return 0;
-}
-
 int is_valid_length(const char *obj, int len)
 {
     if (strlen(obj) <= len)
