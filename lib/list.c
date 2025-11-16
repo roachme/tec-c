@@ -3,7 +3,7 @@
 
 #include "list.h"
 
-void list_free(tec_list_t * head)
+void list_free(tec_list_t *head)
 {
     tec_list_t *p, *q;
 
@@ -14,7 +14,7 @@ void list_free(tec_list_t * head)
     }
 }
 
-tec_list_t *list_add(tec_list_t * head, char *id, int status)
+tec_list_t *list_add(tec_list_t *head, char *id, int status)
 {
     tec_list_t *node;
 

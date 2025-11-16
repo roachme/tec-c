@@ -51,7 +51,7 @@ static int valid_desc(const char *val)
 }
 
 // TODO: Find a good error message in case option fails.  */
-int tec_cli_set(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     int i, quiet, status;

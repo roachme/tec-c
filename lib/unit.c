@@ -33,7 +33,7 @@ static char *trim_whitespace(char *str)
     return str;
 }
 
-int unit_save(const char *filename, tec_unit_t * units)
+int unit_save(const char *filename, tec_unit_t *units)
 {
     FILE *fp;
 
@@ -45,7 +45,7 @@ int unit_save(const char *filename, tec_unit_t * units)
     return fclose(fp);
 }
 
-tec_unit_t *unit_parse(tec_unit_t * units, const char *str)
+tec_unit_t *unit_parse(tec_unit_t *units, const char *str)
 {
     char *token;
     char key[BUFSIZ + 1];
@@ -87,7 +87,7 @@ tec_unit_t *unit_load(const char *filename)
 /*
  * Add units one at a time.
 */
-tec_unit_t *unit_add(tec_unit_t * head, const char *key, const char *val)
+tec_unit_t *unit_add(tec_unit_t *head, const char *key, const char *val)
 {
     tec_unit_t *unit, *tmp;
 
@@ -109,7 +109,7 @@ tec_unit_t *unit_add(tec_unit_t * head, const char *key, const char *val)
 /*
  * Set units one at a time.
 */
-tec_unit_t *unit_set(tec_unit_t * head, const char *key, const char *val)
+tec_unit_t *unit_set(tec_unit_t *head, const char *key, const char *val)
 {
     for (; head != NULL; head = head->next) {
         if (strcmp(head->key, key) == 0) {
@@ -122,7 +122,7 @@ tec_unit_t *unit_set(tec_unit_t * head, const char *key, const char *val)
 }
 
 /* TODO: make return value 'const char *'.  */
-char *unit_get(tec_unit_t * head, const char *key)
+char *unit_get(tec_unit_t *head, const char *key)
 {
     for (tec_unit_t * unit = head; unit; unit = unit->next)
         if (strcmp(unit->key, key) == 0)
@@ -133,7 +133,7 @@ char *unit_get(tec_unit_t * head, const char *key)
 /*
  * Delete all units.
 */
-void unit_free(tec_unit_t * head)
+void unit_free(tec_unit_t *head)
 {
     tec_unit_t *curr, *next;
 

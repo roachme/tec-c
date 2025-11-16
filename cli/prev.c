@@ -2,7 +2,7 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
-int tec_cli_prev(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_prev(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     char c, *errfmt;

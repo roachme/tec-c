@@ -15,7 +15,7 @@ Notes:
 '.' in arguments can be omited so use current arg by default.
 */
 
-int tec_cli_move(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_move(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     int i, showhelp, status;

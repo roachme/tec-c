@@ -10,7 +10,7 @@
 
 static char pathname[PATH_MAX + 1];
 
-static char *path_pgn(tec_arg_t * args, char *name, char *cmd)
+static char *path_pgn(tec_arg_t *args, char *name, char *cmd)
 {
     const char *fmt = "%s/%s/%s -T %s -P %s %s -p %s -b %s -i %s";
     sprintf(pathname, fmt, teccfg.base.pgn, name, name, teccfg.base.task,
@@ -18,7 +18,7 @@ static char *path_pgn(tec_arg_t * args, char *name, char *cmd)
     return pathname;
 }
 
-int hook_action(tec_arg_t * args, char *cmd)
+int hook_action(tec_arg_t *args, char *cmd)
 {
     struct tec_hook *hooks = teccfg.hooks;
 
@@ -36,7 +36,7 @@ int hook_action(tec_arg_t * args, char *cmd)
     return 0;
 }
 
-int hook_show(tec_unit_t ** units, tec_arg_t * args, char *cmd)
+int hook_show(tec_unit_t **units, tec_arg_t *args, char *cmd)
 {
     FILE *pipe;
     char line[BUFSIZ + 1] = { 0 };
@@ -109,7 +109,7 @@ char *hook_list(struct tec_hook *hooks, char *pgnout, char *project, char *task)
     4. Or maybe it's better to let the plugin to handle plugin options and the rest.
     5. Add a better parser to include all the other tec options like -C, -H, -F, etc.
 */
-int tec_cli_plugin(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_plugin(int argc, char **argv, tec_ctx_t *ctx)
 {
     int i;
     char *pgn;

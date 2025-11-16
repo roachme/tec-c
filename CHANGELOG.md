@@ -20,6 +20,7 @@
 - `cli/tec`: Fix padding for objects
 - `lib`: Fix API MACRO name
 - `cli/aux/plugin`: Add error messages
+- `cli`: Style code
 
 
 ## [0.1.2] - (2025-08-06)

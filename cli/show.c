@@ -8,7 +8,7 @@
 
 static const char *errfmt = "cannot show units '%s': %s";
 
-static int valid_unitkeys(tec_unit_t * units)
+static int valid_unitkeys(tec_unit_t *units)
 {
     for (int i = 0; units && i < nunitkey; units = units->next) {
         if (strcmp(units->key, unitkeys[i]) != 0)
@@ -18,7 +18,7 @@ static int valid_unitkeys(tec_unit_t * units)
     return 0;
 }
 
-static int show_key(char *task, tec_unit_t * unitbin, tec_unit_t * unitpgn,
+static int show_key(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn,
                     char *key)
 {
     struct tec_unit *units;
@@ -43,7 +43,7 @@ static int show_key(char *task, tec_unit_t * unitbin, tec_unit_t * unitpgn,
     return 1;
 }
 
-static int show_keys(char *task, tec_unit_t * unitbin, tec_unit_t * unitpgn)
+static int show_keys(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn)
 {
     struct tec_unit *units;
     const char *fmt = "%-" xstr(PADDING_UNIT) "s : %s\n";
@@ -59,7 +59,7 @@ static int show_keys(char *task, tec_unit_t * unitbin, tec_unit_t * unitpgn)
     return 0;
 }
 
-int tec_cli_show(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_show(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     char *key;

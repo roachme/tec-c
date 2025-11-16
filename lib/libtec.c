@@ -17,7 +17,7 @@ struct tecstruct {
     char base[PATH_MAX + 1];    /* directory for all stuff above */
 };
 
-static int aux_unit_set(tec_unit_t * newunits, const char *fname)
+static int aux_unit_set(tec_unit_t *newunits, const char *fname)
 {
     struct tec_unit *item;
     struct tec_unit *units;
@@ -36,7 +36,7 @@ static int aux_unit_set(tec_unit_t * newunits, const char *fname)
     return LIBTEC_OK;
 }
 
-static int aux_list_get(tec_ctx_t * ctx, const char *dirname)
+static int aux_list_get(tec_ctx_t *ctx, const char *dirname)
 {
     DIR *ids;
     tec_arg_t args;
@@ -68,39 +68,39 @@ static int fill_sysvars(const char *taskdir, struct tecstruct *tecfs)
     return LIBTEC_OK;
 }
 
-int tec_project_exist(const char *taskdir, tec_arg_t * args)
+int tec_project_exist(const char *taskdir, tec_arg_t *args)
 {
     char *pathname = path_project_dir(taskdir, args);
     return ISDIR(pathname) == true ? LIBTEC_OK : LIBTEC_ARG_NOSUCH;
 }
 
-int tec_board_exist(const char *taskdir, tec_arg_t * args)
+int tec_board_exist(const char *taskdir, tec_arg_t *args)
 {
     char *pathname = path_board_dir(taskdir, args);
     return ISDIR(pathname) == true ? LIBTEC_OK : LIBTEC_ARG_NOSUCH;
 }
 
-int tec_task_exist(const char *taskdir, tec_arg_t * args)
+int tec_task_exist(const char *taskdir, tec_arg_t *args)
 {
     char *pathname = path_task_dir(taskdir, args);
     return ISDIR(pathname) == true ? LIBTEC_OK : LIBTEC_ARG_NOSUCH;
 }
 
-int tec_project_valid(const char *taskdir, tec_arg_t * args)
+int tec_project_valid(const char *taskdir, tec_arg_t *args)
 {
     if (valid_project_name(args->project) == false)
         return emod_set(LIBTEC_ARG_ILLEG);
     return LIBTEC_OK;
 }
 
-int tec_board_valid(const char *taskdir, tec_arg_t * args)
+int tec_board_valid(const char *taskdir, tec_arg_t *args)
 {
     if (valid_board_name(args->board) == false)
         return emod_set(LIBTEC_ARG_ILLEG);
     return LIBTEC_OK;
 }
 
-int tec_task_valid(const char *taskdir, tec_arg_t * args)
+int tec_task_valid(const char *taskdir, tec_arg_t *args)
 {
     if (valid_task_name(args->taskid) == false)
         return emod_set(LIBTEC_ARG_ILLEG);
@@ -131,7 +131,7 @@ int tec_check_db(const char *taskdir)
     return LIBTEC_OK;
 }
 
-int tec_task_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_task_add(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if (dir_task_add(taskdir, args) != 0)
         return emod_set(LIBTEC_DIR_MAKE);
@@ -142,51 +142,51 @@ int tec_task_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
     return LIBTEC_OK;
 }
 
-int tec_task_del(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_task_del(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if (dir_task_del(taskdir, args))
         return emod_set(LIBTEC_DIR_DEL);
     return LIBTEC_OK;
 }
 
-int tec_task_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_task_get(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if ((ctx->units = unit_load(path_task_unit(taskdir, args))) == NULL)
         return emod_set(LIBTEC_UNIT_GET);
     return LIBTEC_OK;
 }
 
-int tec_task_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_task_list(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     return aux_list_get(ctx, path_board_dir(taskdir, args));
 }
 
-int tec_task_move(const char *taskdir, tec_arg_t * src, tec_arg_t * dst,
-                  tec_ctx_t * ctx)
+int tec_task_move(const char *taskdir, tec_arg_t *src, tec_arg_t *dst,
+                  tec_ctx_t *ctx)
 {
     if (dir_task_move(taskdir, src, dst))
         return emod_set(LIBTEC_DIR_MOVE);
     return LIBTEC_OK;
 }
 
-int tec_task_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_task_set(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     return aux_unit_set(ctx->units, path_task_unit(taskdir, args));
 }
 
-int tec_task_column_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_task_column_get(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if ((ctx->column = unit_load(path_task_column(taskdir, args))) == NULL)
         return LIBTEC_UNIT_GET;
     return LIBTEC_OK;
 }
 
-int tec_task_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_task_column_set(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     return aux_unit_set(ctx->column, path_task_column(taskdir, args));
 }
 
-int tec_board_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_board_add(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if (dir_board_add(taskdir, args))
         return emod_set(LIBTEC_DIR_MAKE);
@@ -197,43 +197,43 @@ int tec_board_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
     return LIBTEC_OK;
 }
 
-int tec_board_del(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_board_del(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if (dir_board_del(taskdir, args))
         return emod_set(LIBTEC_DIR_DEL);
     return LIBTEC_OK;
 }
 
-int tec_board_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_board_get(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if ((ctx->units = unit_load(path_board_unit(taskdir, args))) == NULL)
         return emod_set(LIBTEC_UNIT_GET);
     return LIBTEC_OK;
 }
 
-int tec_board_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_board_list(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     return aux_list_get(ctx, path_project_dir(taskdir, args));
 }
 
-int tec_board_move(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_board_move(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     return 0;
 }
 
-int tec_board_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_board_set(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     return aux_unit_set(ctx->units, path_board_unit(taskdir, args));
 }
 
-int tec_board_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_board_column_set(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if (unit_save(path_board_column(taskdir, args), ctx->column))
         return emod_set(LIBTEC_UNIT_SAVE);
     return LIBTEC_OK;
 }
 
-int tec_project_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_project_add(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if (dir_project_add(taskdir, args))
         return emod_set(LIBTEC_DIR_MAKE);
@@ -244,40 +244,39 @@ int tec_project_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
     return LIBTEC_OK;
 }
 
-int tec_project_del(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_project_del(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if (dir_project_del(taskdir, args))
         return emod_set(LIBTEC_DIR_DEL);
     return LIBTEC_OK;
 }
 
-int tec_project_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_project_get(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if ((ctx->units = unit_load(path_project_unit(taskdir, args))) == NULL)
         return emod_set(LIBTEC_UNIT_LOAD);
     return LIBTEC_OK;
 }
 
-int tec_project_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_project_list(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     return aux_list_get(ctx, taskdir);
 }
 
-int tec_project_rename(const char *taskdir, tec_arg_t * src, tec_arg_t * dst,
-                       tec_ctx_t * ctx)
+int tec_project_rename(const char *taskdir, tec_arg_t *src, tec_arg_t *dst,
+                       tec_ctx_t *ctx)
 {
     if (dir_project_rename(taskdir, src, dst))
         return emod_set(LIBTEC_DIR_RENAME);
     return LIBTEC_OK;
 }
 
-int tec_project_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx)
+int tec_project_set(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     return aux_unit_set(ctx->units, path_project_unit(taskdir, args));
 }
 
-int tec_project_column_set(const char *taskdir, tec_arg_t * args,
-                           tec_ctx_t * ctx)
+int tec_project_column_set(const char *taskdir, tec_arg_t *args, tec_ctx_t *ctx)
 {
     if (unit_save(path_project_column(taskdir, args), ctx->column))
         return emod_set(LIBTEC_UNIT_SAVE);
@@ -295,7 +294,7 @@ int tec_unit_set(struct tec_unit *head, char *key, char *val)
     return !unit_set(head, key, val) ? LIBTEC_OK : LIBTEC_UNIT_SET;
 }
 
-int tec_unit_save(const char *filename, tec_unit_t * units)
+int tec_unit_save(const char *filename, tec_unit_t *units)
 {
     return unit_save(filename, units);
 }
@@ -305,18 +304,18 @@ tec_unit_t *tec_unit_parse(struct tec_unit *head, const char *str)
     return unit_parse(head, str);
 }
 
-char *tec_unit_key(tec_unit_t * head, char *key)
+char *tec_unit_key(tec_unit_t *head, char *key)
 {
     return unit_get(head, key);
 }
 
-void *tec_unit_free(tec_unit_t * units)
+void *tec_unit_free(tec_unit_t *units)
 {
     unit_free(units);
     return NULL;
 }
 
-void *tec_list_free(tec_list_t * list)
+void *tec_list_free(tec_list_t *list)
 {
     list_free(list);
     return NULL;

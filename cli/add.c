@@ -9,7 +9,7 @@
 /* Note: should be static cuz args->task point to it.  */
 static char gentask[IDSIZ + 1];
 
-static int generate_task(tec_arg_t * args)
+static int generate_task(tec_arg_t *args)
 {
     args->taskid = gentask;
     for (register unsigned int i = 1; i < IDLIMIT; ++i) {
@@ -20,7 +20,7 @@ static int generate_task(tec_arg_t * args)
     return 1;
 }
 
-static int generate_units(tec_ctx_t * ctx, char *prj, char *task)
+static int generate_units(tec_ctx_t *ctx, char *prj, char *task)
 {
     char date[BUFSIZ + 1];
     struct tec_unit *units = NULL;
@@ -39,7 +39,7 @@ static int generate_units(tec_ctx_t * ctx, char *prj, char *task)
     return 0;
 }
 
-int tec_cli_add(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
 {
     char *errfmt;
     tec_arg_t args;

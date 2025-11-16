@@ -4,7 +4,7 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
-static int _column_list(int argc, char **argv, tec_ctx_t * ctx)
+static int _column_list(int argc, char **argv, tec_ctx_t *ctx)
 {
     for (int i = 0; i < nbuiltin_column; ++i) {
         column_t columns = builtin_columns[i];
@@ -15,7 +15,7 @@ static int _column_list(int argc, char **argv, tec_ctx_t * ctx)
     return 0;
 }
 
-static int _column_move(int argc, char **argv, tec_ctx_t * ctx)
+static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     char c, *errfmt, *colname;
@@ -92,7 +92,7 @@ static int _column_move(int argc, char **argv, tec_ctx_t * ctx)
     return status;
 }
 
-static int _column_rename(int argc, char **argv, tec_ctx_t * ctx)
+static int _column_rename(int argc, char **argv, tec_ctx_t *ctx)
 {
     return elog(1, "under development: rename column in file .tec/column");
 }
@@ -103,7 +103,7 @@ static const builtin_t column_commands[] = {
     {.name = "rename",.func = &_column_rename},
 };
 
-int tec_cli_column(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_column(int argc, char **argv, tec_ctx_t *ctx)
 {
     char *cmd = argv[1] != NULL ? argv[1] : "list";
 

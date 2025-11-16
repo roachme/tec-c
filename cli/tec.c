@@ -72,7 +72,7 @@ static int is_plugin(char *pgndir, const char *pgname)
     return true;
 }
 
-static int run_builtin(int argc, char **argv, builtin_t * cmd)
+static int run_builtin(int argc, char **argv, builtin_t *cmd)
 {
     int status;
     tec_ctx_t ctx = CTX_INIT;
@@ -109,7 +109,7 @@ static int valid_toggle(char *tog)
     return -1;
 }
 
-int tec_cli_version(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_version(int argc, char **argv, tec_ctx_t *ctx)
 {
     printf("%s version %s\n", PROGRAM, VERSION);
     return 0;
@@ -122,7 +122,7 @@ int is_valid_length(const char *obj, int len)
     return false;
 }
 
-int check_arg_project(tec_arg_t * args, const char *errfmt, int quiet)
+int check_arg_project(tec_arg_t *args, const char *errfmt, int quiet)
 {
     int status;
 
@@ -147,7 +147,7 @@ int check_arg_project(tec_arg_t * args, const char *errfmt, int quiet)
     return 0;
 }
 
-int check_arg_board(tec_arg_t * args, const char *errfmt, int quiet)
+int check_arg_board(tec_arg_t *args, const char *errfmt, int quiet)
 {
     int status;
 
@@ -172,7 +172,7 @@ int check_arg_board(tec_arg_t * args, const char *errfmt, int quiet)
     return 0;
 }
 
-int check_arg_task(tec_arg_t * args, const char *errfmt, int quiet)
+int check_arg_task(tec_arg_t *args, const char *errfmt, int quiet)
 {
     int status;
 
@@ -228,7 +228,7 @@ tec_unit_t *generate_column(char *colname)
     return column;
 }
 
-int tec_pwd_project(tec_arg_t * args)
+int tec_pwd_project(tec_arg_t *args)
 {
     FILE *fp;
     char *taskdir = teccfg.base.task;
@@ -245,7 +245,7 @@ int tec_pwd_project(tec_arg_t * args)
 
 }
 
-int tec_pwd_board(tec_arg_t * args)
+int tec_pwd_board(tec_arg_t *args)
 {
     FILE *fp;
     char *taskdir = teccfg.base.task;
@@ -261,7 +261,7 @@ int tec_pwd_board(tec_arg_t * args)
     return 1;
 }
 
-int tec_pwd_task(tec_arg_t * args)
+int tec_pwd_task(tec_arg_t *args)
 {
     FILE *fp;
     char *taskdir = teccfg.base.task;

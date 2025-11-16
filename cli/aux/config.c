@@ -24,7 +24,7 @@ static void resolve_env_var_home(char *dst, const char *src)
     }
 }
 
-static int tec_config_set_default_base(tec_cfg_t * tec_config)
+static int tec_config_set_default_base(tec_cfg_t *tec_config)
 {
     char pathname[PATH_MAX + 1] = { 0 };
 
@@ -39,7 +39,7 @@ static int tec_config_set_default_base(tec_cfg_t * tec_config)
     return 0;
 }
 
-static int tec_config_set_default_config(tec_cfg_t * tec_config)
+static int tec_config_set_default_config(tec_cfg_t *tec_config)
 {
     tec_config_set_default_base(tec_config);
     return 0;
@@ -55,7 +55,7 @@ static struct tec_hook *make_hook()
     return hook;
 }
 
-static int tec_config_get_hooks(config_t * cfg, tec_cfg_t * tec_config)
+static int tec_config_get_hooks(config_t *cfg, tec_cfg_t *tec_config)
 {
     config_setting_t *setting;
 
@@ -113,7 +113,7 @@ static int tec_config_get_hooks(config_t * cfg, tec_cfg_t * tec_config)
     return 0;
 }
 
-static int tec_config_get_base(config_t * cfg, tec_cfg_t * tec_config)
+static int tec_config_get_base(config_t *cfg, tec_cfg_t *tec_config)
 {
     const char *task, *pgn;
     config_setting_t *setting;
@@ -135,7 +135,7 @@ static int tec_config_get_base(config_t * cfg, tec_cfg_t * tec_config)
     return tec_config_set_default_base(tec_config);
 }
 
-static int tec_config_get_options(config_t * cfg, tec_cfg_t * tec_config)
+static int tec_config_get_options(config_t *cfg, tec_cfg_t *tec_config)
 {
     config_setting_t *setting;
     tec_config->opts.color = false;
@@ -151,7 +151,7 @@ static int tec_config_get_options(config_t * cfg, tec_cfg_t * tec_config)
     return 0;
 }
 
-static int parseconf(tec_cfg_t * tec_config, const char *fname)
+static int parseconf(tec_cfg_t *tec_config, const char *fname)
 {
     config_t cfg;
 
@@ -172,7 +172,7 @@ static int parseconf(tec_cfg_t * tec_config, const char *fname)
     return 0;
 }
 
-int tec_config_init(tec_cfg_t * tec_config)
+int tec_config_init(tec_cfg_t *tec_config)
 {
     tec_config->opts.color = NONEBOOL;
     tec_config->opts.debug = NONEBOOL;
@@ -180,7 +180,7 @@ int tec_config_init(tec_cfg_t * tec_config)
     return 0;
 }
 
-int tec_config_parse(tec_cfg_t * tec_config)
+int tec_config_parse(tec_cfg_t *tec_config)
 {
     char cfgfile[CONFIGSIZ + 1];
     char *homedir = getenv("HOME");
@@ -197,7 +197,7 @@ int tec_config_parse(tec_cfg_t * tec_config)
     return tec_config_set_default_config(tec_config);
 }
 
-int tec_config_set_base(tec_base_t * base)
+int tec_config_set_base(tec_base_t *base)
 {
     if (base->task != NULL) {
         free(teccfg.base.task);
@@ -210,7 +210,7 @@ int tec_config_set_base(tec_base_t * base)
     return 0;
 }
 
-int tec_config_set_options(tec_opt_t * opts)
+int tec_config_set_options(tec_opt_t *opts)
 {
     teccfg.opts.hook = opts->hook != NONEBOOL ? opts->hook : teccfg.opts.hook;
     teccfg.opts.color =
@@ -220,7 +220,7 @@ int tec_config_set_options(tec_opt_t * opts)
     return 0;
 }
 
-void tec_config_destroy(tec_cfg_t * tec_config)
+void tec_config_destroy(tec_cfg_t *tec_config)
 {
     struct tec_hook *head;
 

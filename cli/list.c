@@ -44,7 +44,7 @@ static int check_filters(int quiet)
 }
 
 // TODO: remove parameter 'quiet', return status, and let the caller to
-static char *get_unit_desc(tec_ctx_t * ctx, tec_arg_t * args, int quiet)
+static char *get_unit_desc(tec_ctx_t *ctx, tec_arg_t *args, int quiet)
 {
     int status;
     char *desc;
@@ -60,7 +60,7 @@ static char *get_unit_desc(tec_ctx_t * ctx, tec_arg_t * args, int quiet)
     return desc;
 }
 
-static char *get_column_name(tec_ctx_t * ctx, tec_arg_t * args, int quiet)
+static char *get_column_name(tec_ctx_t *ctx, tec_arg_t *args, int quiet)
 {
     int status;
     char *colname;
@@ -76,7 +76,7 @@ static char *get_column_name(tec_ctx_t * ctx, tec_arg_t * args, int quiet)
     return colname;
 }
 
-static void show_column(tec_ctx_t * ctx, tec_arg_t * args, tec_list_t * obj,
+static void show_column(tec_ctx_t *ctx, tec_arg_t *args, tec_list_t *obj,
                         int quiet)
 {
     if (obj != NULL) {
@@ -94,7 +94,7 @@ static void show_column(tec_ctx_t * ctx, tec_arg_t * args, tec_list_t * obj,
     }
 }
 
-static int show_toggles(tec_ctx_t * ctx, tec_arg_t * args)
+static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args)
 {
     int status;
     tec_list_t obj;
@@ -117,8 +117,8 @@ static int show_toggles(tec_ctx_t * ctx, tec_arg_t * args)
     return status;
 }
 
-static void show_columns(tec_ctx_t * ctx, tec_arg_t * args,
-                         tec_list_t * list, int quiet)
+static void show_columns(tec_ctx_t *ctx, tec_arg_t *args,
+                         tec_list_t *list, int quiet)
 {
     tec_list_t *obj;
 
@@ -128,7 +128,7 @@ static void show_columns(tec_ctx_t * ctx, tec_arg_t * args,
 }
 
 // TODO: Find a good error message in case option fails.  */
-int tec_cli_list(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_list(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     tec_arg_t args;

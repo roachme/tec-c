@@ -689,7 +689,7 @@ int help_lookup(const char *cmd)
     return found == true ? 0 : 1;
 }
 
-int tec_cli_help(int argc, char **argv, tec_ctx_t * ctx)
+int tec_cli_help(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     int i, status;
