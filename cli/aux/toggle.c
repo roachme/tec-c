@@ -5,10 +5,10 @@
 #include "../tec.h"
 
 static char prj_curr[PRJSIZ + 1];
-//static char prj_prev[PRJSIZ + 1];
+static char prj_prev[PRJSIZ + 1];
 
 static char brd_curr[BRDSIZ + 1];
-//static char brd_prev[BRDSIZ + 1];
+static char brd_prev[BRDSIZ + 1];
 
 static char task_curr[IDSIZ + 1];
 static char task_prev[IDSIZ + 1];
@@ -93,7 +93,12 @@ static char *brd_get_prev(char *base, tec_arg_t * args)
 
 static char *prj_get_prev(char *base, tec_arg_t *args)
 {
-    return _get_toggle(path_prj_toggle(base, args), task_prev, "prev");
+    return _get_toggle(path_prj_toggle(base, args), prj_prev, "prev");
+}
+
+static char *brd_get_prev(char *base, tec_arg_t *args)
+{
+    return _get_toggle(path_brd_toggle(base, args), brd_prev, "prev");
 }
 
 static char *task_get_prev(char *base, tec_arg_t *args)
@@ -135,6 +140,13 @@ int toggle_project_get_prev(char *base, tec_arg_t *args)
 int toggle_board_get_curr(char *base, tec_arg_t *args)
 {
     if (!args->board && !(args->board = brd_get_curr(base, args)))
+        return 1;
+    return 0;
+}
+
+int toggle_board_get_prev(char *base, tec_arg_t *args)
+{
+    if (!args->board && !(args->board = brd_get_prev(base, args)))
         return 1;
     return 0;
 }
@@ -239,6 +251,24 @@ int toggle_project_swap(char *base, tec_arg_t *args)
     toggles = tec_unit_add(toggles, "prev", curr);
 
     return tec_unit_save(path_prj_toggle(base, args), toggles);
+}
+
+int toggle_board_swap(char *base, tec_arg_t *args)
+{
+    char *curr, *prev;
+    tec_unit_t *toggles;
+
+    toggles = NULL;
+    curr = brd_get_curr(base, args);
+    prev = brd_get_prev(base, args);
+
+    if (curr == NULL || prev == NULL)
+        return 1;
+
+    toggles = tec_unit_add(toggles, "curr", prev);
+    toggles = tec_unit_add(toggles, "prev", curr);
+
+    return tec_unit_save(path_brd_toggle(base, args), toggles);
 }
 
 int toggle_task_swap(char *base, tec_arg_t *args)
