@@ -157,8 +157,8 @@ struct help helptab[] = {
     {
      .tag = TAGBASIC,
      .name = "move",
-     .synop = "Usage: " PROGRAM " move [OPTION]... [SRC DST | SRC...]\n",
-     .desc_short = "Move (rename) tasks (under development).\n",
+     .synop = "Usage: " PROGRAM " move [OPTION]... [SRC]... DST\n",
+     .desc_short = "Move (rename) tasks.\n",
      .desc_long = "\n\
     Options:\n\
       -d PRJ  destination project\n\

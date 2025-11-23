@@ -288,3 +288,86 @@ int toggle_task_swap(char *base, tec_arg_t *args)
 
     return tec_unit_save(path_task_toggle(base, args), toggles);
 }
+
+/*
+ * Update task toggles after a task is renamed.
+ * If old_id matches curr or prev, update it to new_id.
+ * args must have project and board set for the location.
+ */
+int toggle_task_update(char *base, tec_arg_t *args,
+                       const char *old_id, const char *new_id)
+{
+    char *curr, *prev;
+    tec_unit_t *toggles;
+    int changed = 0;
+
+    toggles = NULL;
+    curr = task_get_curr(base, args);
+    prev = task_get_prev(base, args);
+
+    /* Check if old_id matches curr or prev and update */
+    if (curr && strcmp(curr, old_id) == 0) {
+        curr = (char *)new_id;
+        changed = 1;
+    }
+    if (prev && strcmp(prev, old_id) == 0) {
+        prev = (char *)new_id;
+        changed = 1;
+    }
+
+    if (!changed)
+        return 0;               /* Nothing to update */
+
+    if (curr)
+        toggles = tec_unit_add(toggles, "curr", curr);
+    if (prev)
+        toggles = tec_unit_add(toggles, "prev", prev);
+
+    if (toggles) {
+        tec_unit_save(path_task_toggle(base, args), toggles);
+        tec_unit_free(toggles);
+    }
+    return 0;
+}
+
+/*
+ * Clear a task from toggles when it's moved to a different board/project.
+ * If taskid matches curr, promote prev to curr and clear prev.
+ * If taskid matches prev, just clear prev.
+ * args must have project and board set for the source location.
+ */
+int toggle_task_clear(char *base, tec_arg_t *args, const char *taskid)
+{
+    char *curr, *prev;
+    tec_unit_t *toggles;
+    int changed = 0;
+
+    toggles = NULL;
+    curr = task_get_curr(base, args);
+    prev = task_get_prev(base, args);
+
+    if (curr && strcmp(curr, taskid) == 0) {
+        /* Current task is being moved, promote prev to curr */
+        curr = prev;
+        prev = NULL;
+        changed = 1;
+    } else if (prev && strcmp(prev, taskid) == 0) {
+        /* Previous task is being moved, just clear it */
+        prev = NULL;
+        changed = 1;
+    }
+
+    if (!changed)
+        return 0;
+
+    if (curr)
+        toggles = tec_unit_add(toggles, "curr", curr);
+    if (prev)
+        toggles = tec_unit_add(toggles, "prev", prev);
+
+    if (toggles) {
+        tec_unit_save(path_task_toggle(base, args), toggles);
+        tec_unit_free(toggles);
+    }
+    return 0;
+}

@@ -4,6 +4,7 @@
 
 - `cli`: Add skeleton for plugin output
 - `cli/sync`: Add support for alias "-"
+- `cli/move`: Implement move command
 
 ### Changed
 
