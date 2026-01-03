@@ -22,10 +22,10 @@ _subcommands() {
         'help:Show help for commands'
         'init:Init directory structure'
         'add:Add a new task to project'
-        'del:Delete task from project'
         'list:List project tasks'
         'move:Move (rename) tasks'
         'prev:Switch to previous task'
+        'rm:Remove task from project'
         'set:Set task unit values'
         'show:Show task unit values'
         'sync:Synchronize (with) task'
@@ -61,13 +61,13 @@ _tec_add() {
         '*:task ID:'
 }
 
-_tec_del() {
+_tec_rm() {
     _arguments \
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '(-y)'{-y,--yes}'[delete without confirmation]' \
+        '(-y)'{-y,--yes}'[remove without confirmation]' \
         '*:task ID:_tec_tasks'
 }
 
@@ -433,10 +433,10 @@ _tec() {
                 help) _tec_help ;;
                 init) ;;
                 add) _tec_add ;;
-                del) _tec_del ;;
                 list) _tec_list ;;
                 move) _tec_move ;;
                 prev) _tec_prev ;;
+                rm) _tec_rm ;;
                 set) _tec_set ;;
                 show) _tec_show ;;
                 sync) _tec_sync ;;

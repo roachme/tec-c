@@ -114,26 +114,6 @@ struct help helptab[] = {
     Under development\n"},
     {
      .tag = TAGBASIC,
-     .name = "del",
-     .synop = "Usage: " PROGRAM " del [OPTION]... [ID]...\n",
-     .desc_short = "Delete task from project.\n",
-     .desc_long = "\n\
-    Options:\n\
-      -b BRD  board name (default is current)\n\
-      -h      show this help and exit\n\
-      -p PRJ  project name (default is current)\n\
-      -q      do not write anything to standard error output\n\
-      -y      delete task without confirmation\n\
-    \n\
-    Arguments:\n\
-      BRD     board name (default is current)\n\
-      ID      task ID (default is current)\n\
-      PRJ     project name (default is current)\n\
-    \n\
-    Exit status:\n\
-    Under development\n"},
-    {
-     .tag = TAGBASIC,
      .name = "list",
      .synop = "Usage: " PROGRAM " list [OPTION]... [PRJ]...\n",
      .desc_short = "List project tasks.\n",
@@ -170,6 +150,26 @@ struct help helptab[] = {
       DST     destination task ID\n\
       PRJ     project name (default is current)\n\
       SRC     source task ID\n\
+    \n\
+    Exit status:\n\
+    Under development\n"},
+    {
+     .tag = TAGBASIC,
+     .name = "rm",
+     .synop = "Usage: " PROGRAM " rm [OPTION]... [ID]...\n",
+     .desc_short = "Remove task from project.\n",
+     .desc_long = "\n\
+    Options:\n\
+      -b BRD  board name (default is current)\n\
+      -h      show this help and exit\n\
+      -p PRJ  project name (default is current)\n\
+      -q      do not write anything to standard error output\n\
+      -y      remove task without confirmation\n\
+    \n\
+    Arguments:\n\
+      BRD     board name (default is current)\n\
+      ID      task ID (default is current)\n\
+      PRJ     project name (default is current)\n\
     \n\
     Exit status:\n\
     Under development\n"},
