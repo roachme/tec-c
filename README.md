@@ -101,18 +101,18 @@ Usage: tec [OPTION]... COMMAND|PLUGIN
       version    - Show program version.
 
     Basic:
-      add        - Add a new task to project.
+      add        - Add a new task to environment.
       cat        - Concatenate task unit values.
-      ls         - List project tasks.
+      ls         - List environment tasks.
       mv         - Move (rename) tasks.
-      rm         - Remove task from project.
+      rm         - Remove task from environment.
       set        - Set task unit values.
       sync       - Synchronize (with) task.
 
     Object:
       board      - Manage and show boards.
       column     - Manage and show columns.
-      project    - Manage and show projects.
+      env        - Manage and show environments.
 
 ```
 

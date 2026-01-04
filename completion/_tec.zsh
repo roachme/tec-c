@@ -1,7 +1,7 @@
 #compdef tec
 
 # TODO:
-# 1. Add support to suggest objects (project, board, task ID)
+# 1. Add support to suggest objects (env, board, task ID)
 # 2. Add support for toggles in options -C, -D, -H, etc
 
 local -a subcommands global_opts
@@ -31,7 +31,7 @@ _subcommands() {
         'sync:Synchronize (with) task'
         'board:Manage and show boards'
         'column:Manage and show columns'
-        'project:Manage and show projects'
+        'env:Manage and show environments'
     )
 }
 
@@ -285,8 +285,8 @@ _tec_column_move() {
         '*:task ID:_tec_tasks'
 }
 
-# Project subcommands
-_tec_project() {
+# Environments subcommands
+_tec_env() {
     local curcontext="$curcontext" state line
     typeset -A opt_args
 
@@ -297,8 +297,8 @@ _tec_project() {
 
     case $state in
         subcmd)
-            local -a project_subcommands
-            project_subcommands=(
+            local -a env_subcommands
+            env_subcommands=(
                 'add:Add a new project'
                 'del:Delete project with all boards and tasks'
                 'list:List projects'
@@ -308,33 +308,33 @@ _tec_project() {
                 'show:Show project info'
                 'sync:Switch to or synchronize (with) project'
             )
-            _describe -t commands 'project subcommand' project_subcommands
+            _describe -t commands 'project subcommand' env_subcommands
             ;;
         args)
             case $line[1] in
-                add) _tec_project_add ;;
-                del) _tec_project_del ;;
-                list) _tec_project_list ;;
-                prev) _tec_project_prev ;;
-                rename) _tec_project_rename ;;
-                set) _tec_project_set ;;
-                show) _tec_project_show ;;
-                sync) _tec_project_sync ;;
+                add) _tec_env_add ;;
+                del) _tec_env_del ;;
+                list) _tec_env_list ;;
+                prev) _tec_env_prev ;;
+                rename) _tec_env_rename ;;
+                set) _tec_env_set ;;
+                show) _tec_env_show ;;
+                sync) _tec_env_sync ;;
             esac
             ;;
     esac
 }
 
-_tec_project_add() {
+_tec_env_add() {
     _arguments \
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-n)'{-n,--no-switch}'[do not switch to new project]' \
+        '(-n)'{-n,--no-switch}'[do not switch to new environment]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:project name:'
 }
 
-_tec_project_del() {
+_tec_env_del() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-confirm}'[delete without confirmation]' \
@@ -342,19 +342,19 @@ _tec_project_del() {
         '*:project name:_tec_projects'
 }
 
-_tec_project_list() {
+_tec_env_list() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '(-v)'{-v,--verbose}'[show more info]'
 }
 
-_tec_project_prev() {
+_tec_env_prev() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]'
 }
 
-_tec_project_rename() {
+_tec_env_rename() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
@@ -362,7 +362,7 @@ _tec_project_rename() {
         ':destination project:'
 }
 
-_tec_project_set() {
+_tec_env_set() {
     _arguments \
         '(-d)'{-d,--description}'[project description]' \
         '(-h)'{-h,--help}'[show help and exit]' \
@@ -370,14 +370,14 @@ _tec_project_set() {
         '*:project name:_tec_projects'
 }
 
-_tec_project_show() {
+_tec_env_show() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:project name:_tec_projects'
 }
 
-_tec_project_sync() {
+_tec_env_sync() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to project]' \
@@ -434,6 +434,7 @@ _tec() {
                 init) ;;
                 add) _tec_add ;;
                 cat) _tec_cat ;;
+                env) _tec_env ;;
                 ls) _tec_ls ;;
                 mv) _tec_mv ;;
                 prev) _tec_prev ;;
@@ -442,7 +443,6 @@ _tec() {
                 sync) _tec_sync ;;
                 board) _tec_board ;;
                 column) _tec_column ;;
-                project) _tec_project ;;
             esac
             ;;
     esac
