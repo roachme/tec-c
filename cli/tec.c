@@ -30,7 +30,7 @@ static builtin_t builtins[] = {
     {.name = "help",.func = &tec_cli_help,.option = TEC_SETUP_SOFT},
     {.name = "init",.func = &tec_cli_init,.option = TEC_SETUP_SOFT},
     {.name = "ls",.func = &tec_cli_ls,.option = TEC_SETUP_HARD},
-    {.name = "move",.func = &tec_cli_move,.option = TEC_SETUP_HARD},
+    {.name = "mv",.func = &tec_cli_mv,.option = TEC_SETUP_HARD},
     {.name = "project",.func = &tec_cli_project,.option = TEC_SETUP_HARD},
     {.name = "rm",.func = &tec_cli_rm,.option = TEC_SETUP_HARD},
     {.name = "set",.func = &tec_cli_set,.option = TEC_SETUP_HARD},

@@ -276,7 +276,7 @@ static int parse_dest(const char *path, tec_arg_t *args, int *is_dir,
     return parse_path(path, args, errfmt);
 }
 
-int tec_cli_move(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     int i, showhelp, status, nargs, is_dir;

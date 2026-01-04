@@ -19,6 +19,7 @@
 - `cli/rm`: Rename command `del` to `rm`
 - `cli/ls`: Rename command `list` to `ls`
 - `cli/cat`: Rename command `show` to `cat`
+- `cli/mv`: Rename command `move` to `mv`
 
 ### Fixed
 

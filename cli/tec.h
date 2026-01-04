@@ -98,7 +98,7 @@ int tec_cli_column(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_help(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_init(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_ls(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_move(int argc, char **argv, tec_ctx_t * ctx);
+int tec_cli_mv(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_plugin(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_project(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_rm(int argc, char **argv, tec_ctx_t * ctx);

@@ -24,7 +24,7 @@ _subcommands() {
         'add:Add a new task to project'
         'cat:Concatenate task unit values'
         'ls:List project tasks'
-        'move:Move (rename) tasks'
+        'mv:Move (rename) tasks'
         'prev:Switch to previous task'
         'rm:Remove task from project'
         'set:Set task unit values'
@@ -83,7 +83,7 @@ _tec_ls() {
         '*:project:_tec_projects'
 }
 
-_tec_move() {
+_tec_mv() {
     _arguments \
         '(-d)'{-d,--destination}'[destination project]:project:_tec_projects' \
         '(-f)'{-f,--force}'[overwrite destination task]' \
@@ -435,7 +435,7 @@ _tec() {
                 add) _tec_add ;;
                 cat) _tec_cat ;;
                 ls) _tec_ls ;;
-                move) _tec_move ;;
+                mv) _tec_mv ;;
                 prev) _tec_prev ;;
                 rm) _tec_rm ;;
                 set) _tec_set ;;
