@@ -22,7 +22,7 @@ _subcommands() {
         'help:Show help for commands'
         'init:Init directory structure'
         'add:Add a new task to project'
-        'list:List project tasks'
+        'ls:List project tasks'
         'move:Move (rename) tasks'
         'prev:Switch to previous task'
         'rm:Remove task from project'
@@ -71,7 +71,7 @@ _tec_rm() {
         '*:task ID:_tec_tasks'
 }
 
-_tec_list() {
+_tec_ls() {
     _arguments \
         '(-a)'{-a,--all}'[list all tasks]' \
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
@@ -433,7 +433,7 @@ _tec() {
                 help) _tec_help ;;
                 init) ;;
                 add) _tec_add ;;
-                list) _tec_list ;;
+                ls) _tec_ls ;;
                 move) _tec_move ;;
                 prev) _tec_prev ;;
                 rm) _tec_rm ;;

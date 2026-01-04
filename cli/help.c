@@ -114,8 +114,8 @@ struct help helptab[] = {
     Under development\n"},
     {
      .tag = TAGBASIC,
-     .name = "list",
-     .synop = "Usage: " PROGRAM " list [OPTION]... [PRJ]...\n",
+     .name = "ls",
+     .synop = "Usage: " PROGRAM " ls [OPTION]... [PRJ]...\n",
      .desc_short = "List project tasks.\n",
      .desc_long = "\n\
     Options:\n\

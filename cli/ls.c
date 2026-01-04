@@ -128,7 +128,7 @@ static void show_columns(tec_ctx_t *ctx, tec_arg_t *args,
 }
 
 // TODO: Find a good error message in case option fails.  */
-int tec_cli_list(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     tec_arg_t args;

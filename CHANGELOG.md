@@ -17,6 +17,7 @@
 - `cli/tec`: Look for plugin first then builtins
 - `cli/tec.h`: Shrink task ID to 8
 - `cli/rm`: Rename command `del` to `rm`
+- `cli/ls`: Rename command `list` to `ls`
 
 ### Fixed
 

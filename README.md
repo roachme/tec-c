@@ -102,7 +102,7 @@ Usage: tec [OPTION]... COMMAND|PLUGIN
 
     Basic:
       add        - Add a new task to project.
-      list       - List project tasks.
+      ls         - List project tasks.
       move       - Move (rename) tasks.
       rm         - Remove task from project.
       set        - Set task unit values.
