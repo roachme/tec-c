@@ -1,7 +1,7 @@
 #compdef tec
 
 # TODO:
-# 1. Add support to suggest objects (env, board, task ID)
+# 1. Add support to suggest objects (env, desk, task ID)
 # 2. Add support for toggles in options -C, -D, -H, etc
 
 local -a subcommands global_opts
@@ -23,13 +23,13 @@ _subcommands() {
         'init:Init directory structure'
         'add:Add a new task to project'
         'cat:Concatenate task unit values'
+        'desk:Manage and show desks'
         'ls:List project tasks'
         'mv:Move (rename) tasks'
         'prev:Switch to previous task'
         'rm:Remove task from project'
         'set:Set task unit values'
         'sync:Synchronize (with) task'
-        'board:Manage and show boards'
         'column:Manage and show columns'
         'env:Manage and show environments'
     )
@@ -134,7 +134,7 @@ _tec_sync() {
 }
 
 # Board subcommands
-_tec_board() {
+_tec_desk() {
     local curcontext="$curcontext" state line
     typeset -A opt_args
 
@@ -145,35 +145,35 @@ _tec_board() {
 
     case $state in
         subcmd)
-            local -a board_subcommands
-            board_subcommands=(
-                'add:Add a new board'
-                'del:Delete board with all tasks'
-                'list:List boards'
-                'move:Move (rename) boards'
-                'prev:Switch to previous board'
-                'set:Set board values'
-                'show:Show board info'
-                'sync:Switch to or synchronize (with) board'
+            local -a desk_subcommands
+            desk_subcommands=(
+                'add:Add a new desk'
+                'del:Delete desk with all tasks'
+                'list:List desks'
+                'move:Move (rename) desk'
+                'prev:Switch to previous desk'
+                'set:Set desk values'
+                'show:Show desk info'
+                'sync:Switch to or synchronize (with) desk'
             )
-            _describe -t commands 'board subcommand' board_subcommands
+            _describe -t commands 'desk subcommand' desk_subcommands
             ;;
         args)
             case $line[1] in
-                add) _tec_board_add ;;
-                del) _tec_board_del ;;
-                list) _tec_board_list ;;
-                move) _tec_board_move ;;
-                prev) _tec_board_prev ;;
-                set) _tec_board_set ;;
-                show) _tec_board_show ;;
-                sync) _tec_board_sync ;;
+                add) _tec_desk_add ;;
+                del) _tec_desk_del ;;
+                list) _tec_desk_list ;;
+                move) _tec_desk_move ;;
+                prev) _tec_desk_prev ;;
+                set) _tec_desk_set ;;
+                show) _tec_desk_show ;;
+                sync) _tec_desk_sync ;;
             esac
             ;;
     esac
 }
 
-_tec_board_add() {
+_tec_desk_add() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to new board]' \
@@ -182,7 +182,7 @@ _tec_board_add() {
         '*:board name:'
 }
 
-_tec_board_del() {
+_tec_desk_del() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-confirm}'[delete without confirmation]' \
@@ -191,14 +191,14 @@ _tec_board_del() {
         '*:board name:_tec_boards'
 }
 
-_tec_board_list() {
+_tec_desk_list() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         ':project:_tec_projects'
 }
 
-_tec_board_move() {
+_tec_desk_move() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
@@ -207,14 +207,14 @@ _tec_board_move() {
         ':destination board:'
 }
 
-_tec_board_prev() {
+_tec_desk_prev() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
         '(-q)'{-q,--quiet}'[do not write to stderr]'
 }
 
-_tec_board_set() {
+_tec_desk_set() {
     _arguments \
         '(-d)'{-d,--description}'[board description]' \
         '(-h)'{-h,--help}'[show help and exit]' \
@@ -223,7 +223,7 @@ _tec_board_set() {
         '*:board name:_tec_boards'
 }
 
-_tec_board_show() {
+_tec_desk_show() {
     _arguments \
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-h)'{-h,--help}'[show help and exit]' \
@@ -233,7 +233,7 @@ _tec_board_show() {
         '*:board name:_tec_boards'
 }
 
-_tec_board_sync() {
+_tec_desk_sync() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to board]' \
@@ -435,13 +435,13 @@ _tec() {
                 add) _tec_add ;;
                 cat) _tec_cat ;;
                 env) _tec_env ;;
+                desk) _tec_desk ;;
                 ls) _tec_ls ;;
                 mv) _tec_mv ;;
                 prev) _tec_prev ;;
                 rm) _tec_rm ;;
                 set) _tec_set ;;
                 sync) _tec_sync ;;
-                board) _tec_board ;;
                 column) _tec_column ;;
             esac
             ;;

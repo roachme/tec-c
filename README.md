@@ -110,7 +110,7 @@ Usage: tec [OPTION]... COMMAND|PLUGIN
       sync       - Synchronize (with) task.
 
     Object:
-      board      - Manage and show boards.
+      desk       - Manage and show desks.
       column     - Manage and show columns.
       env        - Manage and show environments.
 

@@ -24,10 +24,10 @@ unsigned int nbuiltin_column =
 
 static builtin_t builtins[] = {
     {.name = "add",.func = &tec_cli_add,.option = TEC_SETUP_HARD},
-    {.name = "board",.func = &tec_cli_board,.option = TEC_SETUP_HARD},
     {.name = "cat",.func = &tec_cli_cat,.option = TEC_SETUP_HARD},
     {.name = "column",.func = &tec_cli_column,.option = TEC_SETUP_HARD},
     {.name = "env",.func = &tec_cli_env,.option = TEC_SETUP_HARD},
+    {.name = "desk",.func = &tec_cli_desk,.option = TEC_SETUP_HARD},
     {.name = "help",.func = &tec_cli_help,.option = TEC_SETUP_SOFT},
     {.name = "init",.func = &tec_cli_init,.option = TEC_SETUP_SOFT},
     {.name = "ls",.func = &tec_cli_ls,.option = TEC_SETUP_HARD},
