@@ -22,12 +22,12 @@ _subcommands() {
         'help:Show help for commands'
         'init:Init directory structure'
         'add:Add a new task to project'
+        'cat:Concatenate task unit values'
         'ls:List project tasks'
         'move:Move (rename) tasks'
         'prev:Switch to previous task'
         'rm:Remove task from project'
         'set:Set task unit values'
-        'show:Show task unit values'
         'sync:Synchronize (with) task'
         'board:Manage and show boards'
         'column:Manage and show columns'
@@ -112,7 +112,7 @@ _tec_set() {
         '*:task ID:_tec_tasks'
 }
 
-_tec_show() {
+_tec_cat() {
     _arguments \
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-h)'{-h,--help}'[show help and exit]' \
@@ -433,12 +433,12 @@ _tec() {
                 help) _tec_help ;;
                 init) ;;
                 add) _tec_add ;;
+                cat) _tec_cat ;;
                 ls) _tec_ls ;;
                 move) _tec_move ;;
                 prev) _tec_prev ;;
                 rm) _tec_rm ;;
                 set) _tec_set ;;
-                show) _tec_show ;;
                 sync) _tec_sync ;;
                 board) _tec_board ;;
                 column) _tec_column ;;

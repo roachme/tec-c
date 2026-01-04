@@ -93,6 +93,7 @@ int dlog(int level, const char *fmt, ...);
 // TODO: make argv const
 int tec_cli_add(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_board(int argc, char **argv, tec_ctx_t * ctx);
+int tec_cli_cat(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_column(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_help(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_init(int argc, char **argv, tec_ctx_t * ctx);
@@ -102,7 +103,6 @@ int tec_cli_plugin(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_project(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_rm(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_set(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_show(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_sync(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_version(int argc, char **argv, tec_ctx_t * ctx);
 

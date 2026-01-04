@@ -25,6 +25,7 @@ unsigned int nbuiltin_column =
 static builtin_t builtins[] = {
     {.name = "add",.func = &tec_cli_add,.option = TEC_SETUP_HARD},
     {.name = "board",.func = &tec_cli_board,.option = TEC_SETUP_HARD},
+    {.name = "cat",.func = &tec_cli_cat,.option = TEC_SETUP_HARD},
     {.name = "column",.func = &tec_cli_column,.option = TEC_SETUP_HARD},
     {.name = "help",.func = &tec_cli_help,.option = TEC_SETUP_SOFT},
     {.name = "init",.func = &tec_cli_init,.option = TEC_SETUP_SOFT},
@@ -33,7 +34,6 @@ static builtin_t builtins[] = {
     {.name = "project",.func = &tec_cli_project,.option = TEC_SETUP_HARD},
     {.name = "rm",.func = &tec_cli_rm,.option = TEC_SETUP_HARD},
     {.name = "set",.func = &tec_cli_set,.option = TEC_SETUP_HARD},
-    {.name = "show",.func = &tec_cli_show,.option = TEC_SETUP_HARD},
     {.name = "sync",.func = &tec_cli_sync,.option = TEC_SETUP_HARD},
     {.name = "version",.func = &tec_cli_version,.option = TEC_SETUP_HARD},
 };

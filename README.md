@@ -102,11 +102,11 @@ Usage: tec [OPTION]... COMMAND|PLUGIN
 
     Basic:
       add        - Add a new task to project.
+      cat        - Concatenate task unit values.
       ls         - List project tasks.
       move       - Move (rename) tasks.
       rm         - Remove task from project.
       set        - Set task unit values.
-      show       - Show task unit values.
       sync       - Synchronize (with) task.
 
     Object:

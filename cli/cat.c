@@ -59,7 +59,7 @@ static int show_keys(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn)
     return 0;
 }
 
-int tec_cli_show(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     char *key;

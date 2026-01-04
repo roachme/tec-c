@@ -114,6 +114,27 @@ struct help helptab[] = {
     Under development\n"},
     {
      .tag = TAGBASIC,
+     .name = "cat",
+     .synop = "Usage: " PROGRAM " cat [OPTION]... [ID]...\n",
+     .desc_short = "Concatenate task unit values.\n",
+     .desc_long = "\n\
+    Options:\n\
+      -b BRD  board name (default is current)\n\
+      -h      show this help and exit\n\
+      -k KEY  key to show (builtin or plugin)\n\
+      -p PRJ  project name (default is current)\n\
+      -q      do not write anything to standard error output\n\
+    \n\
+    Arguments:\n\
+      BRD     board name (default is current)\n\
+      ID      task ID (default is current)\n\
+      KEY     unit key to show\n\
+      PRJ     project name (default is current)\n\
+    \n\
+    Exit status:\n\
+    Under development\n"},
+    {
+     .tag = TAGBASIC,
      .name = "ls",
      .synop = "Usage: " PROGRAM " ls [OPTION]... [PRJ]...\n",
      .desc_short = "List project tasks.\n",
@@ -196,27 +217,6 @@ struct help helptab[] = {
     Values:\n\
       Type    task, bugfix, feature, hotfix\n\
       Prio    lowest, low, mid, high, highest\n\
-    \n\
-    Exit status:\n\
-    Under development\n"},
-    {
-     .tag = TAGBASIC,
-     .name = "show",
-     .synop = "Usage: " PROGRAM " show [OPTION]... [ID]...\n",
-     .desc_short = "Show task unit values.\n",
-     .desc_long = "\n\
-    Options:\n\
-      -b BRD  board name (default is current)\n\
-      -h      show this help and exit\n\
-      -k KEY  key to show (builtin or plugin)\n\
-      -p PRJ  project name (default is current)\n\
-      -q      do not write anything to standard error output\n\
-    \n\
-    Arguments:\n\
-      BRD     board name (default is current)\n\
-      ID      task ID (default is current)\n\
-      KEY     unit key to show\n\
-      PRJ     project name (default is current)\n\
     \n\
     Exit status:\n\
     Under development\n"},
