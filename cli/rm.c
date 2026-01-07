@@ -85,6 +85,8 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
             continue;
         }
 
+        /* TODO: handle current and previos task IDs. */
+
         if (o_verbose == true)
             llog(0, "removed task '%s'", args.taskid);
     } while (++i < argc);
