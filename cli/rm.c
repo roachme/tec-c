@@ -2,7 +2,18 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
-// TODO: Find a good error message in case option fails.  */
+/* TODO: Find a good error message in case option fails.
+ *
+ * 1. Add option `-v' - explain what is being done
+ * 2. Add option `-f' - ignore nonexistent files and arguments, never prompt
+ * 3. Add option `-d' - remove empty/done tasks (maybe???)...
+ * 4. Find when GNU rm command uses interctive mode and copy it
+ * */
+
+/* FIXME:
+ * 1. When task gets deleted shell scripts tries to switch nonexistent directory
+ * 2. If no task ID is passed then delete current task.
+ * */
 int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
