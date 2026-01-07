@@ -11,7 +11,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 
     autoconfirm = quiet = showhelp = false;
     args.project = args.board = args.taskid = NULL;
-    errfmt = "cannot delete task '%s': %s";
+    errfmt = "cannot remove task '%s': %s";
     while ((c = getopt(argc, argv, ":b:hp:qy")) != -1) {
         switch (c) {
         case 'b':
