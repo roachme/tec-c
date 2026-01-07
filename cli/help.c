@@ -162,15 +162,18 @@ struct help helptab[] = {
      .desc_short = "Move (rename) tasks.\n",
      .desc_long = "\n\
     Options:\n\
-      -d PRJ  destination environment\n\
       -f      overwrite destination task (under development)\n\
-      -s PRJ  source environment\n\
-      -T      treat all task IDs as source to move to environment (under development)\n\
+      -h      show this help and exit\n\
+      -t DST  move all tasks to target desk (under development)\n\
     \n\
     Arguments:\n\
-      DST     destination task ID\n\
-      PRJ     environment name (default is current)\n\
+      DST     destination task ID or destination desk\n\
       SRC     source task ID\n\
+    \n\
+    Arguments structure:\n\
+      SRC -> env/desk/taskid\n\
+      .   -> current task ID (if exists)\n\
+      ..  -> previous task ID (if exists)\n\
     \n\
     Exit status:\n\
     Under development\n"},

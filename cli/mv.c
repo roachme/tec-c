@@ -289,10 +289,16 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
     src.project = src.board = src.taskid = NULL;
     dst.project = dst.board = dst.taskid = NULL;
 
-    while ((c = getopt(argc, argv, ":h")) != -1) {
+    while ((c = getopt(argc, argv, ":ft:h")) != -1) {
         switch (c) {
+        case 'f':
+            return elog(1, "option `-f' under development");
+            break;
         case 'h':
             showhelp = true;
+            break;
+        case 't':
+            return elog(1, "option `-t' under development");
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
