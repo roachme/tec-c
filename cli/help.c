@@ -483,15 +483,15 @@ struct help helptab[] = {
       sync    Switch to or synchronize (with) environment\n\
     \n\
     Note:\n\
-      Use '" PROGRAM " help environment-SUBCMD' to get help on subcommands. \n\
-      For example: " PROGRAM " help environment-add\n\
+      Use '" PROGRAM " help env-SUBCMD' to get help on subcommands. \n\
+      For example: " PROGRAM " help env-add\n\
     \n\
     Exit status:\n\
     The return status is return status of subcommand.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "environment-add",
-     .synop = "Usage: " PROGRAM " environment add [OPTION] NAME...\n",
+     .name = "env-add",
+     .synop = "Usage: " PROGRAM " env add [OPTION] NAME...\n",
      .desc_short = "Add new environment(s).\n",
      .desc_long = "\n\
     Options:\n\
@@ -507,8 +507,8 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "environment-del",
-     .synop = "Usage: " PROGRAM " environment del [OPTION] NAME...\n",
+     .name = "env-del",
+     .synop = "Usage: " PROGRAM " env del [OPTION] NAME...\n",
      .desc_short = "Delete environment(s).\n",
      .desc_long = "\n\
     Options:\n\
@@ -523,8 +523,8 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "environment-list",
-     .synop = "Usage: " PROGRAM " environment list [OPTION]\n",
+     .name = "env-ls",
+     .synop = "Usage: " PROGRAM " env ls [OPTION]\n",
      .desc_short = "List environment(s).\n",
      .desc_long = "\n\
     \n\
@@ -537,8 +537,8 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "environment-prev",
-     .synop = "Usage: " PROGRAM " environment prev\n",
+     .name = "env-prev",
+     .synop = "Usage: " PROGRAM " env prev\n",
      .desc_short = "Switch to previous environment.\n",
      .desc_long = "\n\
     Arguments:\n\
@@ -548,8 +548,8 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "environment-rename",
-     .synop = "Usage: " PROGRAM " environment rename [OPTION]... SRC DST\n",
+     .name = "env-rename",
+     .synop = "Usage: " PROGRAM " env rename [OPTION]... SRC DST\n",
      .desc_short = "Rename environment.\n",
      .desc_long = "\n\
     Options:\n\
@@ -564,8 +564,8 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "environment-set",
-     .synop = "Usage: " PROGRAM " environment set [OPTION] [NAME]...\n",
+     .name = "env-set",
+     .synop = "Usage: " PROGRAM " env set [OPTION] [NAME]...\n",
      .desc_short = "Set environment unit values.\n",
      .desc_long = "\n\
     Arguments:\n\
@@ -580,8 +580,8 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "environment-show",
-     .synop = "Usage: " PROGRAM " environment show [OPTION] [NAME]...\n",
+     .name = "env-show",
+     .synop = "Usage: " PROGRAM " env show [OPTION] [NAME]...\n",
      .desc_short = "Show environment(s) info.\n",
      .desc_long = "\n\
     \n\
@@ -596,8 +596,8 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "environment-sync",
-     .synop = "Usage: " PROGRAM " environment sync [OPTION] NAME...\n",
+     .name = "env-sync",
+     .synop = "Usage: " PROGRAM " env sync [OPTION] NAME...\n",
      .desc_short = "Switch to or synchronize (with) environment(s).\n",
      .desc_long = "\n\
     Options:\n\
