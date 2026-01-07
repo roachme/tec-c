@@ -86,6 +86,7 @@ int tec_pwd_board(tec_arg_t * args);
 int tec_pwd_project(tec_arg_t * args);
 int elog(int status, const char *fmt, ...);
 int dlog(int level, const char *fmt, ...);
+int llog(int status, const char *fmt, ...);
 
 // NOTE: maybe use 'prefix' like in git?
 // int cmd_add(int argc, const char **argv, const char *prefix, struct repository *repo);

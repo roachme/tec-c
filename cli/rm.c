@@ -4,7 +4,7 @@
 
 /* TODO: Find a good error message in case option fails.
  *
- * 1. Add option `-v' - explain what is being done
+ *+1. Add option `-v' - explain what is being done
  * 2. Add option `-f' - ignore nonexistent files and arguments, never prompt
  * 3. Add option `-d' - remove empty/done tasks (maybe???)...
  * 4. Find when GNU rm command uses interctive mode and copy it
@@ -18,12 +18,14 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     char c, *errfmt;
+    int o_verbose;
     int i, choice, quiet, showhelp, autoconfirm, status;
 
+    o_verbose = false;
     autoconfirm = quiet = showhelp = false;
     args.project = args.board = args.taskid = NULL;
     errfmt = "cannot remove task '%s': %s";
-    while ((c = getopt(argc, argv, ":b:hp:qy")) != -1) {
+    while ((c = getopt(argc, argv, ":b:hp:qyv")) != -1) {
         switch (c) {
         case 'b':
             args.board = optarg;
@@ -39,6 +41,9 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
             break;
         case 'y':
             autoconfirm = true;
+            break;
+        case 'v':
+            o_verbose = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -80,6 +85,9 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
                 elog(status, errfmt, args.taskid, tec_strerror(status));
             continue;
         }
+
+        if (o_verbose == true)
+            llog(0, "removed task '%s'", args.taskid);
     } while (++i < argc);
 
     // FIXME: when delete task ID from non-current project,

@@ -186,6 +186,7 @@ struct help helptab[] = {
       -p PRJ  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
       -y      remove task without confirmation\n\
+      -v      explain what is being done\n\
     \n\
     Arguments:\n\
       BRD     desk name (default is current)\n\

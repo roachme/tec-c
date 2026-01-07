@@ -304,6 +304,17 @@ int dlog(int level, const char *fmt, ...)
     return 0;
 }
 
+int llog(int status, const char *fmt, ...)
+{
+    va_list arg;
+    va_start(arg, fmt);
+    printf(PROGRAM ": ");
+    vprintf(fmt, arg);
+    printf("\n");
+    va_end(arg);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     tec_opt_t opts;
