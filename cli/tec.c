@@ -329,13 +329,10 @@ int main(int argc, char **argv)
     togfmt = "option `-%c' accepts either 'on' or 'off'";
 
     /* Parse util itself options.  */
-    while ((c = getopt(argc, argv, "+:hvC:D:F:H:P:T:")) != -1) {
+    while ((c = getopt(argc, argv, "+:hC:D:F:H:P:T:V")) != -1) {
         switch (c) {
         case 'h':
             showhelp = true;
-            break;
-        case 'v':
-            showversion = true;
             break;
         case 'C':
             if ((opts.color = valid_toggle(optarg)) == -1)
@@ -356,6 +353,9 @@ int main(int argc, char **argv)
             break;
         case 'T':
             base.task = optarg;
+            break;
+        case 'V':
+            showversion = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);

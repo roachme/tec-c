@@ -24,6 +24,7 @@
 - `cli/env`: Rename command `project` to `env`
 - `cli/desk`: Rename command `board` to `desk`
 - `cli/cd`: Rename command `sync` to `cd`
+- `cli`: Rename option `-v` to `-V` to show version
 
 ### Fixed
 
