@@ -48,7 +48,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     if (showhelp == true)
-        return help_usage("del");
+        return help_usage("rm");
 
     if ((status = check_arg_project(&args, errfmt, quiet)))
         return status;
