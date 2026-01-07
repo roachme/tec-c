@@ -23,6 +23,7 @@
 - `cli/mv`: Rename command `move` to `mv`
 - `cli/env`: Rename command `project` to `env`
 - `cli/desk`: Rename command `board` to `desk`
+- `cli/cd`: Rename command `sync` to `cd`
 
 ### Fixed
 

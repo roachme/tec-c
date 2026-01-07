@@ -4,7 +4,7 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
-int tec_cli_sync(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     char c, *errfmt;
@@ -14,7 +14,7 @@ int tec_cli_sync(int argc, char **argv, tec_ctx_t *ctx)
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
     swap_toggle = false;
-    errfmt = "cannot sync (with) '%s': %s";
+    errfmt = "cannot switch to '%s': %s";
     args.project = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hnp:qN")) != -1) {
         switch (c) {
@@ -45,7 +45,7 @@ int tec_cli_sync(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     if (showhelp == true)
-        return help_usage("sync");
+        return help_usage("cd");
 
     if ((status = check_arg_project(&args, errfmt, quiet)))
         return status;
@@ -67,7 +67,7 @@ int tec_cli_sync(int argc, char **argv, tec_ctx_t *ctx)
 
         if ((status = check_arg_task(&args, errfmt, quiet)))
             continue;
-        else if (hook_action(&args, "sync")) {
+        else if (hook_action(&args, "cd")) {
             if (quiet == false)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
             continue;

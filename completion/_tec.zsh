@@ -29,7 +29,7 @@ _subcommands() {
         'prev:Switch to previous task'
         'rm:Remove task from project'
         'set:Set task unit values'
-        'sync:Synchronize (with) task'
+        'cd:Switch to task'
         'column:Manage and show columns'
         'env:Manage and show environments'
     )
@@ -122,7 +122,7 @@ _tec_cat() {
         '*:task ID:_tec_tasks'
 }
 
-_tec_sync() {
+_tec_cd() {
     _arguments \
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-n)'{-n,--no-update}'[do not update toggles]' \
@@ -434,6 +434,7 @@ _tec() {
                 init) ;;
                 add) _tec_add ;;
                 cat) _tec_cat ;;
+                cd) _tec_cd ;;
                 env) _tec_env ;;
                 desk) _tec_desk ;;
                 ls) _tec_ls ;;
@@ -441,7 +442,6 @@ _tec() {
                 prev) _tec_prev ;;
                 rm) _tec_rm ;;
                 set) _tec_set ;;
-                sync) _tec_sync ;;
                 column) _tec_column ;;
             esac
             ;;

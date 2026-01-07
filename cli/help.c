@@ -135,6 +135,30 @@ struct help helptab[] = {
     Under development\n"},
     {
      .tag = TAGBASIC,
+     .name = "cd",
+     .synop = "Usage: " PROGRAM " cd [OPTION]... [ID]...\n",
+     .desc_short = "Switch to task.\n",
+     .desc_long = "\n\
+    Swtich to task ID. The default ID is the current task ID.\n\
+    If ID is \"-\", switch to previous task ID, if exists.\n\
+    \n\
+    Options:\n\
+      -b BRD  desk name (default is current)\n\
+      -n      do not update toggles\n\
+      -h      show this help and exit\n\
+      -p PRJ  environment name (default is current)\n\
+      -q      do not write anything to standard error output\n\
+      -N      neither update toggles nor switch to task directory\n\
+    \n\
+    Arguments:\n\
+      BRD     desk name (default current)\n\
+      ID      task ID (default is current)\n\
+      PRJ     environment name (default current)\n\
+    \n\
+    Exit status:\n\
+    Under development\n"},
+    {
+     .tag = TAGBASIC,
      .name = "ls",
      .synop = "Usage: " PROGRAM " ls [OPTION]... [PRJ]...\n",
      .desc_short = "List environment tasks.\n",
@@ -221,30 +245,6 @@ struct help helptab[] = {
     Values:\n\
       Type    task, bugfix, feature, hotfix\n\
       Prio    lowest, low, mid, high, highest\n\
-    \n\
-    Exit status:\n\
-    Under development\n"},
-    {
-     .tag = TAGBASIC,
-     .name = "sync",
-     .synop = "Usage: " PROGRAM " sync [OPTION]... [ID]...\n",
-     .desc_short = "Synchronize (with) task.\n",
-     .desc_long = "\n\
-    Swtich to task ID. The default ID is the current task ID.\n\
-    If ID is \"-\", switch to previous task ID, if exists.\n\
-    \n\
-    Options:\n\
-      -b BRD  desk name (default is current)\n\
-      -n      do not update toggles\n\
-      -h      show this help and exit\n\
-      -p PRJ  environment name (default is current)\n\
-      -q      do not write anything to standard error output\n\
-      -N      neither update toggles nor switch to task directory\n\
-    \n\
-    Arguments:\n\
-      BRD     desk name (default current)\n\
-      ID      task ID (default is current)\n\
-      PRJ     environment name (default current)\n\
     \n\
     Exit status:\n\
     Under development\n"},

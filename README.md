@@ -103,11 +103,11 @@ Usage: tec [OPTION]... COMMAND|PLUGIN
     Basic:
       add        - Add a new task to environment.
       cat        - Concatenate task unit values.
+      cd         - Switch to task.
       ls         - List environment tasks.
       mv         - Move (rename) tasks.
       rm         - Remove task from environment.
       set        - Set task unit values.
-      sync       - Synchronize (with) task.
 
     Object:
       desk       - Manage and show desks.
