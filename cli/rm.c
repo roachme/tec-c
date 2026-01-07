@@ -18,11 +18,10 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     char c, *errfmt;
-    int o_verbose;
-    int i, choice, quiet, showhelp, autoconfirm, status;
+    int i, choice, status;
+    int o_quiet, o_showhelp, o_autoconfirm, o_verbose;
 
-    o_verbose = false;
-    autoconfirm = quiet = showhelp = false;
+    o_autoconfirm = o_quiet = o_showhelp = o_verbose = false;
     args.project = args.board = args.taskid = NULL;
     errfmt = "cannot remove task '%s': %s";
     while ((c = getopt(argc, argv, ":b:hp:qyv")) != -1) {
@@ -31,16 +30,16 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
             args.board = optarg;
             break;
         case 'h':
-            showhelp = true;
+            o_showhelp = true;
             break;
         case 'p':
             args.project = optarg;
             break;
         case 'q':
-            quiet = true;
+            o_quiet = true;
             break;
         case 'y':
-            autoconfirm = true;
+            o_autoconfirm = true;
             break;
         case 'v':
             o_verbose = true;
@@ -52,12 +51,12 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if (showhelp == true)
+    if (o_showhelp == true)
         return help_usage("rm");
 
-    if ((status = check_arg_project(&args, errfmt, quiet)))
+    if ((status = check_arg_project(&args, errfmt, o_quiet)))
         return status;
-    else if ((status = check_arg_board(&args, errfmt, quiet)))
+    else if ((status = check_arg_board(&args, errfmt, o_quiet)))
         return status;
 
     // TODO: if non-current task gets deleted, then no need to
@@ -68,20 +67,20 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 
         /* Get and check input values explicitly because it's one of the rare
          * cases when hooks get exectude before the main action.  */
-        if ((status = check_arg_task(&args, errfmt, quiet))) {
+        if ((status = check_arg_task(&args, errfmt, o_quiet))) {
             continue;
-        } else if (autoconfirm == false) {
+        } else if (o_autoconfirm == false) {
             printf("Are you sure to delete task '%s'? [y/N] ", args.taskid);
             if ((choice = getchar()) != 'y' && choice != 'Y')
                 continue;
         }
 
         if (hook_action(&args, "del")) {
-            if (quiet == false)
+            if (o_quiet == false)
                 elog(1, errfmt, args.taskid, "failed to execute hooks");
             continue;
         } else if ((status = tec_task_del(teccfg.base.task, &args, ctx))) {
-            if (quiet == false)
+            if (o_quiet == false)
                 elog(status, errfmt, args.taskid, tec_strerror(status));
             continue;
         }
