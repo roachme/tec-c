@@ -301,7 +301,7 @@ _tec_env() {
             env_subcommands=(
                 'add:Add a new project'
                 'del:Delete project with all boards and tasks'
-                'list:List projects'
+                'ls:List projects'
                 'prev:Switch to previous project'
                 'rename:Rename project'
                 'set:Set project values'
@@ -314,7 +314,7 @@ _tec_env() {
             case $line[1] in
                 add) _tec_env_add ;;
                 del) _tec_env_del ;;
-                list) _tec_env_list ;;
+                ls) _tec_env_ls ;;
                 prev) _tec_env_prev ;;
                 rename) _tec_env_rename ;;
                 set) _tec_env_set ;;
@@ -342,7 +342,7 @@ _tec_env_del() {
         '*:project name:_tec_projects'
 }
 
-_tec_env_list() {
+_tec_env_ls() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \

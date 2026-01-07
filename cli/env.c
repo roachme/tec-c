@@ -207,7 +207,7 @@ static int _env_del(int argc, char **argv, tec_ctx_t *ctx)
     return status == LIBTEC_OK ? tec_pwd_project(&args) : status;
 }
 
-static int _env_list(int argc, char **argv, tec_ctx_t *ctx)
+static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
 {
     int c, quiet, status;
     tec_arg_t args;
@@ -508,7 +508,7 @@ static int _env_sync(int argc, char **argv, tec_ctx_t *ctx)
 static const builtin_t env_commands[] = {
     {.name = "add",.func = &_env_add},
     {.name = "del",.func = &_env_del},
-    {.name = "list",.func = &_env_list},
+    {.name = "ls",.func = &_env_ls},
     {.name = "prev",.func = &_env_prev},
     {.name = "rename",.func = &_env_rename},
     {.name = "set",.func = &_env_set},
@@ -518,7 +518,7 @@ static const builtin_t env_commands[] = {
 
 int tec_cli_env(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char *cmd = argv[1] != NULL ? argv[1] : "list";
+    char *cmd = argv[1] != NULL ? argv[1] : "ls";
 
     for (int i = 0; i < ARRAY_SIZE(env_commands); ++i)
         if (strcmp(cmd, env_commands[i].name) == 0)

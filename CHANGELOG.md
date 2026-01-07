@@ -25,6 +25,7 @@
 - `cli/desk`: Rename command `board` to `desk`
 - `cli/cd`: Rename command `sync` to `cd`
 - `cli`: Rename option `-v` to `-V` to show version
+- `cli/env`: Rename command `env` subcommand `list` to `ls`
 
 ### Fixed
 

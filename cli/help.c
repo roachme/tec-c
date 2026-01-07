@@ -261,7 +261,7 @@ struct help helptab[] = {
     SUBCMD list:\n\
       add     Add a new desk\n\
       del     Delete desk with all tasks\n\
-      list    List desks\n\
+      ls      List desks\n\
       move    Move (rename) desks\n\
       prev    Switch to previous desks\n\
       set     Set desks vaules\n\
@@ -475,7 +475,7 @@ struct help helptab[] = {
     SUBCMD list:\n\
       add     Add a new environment\n\
       del     Delete environment with all desks and tasks\n\
-      list    List environments\n\
+      ls      List environments\n\
       prev    Switch to previous environment\n\
       rename  Rename environment\n\
       set     Set environment vaules\n\
