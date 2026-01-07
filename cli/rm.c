@@ -17,8 +17,8 @@
 int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
-    char c, *errfmt;
-    int i, choice, status;
+    char *errfmt;
+    int c, i, choice, status;
     int o_quiet, o_showhelp, o_autoconfirm, o_verbose;
 
     o_autoconfirm = o_quiet = o_showhelp = o_verbose = false;
