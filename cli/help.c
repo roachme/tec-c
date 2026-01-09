@@ -422,7 +422,7 @@ struct help helptab[] = {
       SUBCMD  column subcommand\n\
     \n\
     SUBCMD list:\n\
-      list    List columns\n\
+      ls      List columns\n\
       move    Move task to column\n\
     \n\
     Note:\n\
@@ -433,8 +433,8 @@ struct help helptab[] = {
     The return status is return status of subcommand.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "column-list",
-     .synop = "Usage: " PROGRAM " column list [OPTION]\n",
+     .name = "column-ls",
+     .synop = "Usage: " PROGRAM " column ls [OPTION]\n",
      .desc_short = "List columns.\n",
      .desc_long = "\n\
     \n\

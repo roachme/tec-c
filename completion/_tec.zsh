@@ -256,21 +256,21 @@ _tec_column() {
         subcmd)
             local -a column_subcommands
             column_subcommands=(
-                'list:List columns'
+                'ls:List columns'
                 'move:Move task to column'
             )
             _describe -t commands 'column subcommand' column_subcommands
             ;;
         args)
             case $line[1] in
-                list) _tec_column_list ;;
+                ls) _tec_column_ls ;;
                 move) _tec_column_move ;;
             esac
             ;;
     esac
 }
 
-_tec_column_list() {
+_tec_column_ls() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]'
 }

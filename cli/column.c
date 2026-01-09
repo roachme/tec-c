@@ -4,7 +4,7 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
-static int _column_list(int argc, char **argv, tec_ctx_t *ctx)
+static int _column_ls(int argc, char **argv, tec_ctx_t *ctx)
 {
     for (int i = 0; i < nbuiltin_column; ++i) {
         column_t columns = builtin_columns[i];
@@ -98,14 +98,14 @@ static int _column_rename(int argc, char **argv, tec_ctx_t *ctx)
 }
 
 static const builtin_t column_commands[] = {
-    {.name = "list",.func = &_column_list},
+    {.name = "ls",.func = &_column_ls},
     {.name = "move",.func = &_column_move},
     {.name = "rename",.func = &_column_rename},
 };
 
 int tec_cli_column(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char *cmd = argv[1] != NULL ? argv[1] : "list";
+    char *cmd = argv[1] != NULL ? argv[1] : "ls";
 
     for (int i = 0; i < ARRAY_SIZE(column_commands); ++i)
         if (strcmp(cmd, column_commands[i].name) == 0)
