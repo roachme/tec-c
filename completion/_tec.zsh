@@ -149,7 +149,7 @@ _tec_desk() {
             desk_subcommands=(
                 'add:Add a new desk'
                 'del:Delete desk with all tasks'
-                'list:List desks'
+                'ls:List desks'
                 'move:Move (rename) desk'
                 'prev:Switch to previous desk'
                 'set:Set desk values'
@@ -162,7 +162,7 @@ _tec_desk() {
             case $line[1] in
                 add) _tec_desk_add ;;
                 del) _tec_desk_del ;;
-                list) _tec_desk_list ;;
+                ls) _tec_desk_ls ;;
                 move) _tec_desk_move ;;
                 prev) _tec_desk_prev ;;
                 set) _tec_desk_set ;;
@@ -191,7 +191,7 @@ _tec_desk_del() {
         '*:board name:_tec_boards'
 }
 
-_tec_desk_list() {
+_tec_desk_ls() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \

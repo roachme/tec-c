@@ -310,8 +310,8 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "desk-list",
-     .synop = "Usage: " PROGRAM " desk list [OPTION]... [PRJ] \n",
+     .name = "desk-ls",
+     .synop = "Usage: " PROGRAM " desk ls [OPTION]... [PRJ] \n",
      .desc_short = "List desks\n",
      .desc_long = "\n\
     Options:\n\

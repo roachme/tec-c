@@ -151,7 +151,7 @@ static int _desk_del(int argc, char **argv, tec_ctx_t *ctx)
 }
 
 // TODO: show tasks in desk
-static int _desk_list(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     int c, i, quiet, status;
@@ -373,7 +373,7 @@ static int _desk_sync(int argc, char **argv, tec_ctx_t *ctx)
 static const builtin_t desk_commands[] = {
     {.name = "add",.func = &_desk_add},
     {.name = "del",.func = &_desk_del},
-    {.name = "list",.func = &_desk_list},
+    {.name = "ls",.func = &_desk_ls},
     {.name = "prev",.func = &_desk_prev},
     {.name = "move",.func = &_desk_move},
     {.name = "set",.func = &_desk_set},
@@ -383,7 +383,7 @@ static const builtin_t desk_commands[] = {
 
 int tec_cli_desk(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char *cmd = argv[1] != NULL ? argv[1] : "list";
+    char *cmd = argv[1] != NULL ? argv[1] : "ls";
 
     for (int i = 0; i < ARRAY_SIZE(desk_commands); ++i)
         if (strcmp(cmd, desk_commands[i].name) == 0)
