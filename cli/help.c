@@ -260,12 +260,12 @@ struct help helptab[] = {
     \n\
     SUBCMD list:\n\
       add     Add a new desk\n\
+      cat     Concatenate desks info (under development)\n\
       ls      List desks\n\
       move    Move (rename) desks\n\
       prev    Switch to previous desks\n\
       rm      Remove desk with all tasks\n\
       set     Set desks vaules\n\
-      show    Show desks info (under development)\n\
       sync    Switch to or synchronize (with) desk\n\
     \n\
     Note:\n\
@@ -373,9 +373,9 @@ struct help helptab[] = {
     Under development\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "desk-show",
-     .synop = "Usage: " PROGRAM " desk show [OPTION]... [BRD]...\n",
-     .desc_short = "Set task unit values.\n",
+     .name = "desk-cat",
+     .synop = "Usage: " PROGRAM " desk cat [OPTION]... [BRD]...\n",
+     .desc_short = "Concatenate desk unit values.\n",
      .desc_long = "\n\
     Options:\n\
       -b BRD  desk name (default is current)\n\
