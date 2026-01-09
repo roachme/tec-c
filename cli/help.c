@@ -474,10 +474,10 @@ struct help helptab[] = {
     \n\
     SUBCMD list:\n\
       add     Add a new environment\n\
-      del     Delete environment with all desks and tasks\n\
       ls      List environments\n\
       prev    Switch to previous environment\n\
       rename  Rename environment\n\
+      rm      Remove environment with all desks and tasks\n\
       set     Set environment vaules\n\
       show    Show environment info (under development)\n\
       sync    Switch to or synchronize (with) environment\n\
@@ -502,22 +502,6 @@ struct help helptab[] = {
     \n\
     Arguments:\n\
       NAME    environment name (default is current)\n\
-    \n\
-    Exit status:\n\
-    Under development.\n"},
-    {
-     .tag = TAGOBJCMD,
-     .name = "env-del",
-     .synop = "Usage: " PROGRAM " env del [OPTION] NAME...\n",
-     .desc_short = "Delete environment(s).\n",
-     .desc_long = "\n\
-    Options:\n\
-      -h      show this help and exit\n\
-      -n      delete environment without confirmation\n\
-      -q      do not write anything to standard error output\n\
-    \n\
-    Arguments:\n\
-      NAME    environment name (default current)\n\
     \n\
     Exit status:\n\
     Under development.\n"},
@@ -559,6 +543,22 @@ struct help helptab[] = {
     Arguments:\n\
       SRC    source environment name\n\
       DST    destination environment name\n\
+    \n\
+    Exit status:\n\
+    Under development.\n"},
+    {
+     .tag = TAGOBJCMD,
+     .name = "env-rm",
+     .synop = "Usage: " PROGRAM " env rm [OPTION] NAME...\n",
+     .desc_short = "Remove environment(s).\n",
+     .desc_long = "\n\
+    Options:\n\
+      -h      show this help and exit\n\
+      -n      delete environment without confirmation\n\
+      -q      do not write anything to standard error output\n\
+    \n\
+    Arguments:\n\
+      NAME    environment name (default current)\n\
     \n\
     Exit status:\n\
     Under development.\n"},

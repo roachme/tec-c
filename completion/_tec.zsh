@@ -300,10 +300,10 @@ _tec_env() {
             local -a env_subcommands
             env_subcommands=(
                 'add:Add a new project'
-                'del:Delete project with all boards and tasks'
                 'ls:List projects'
                 'prev:Switch to previous project'
                 'rename:Rename project'
+                'rm:Remove project with all boards and tasks'
                 'set:Set project values'
                 'show:Show project info'
                 'sync:Switch to or synchronize (with) project'
@@ -313,10 +313,10 @@ _tec_env() {
         args)
             case $line[1] in
                 add) _tec_env_add ;;
-                del) _tec_env_del ;;
                 ls) _tec_env_ls ;;
                 prev) _tec_env_prev ;;
                 rename) _tec_env_rename ;;
+                rm) _tec_env_rm ;;
                 set) _tec_env_set ;;
                 show) _tec_env_show ;;
                 sync) _tec_env_sync ;;
@@ -334,10 +334,10 @@ _tec_env_add() {
         '*:project name:'
 }
 
-_tec_env_del() {
+_tec_env_rm() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-n)'{-n,--no-confirm}'[delete without confirmation]' \
+        '(-n)'{-n,--no-confirm}'[remove without confirmation]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:project name:_tec_projects'
 }

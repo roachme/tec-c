@@ -151,7 +151,7 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
             && status == LIBTEC_OK) ? tec_pwd_project(&args) : status;
 }
 
-static int _env_del(int argc, char **argv, tec_ctx_t *ctx)
+static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     tec_arg_t args;
@@ -183,7 +183,7 @@ static int _env_del(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     if (showhelp)
-        return help_usage("env-del");
+        return help_usage("env-rm");
 
     if (showprompt) {
         printf("Are you sure to delete env(s)? [y/N] ");
@@ -507,10 +507,10 @@ static int _env_sync(int argc, char **argv, tec_ctx_t *ctx)
 
 static const builtin_t env_commands[] = {
     {.name = "add",.func = &_env_add},
-    {.name = "del",.func = &_env_del},
     {.name = "ls",.func = &_env_ls},
     {.name = "prev",.func = &_env_prev},
     {.name = "rename",.func = &_env_rename},
+    {.name = "rm",.func = &_env_rm},
     {.name = "set",.func = &_env_set},
     {.name = "show",.func = &_env_show},
     {.name = "sync",.func = &_env_sync},
