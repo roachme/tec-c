@@ -400,7 +400,7 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
 }
 
 // roach: maybe it'll be useful
-static int _env_show(int argc, char **argv, tec_ctx_t *ctx)
+static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     int c, i, quiet, showhelp, status;
@@ -429,7 +429,7 @@ static int _env_show(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     if (showhelp)
-        return help_usage("env-show");
+        return help_usage("env-cat");
 
     i = optind;
     do {
@@ -507,12 +507,12 @@ static int _env_sync(int argc, char **argv, tec_ctx_t *ctx)
 
 static const builtin_t env_commands[] = {
     {.name = "add",.func = &_env_add},
+    {.name = "cat",.func = &_env_cat},
     {.name = "ls",.func = &_env_ls},
     {.name = "prev",.func = &_env_prev},
     {.name = "rename",.func = &_env_rename},
     {.name = "rm",.func = &_env_rm},
     {.name = "set",.func = &_env_set},
-    {.name = "show",.func = &_env_show},
     {.name = "sync",.func = &_env_sync},
 };
 

@@ -474,12 +474,12 @@ struct help helptab[] = {
     \n\
     SUBCMD list:\n\
       add     Add a new environment\n\
+      cat     Concatenate environment info (under development)\n\
       ls      List environments\n\
       prev    Switch to previous environment\n\
       rename  Rename environment\n\
       rm      Remove environment with all desks and tasks\n\
       set     Set environment vaules\n\
-      show    Show environment info (under development)\n\
       sync    Switch to or synchronize (with) environment\n\
     \n\
     Note:\n\
@@ -502,6 +502,22 @@ struct help helptab[] = {
     \n\
     Arguments:\n\
       NAME    environment name (default is current)\n\
+    \n\
+    Exit status:\n\
+    Under development.\n"},
+    {
+     .tag = TAGOBJCMD,
+     .name = "env-cat",
+     .synop = "Usage: " PROGRAM " env cat [OPTION] [NAME]...\n",
+     .desc_short = "Concatenate environment(s) info.\n",
+     .desc_long = "\n\
+    \n\
+    Options:\n\
+      -h      show this help and exit\n\
+      -q      do not write anything to standard error output\n\
+    \n\
+    Arguments:\n\
+      NAME    environment name (default current)\n\
     \n\
     Exit status:\n\
     Under development.\n"},
@@ -575,22 +591,6 @@ struct help helptab[] = {
       -d      environment description\n\
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
-    \n\
-    Exit status:\n\
-    Under development.\n"},
-    {
-     .tag = TAGOBJCMD,
-     .name = "env-show",
-     .synop = "Usage: " PROGRAM " env show [OPTION] [NAME]...\n",
-     .desc_short = "Show environment(s) info.\n",
-     .desc_long = "\n\
-    \n\
-    Options:\n\
-      -h      show this help and exit\n\
-      -q      do not write anything to standard error output\n\
-    \n\
-    Arguments:\n\
-      NAME    environment name (default current)\n\
     \n\
     Exit status:\n\
     Under development.\n"},

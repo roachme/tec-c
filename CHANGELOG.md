@@ -31,6 +31,7 @@
 - `cli/desk`: Rename command `desk` subcommand `del` to `rm`
 - `cli/env`: Rename command `env` subcommand `del` to `rm`
 - `cli/desk`: Rename command `desk` subcommand `show` to `cat`
+- `cli/env`: Rename command `env` subcommand `show` to `cat`
 
 ### Fixed
 
