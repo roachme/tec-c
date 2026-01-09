@@ -150,7 +150,7 @@ _tec_desk() {
                 'add:Add a new desk'
                 'cat:Concatenate desk info'
                 'ls:List desks'
-                'move:Move (rename) desk'
+                'mv:Move (rename) desk'
                 'prev:Switch to previous desk'
                 'rm:Remove desk with all tasks'
                 'set:Set desk values'
@@ -163,7 +163,7 @@ _tec_desk() {
                 add) _tec_desk_add ;;
                 cat) _tec_desk_cat ;;
                 ls) _tec_desk_ls ;;
-                move) _tec_desk_move ;;
+                mv) _tec_desk_mv ;;
                 prev) _tec_desk_prev ;;
                 rm) _tec_desk_rm ;;
                 set) _tec_desk_set ;;
@@ -198,7 +198,7 @@ _tec_desk_ls() {
         ':project:_tec_projects'
 }
 
-_tec_desk_move() {
+_tec_desk_mv() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--project}'[project name]:project:_tec_projects' \

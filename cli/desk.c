@@ -205,7 +205,7 @@ static int _desk_prev(int argc, char **argv, tec_ctx_t *ctx)
     return elog(1, "under development");
 }
 
-static int _desk_move(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_mv(int argc, char **argv, tec_ctx_t *ctx)
 {
     return elog(1, "%s: under development", __FUNCTION__);
 }
@@ -375,7 +375,7 @@ static const builtin_t desk_commands[] = {
     {.name = "cat",.func = &_desk_cat},
     {.name = "ls",.func = &_desk_ls},
     {.name = "prev",.func = &_desk_prev},
-    {.name = "move",.func = &_desk_move},
+    {.name = "mv",.func = &_desk_mv},
     {.name = "rm",.func = &_desk_rm},
     {.name = "set",.func = &_desk_set},
     {.name = "sync",.func = &_desk_sync},
