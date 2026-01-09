@@ -97,11 +97,11 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
     return 0;
 }
 
-static int _desk_del(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     tec_arg_t args;
-    const char *errfmt = "cannot delete: %s";
+    const char *errfmt = "cannot remove: %s";
     int i, choice, quiet, showhelp, showprompt, status;
 
     showprompt = true;
@@ -127,7 +127,7 @@ static int _desk_del(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     if (showhelp)
-        return help_usage("desk-del");
+        return help_usage("desk-rm");
 
     i = optind;
     do {
@@ -135,7 +135,7 @@ static int _desk_del(int argc, char **argv, tec_ctx_t *ctx)
 
         if (showprompt) {
             /* TODO: show desk name.  */
-            printf("Are you sure to delete desk(s)? [y/N] ");
+            printf("Are you sure to remove desk(s)? [y/N] ");
             if ((choice = getchar()) != 'y' && choice != 'Y')
                 continue;
         }
@@ -372,10 +372,10 @@ static int _desk_sync(int argc, char **argv, tec_ctx_t *ctx)
 
 static const builtin_t desk_commands[] = {
     {.name = "add",.func = &_desk_add},
-    {.name = "del",.func = &_desk_del},
     {.name = "ls",.func = &_desk_ls},
     {.name = "prev",.func = &_desk_prev},
     {.name = "move",.func = &_desk_move},
+    {.name = "rm",.func = &_desk_rm},
     {.name = "set",.func = &_desk_set},
     {.name = "show",.func = &_desk_show},
     {.name = "sync",.func = &_desk_sync},

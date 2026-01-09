@@ -28,6 +28,7 @@
 - `cli/env`: Rename command `env` subcommand `list` to `ls`
 - `cli/column`: Rename command `column` subcommand `list` to `ls`
 - `cli/desk`: Rename command `desk` subcommand `list` to `ls`
+- `cli/desk`: Rename command `desk` subcommand `del` to `rm`
 
 ### Fixed
 

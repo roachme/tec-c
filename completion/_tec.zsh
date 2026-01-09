@@ -148,10 +148,10 @@ _tec_desk() {
             local -a desk_subcommands
             desk_subcommands=(
                 'add:Add a new desk'
-                'del:Delete desk with all tasks'
                 'ls:List desks'
                 'move:Move (rename) desk'
                 'prev:Switch to previous desk'
+                'rm:Remove desk with all tasks'
                 'set:Set desk values'
                 'show:Show desk info'
                 'sync:Switch to or synchronize (with) desk'
@@ -161,10 +161,10 @@ _tec_desk() {
         args)
             case $line[1] in
                 add) _tec_desk_add ;;
-                del) _tec_desk_del ;;
                 ls) _tec_desk_ls ;;
                 move) _tec_desk_move ;;
                 prev) _tec_desk_prev ;;
+                rm) _tec_desk_rm ;;
                 set) _tec_desk_set ;;
                 show) _tec_desk_show ;;
                 sync) _tec_desk_sync ;;
@@ -182,10 +182,10 @@ _tec_desk_add() {
         '*:board name:'
 }
 
-_tec_desk_del() {
+_tec_desk_rm() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-n)'{-n,--no-confirm}'[delete without confirmation]' \
+        '(-n)'{-n,--no-confirm}'[remove without confirmation]' \
         '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:board name:_tec_boards'
