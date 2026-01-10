@@ -393,5 +393,7 @@ int main(int argc, char **argv)
         return run_plugin(argc - i, argv + i);
     else if ((builtin = is_builtin(cmd)) != NULL)
         return run_builtin(argc - i, argv + i, builtin);
+
+    tec_config_destroy(&teccfg);
     return elog(1, "'%s': no such command or plugin", cmd);
 }
