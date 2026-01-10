@@ -261,12 +261,12 @@ struct help helptab[] = {
     SUBCMD list:\n\
       add     Add a new desk\n\
       cat     Concatenate desks info (under development)\n\
+      cd      Switch to desk\n\
       ls      List desks\n\
       move    Move (rename) desks\n\
       prev    Switch to previous desks\n\
       rm      Remove desk with all tasks\n\
       set     Set desks vaules\n\
-      sync    Switch to or synchronize (with) desk\n\
     \n\
     Note:\n\
       Use '" PROGRAM " help desk-SUBCMD' to get help on subcommands. \n\
@@ -394,9 +394,9 @@ struct help helptab[] = {
     Under development\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "desk-sync",
-     .synop = "Usage: " PROGRAM " desk sync [OPTION]... [BRD]...\n",
-     .desc_short = "Switch to or synchronize task.\n",
+     .name = "desk-cd",
+     .synop = "Usage: " PROGRAM " desk cd [OPTION]... [BRD]...\n",
+     .desc_short = "Switch to desk.\n",
      .desc_long = "\n\
     Options:\n\
       -h      show this help and exit\n\
@@ -411,7 +411,6 @@ struct help helptab[] = {
     \n\
     Exit status:\n\
     Under development\n"},
-
     {
      .tag = TAGOBJ,
      .name = "column",
@@ -475,12 +474,12 @@ struct help helptab[] = {
     SUBCMD list:\n\
       add     Add a new environment\n\
       cat     Concatenate environment info (under development)\n\
+      cd      Switch to environment\n\
       ls      List environments\n\
       prev    Switch to previous environment\n\
       rename  Rename environment\n\
       rm      Remove environment with all desks and tasks\n\
       set     Set environment vaules\n\
-      sync    Switch to or synchronize (with) environment\n\
     \n\
     Note:\n\
       Use '" PROGRAM " help env-SUBCMD' to get help on subcommands. \n\

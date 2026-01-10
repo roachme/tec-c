@@ -149,12 +149,12 @@ _tec_desk() {
             desk_subcommands=(
                 'add:Add a new desk'
                 'cat:Concatenate desk info'
+                'cd:Switch to desk'
                 'ls:List desks'
                 'mv:Move (rename) desk'
                 'prev:Switch to previous desk'
                 'rm:Remove desk with all tasks'
                 'set:Set desk values'
-                'sync:Switch to or synchronize (with) desk'
             )
             _describe -t commands 'desk subcommand' desk_subcommands
             ;;
@@ -162,12 +162,12 @@ _tec_desk() {
             case $line[1] in
                 add) _tec_desk_add ;;
                 cat) _tec_desk_cat ;;
+                cd) _tec_desk_cd ;;
                 ls) _tec_desk_ls ;;
                 mv) _tec_desk_mv ;;
                 prev) _tec_desk_prev ;;
                 rm) _tec_desk_rm ;;
                 set) _tec_desk_set ;;
-                sync) _tec_desk_sync ;;
             esac
             ;;
     esac
@@ -233,7 +233,7 @@ _tec_desk_cat() {
         '*:board name:_tec_boards'
 }
 
-_tec_desk_sync() {
+_tec_desk_cd() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to board]' \

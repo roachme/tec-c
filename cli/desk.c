@@ -314,7 +314,7 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
     return status;
 }
 
-static int _desk_sync(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     int c, i, quiet, showhelp, status;
@@ -350,7 +350,7 @@ static int _desk_sync(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     if (showhelp)
-        return help_usage("desk-sync");
+        return help_usage("desk-cd");
 
     if ((status = check_arg_project(&args, errfmt, quiet)))
         return status;
@@ -373,12 +373,12 @@ static int _desk_sync(int argc, char **argv, tec_ctx_t *ctx)
 static const builtin_t desk_commands[] = {
     {.name = "add",.func = &_desk_add},
     {.name = "cat",.func = &_desk_cat},
+    {.name = "cd",.func = &_desk_cd},
     {.name = "ls",.func = &_desk_ls},
     {.name = "prev",.func = &_desk_prev},
     {.name = "mv",.func = &_desk_mv},
     {.name = "rm",.func = &_desk_rm},
     {.name = "set",.func = &_desk_set},
-    {.name = "sync",.func = &_desk_sync},
 };
 
 int tec_cli_desk(int argc, char **argv, tec_ctx_t *ctx)
