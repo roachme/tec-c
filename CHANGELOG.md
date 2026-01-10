@@ -6,6 +6,10 @@
 - `cli/desk`: Rename command `desk` subcommand `sync` to `cd`
 - `cli/tec`: Fix memleak in case of invalid command
 
+### Fixed
+
+- `cli/help`: Update help messages
+
 
 ## [0.2.0] - (2026-01-10)
 

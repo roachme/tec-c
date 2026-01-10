@@ -229,7 +229,7 @@ static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
     if ((status = tec_project_list(teccfg.base.task, &args, ctx))) {
         if (quiet == false) {
             const char *errfmt = "cannot list env(s) '%s': %s";
-            elog(status, errfmt, "PRJ", tec_strerror(status));
+            elog(status, errfmt, "ENV", tec_strerror(status));
             return status;
         }
     }
