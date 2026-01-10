@@ -301,12 +301,12 @@ _tec_env() {
             env_subcommands=(
                 'add:Add a new project'
                 'cat:Concatenate project info'
+                'cd:Switch to environment'
                 'ls:List projects'
                 'prev:Switch to previous project'
                 'rename:Rename project'
                 'rm:Remove project with all boards and tasks'
                 'set:Set project values'
-                'sync:Switch to or synchronize (with) project'
             )
             _describe -t commands 'project subcommand' env_subcommands
             ;;
@@ -314,12 +314,12 @@ _tec_env() {
             case $line[1] in
                 add) _tec_env_add ;;
                 cat) _tec_env_cat ;;
+                cd) _tec_env_cd ;;
                 ls) _tec_env_ls ;;
                 prev) _tec_env_prev ;;
                 rename) _tec_env_rename ;;
                 rm) _tec_env_rm ;;
                 set) _tec_env_set ;;
-                sync) _tec_env_sync ;;
             esac
             ;;
     esac
@@ -377,7 +377,7 @@ _tec_env_cat() {
         '*:project name:_tec_projects'
 }
 
-_tec_env_sync() {
+_tec_env_cd() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to project]' \

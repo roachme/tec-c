@@ -523,6 +523,22 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
+     .name = "env-cd",
+     .synop = "Usage: " PROGRAM " env cd [OPTION] NAME...\n",
+     .desc_short = "Switch to environment.\n",
+     .desc_long = "\n\
+    Options:\n\
+      -h      show this help and exit\n\
+      -n      do not switch to environment\n\
+      -q      do not write anything to standard error output\n\
+    \n\
+    Arguments:\n\
+      NAME    environment name (default current)\n\
+    \n\
+    Exit status:\n\
+    Under development.\n"},
+    {
+     .tag = TAGOBJCMD,
      .name = "env-ls",
      .synop = "Usage: " PROGRAM " env ls [OPTION]\n",
      .desc_short = "List environment(s).\n",
@@ -591,22 +607,6 @@ struct help helptab[] = {
       -d      environment description\n\
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
-    \n\
-    Exit status:\n\
-    Under development.\n"},
-    {
-     .tag = TAGOBJCMD,
-     .name = "env-sync",
-     .synop = "Usage: " PROGRAM " env sync [OPTION] NAME...\n",
-     .desc_short = "Switch to or synchronize (with) environment(s).\n",
-     .desc_long = "\n\
-    Options:\n\
-      -h      show this help and exit\n\
-      -n      do not switch to environment\n\
-      -q      do not write anything to standard error output\n\
-    \n\
-    Arguments:\n\
-      NAME    environment name (default current)\n\
     \n\
     Exit status:\n\
     Under development.\n"},

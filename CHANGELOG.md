@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Changed
+
+- `cli/env`: Rename command `env` subcommand `sync` to `cd`
+
+
 ## [0.2.0] - (2026-01-10)
 
 ### Added
