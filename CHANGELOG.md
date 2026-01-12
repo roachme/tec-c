@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Added
+
+- `cli/env`: Add support for alias "-"
+
 ### Changed
 
 - `cli/env`: Rename command `env` subcommand `sync` to `cd`

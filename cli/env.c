@@ -489,8 +489,18 @@ static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
         return help_usage("env-cd");
 
     i = optind;
+
+    /* Alias to switch to previous environment.  */
+    if (argv[i] && strcmp("-", argv[i]) == 0) {
+        argv[i] = NULL;         /* NULL it cuz it's an alias and illegal environment name.  */
+        switch_toggle = true;
+        if ((status = toggle_project_get_prev(teccfg.base.task, &args)))
+            return elog(1, errfmt, "PREV",
+                        "could not get previous environment");
+    }
+
     do {
-        args.project = argv[i];
+        args.project = args.project != NULL ? args.project : argv[i];
 
         if ((status = check_arg_project(&args, errfmt, quiet)))
             continue;
