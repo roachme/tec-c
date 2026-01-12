@@ -59,7 +59,7 @@ static int tec_config_get_hooks(config_t *cfg, tec_cfg_t *tec_config)
 {
     config_setting_t *setting;
 
-    if ((setting = config_lookup(cfg, "hooks.show")) != NULL) {
+    if ((setting = config_lookup(cfg, "hooks.cat")) != NULL) {
         unsigned int count = config_setting_length(setting);
         for (unsigned int i = 0; i < count; ++i) {
             struct tec_hook *hook;

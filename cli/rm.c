@@ -70,12 +70,12 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
         if ((status = check_arg_task(&args, errfmt, o_quiet))) {
             continue;
         } else if (o_autoconfirm == false) {
-            printf("Are you sure to delete task '%s'? [y/N] ", args.taskid);
+            printf("Are you sure to remove task '%s'? [y/N] ", args.taskid);
             if ((choice = getchar()) != 'y' && choice != 'Y')
                 continue;
         }
 
-        if (hook_action(&args, "del")) {
+        if (hook_action(&args, "rm")) {
             if (o_quiet == false)
                 elog(1, errfmt, args.taskid, "failed to execute hooks");
             continue;

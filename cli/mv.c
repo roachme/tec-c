@@ -308,7 +308,7 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     if (showhelp)
-        return help_usage("move");
+        return help_usage("mv");
 
     i = optind;
     nargs = argc - i;

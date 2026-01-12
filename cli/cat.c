@@ -96,7 +96,7 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     if (showhelp == true)
-        return help_usage("show");
+        return help_usage("cat");
 
     if ((status = check_arg_project(&args, errfmt, quiet)))
         return status;
@@ -117,7 +117,7 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
             if (quiet == false)
                 elog(status, errfmt, args.taskid, "invalid unit keys");
             continue;
-        } else if (hook_show(&unitpgn, &args, "show")) {
+        } else if (hook_show(&unitpgn, &args, "cat")) {
             if (quiet == false)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
             continue;

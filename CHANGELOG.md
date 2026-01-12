@@ -9,6 +9,7 @@
 ### Fixed
 
 - `cli/help`: Update help messages
+- `cli`: Fix command renaming issues
 
 
 ## [0.2.0] - (2026-01-10)
