@@ -3,6 +3,7 @@
 ### Added
 
 - `cli/env`: Add support for alias "-"
+- `cli/desk`: Add support for alias "-"
 
 ### Changed
 

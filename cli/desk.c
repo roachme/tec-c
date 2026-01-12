@@ -356,8 +356,17 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
         return status;
 
     i = optind;
+
+    /* Alias to switch to previous desk.  */
+    if (argv[i] && strcmp("-", argv[i]) == 0) {
+        argv[i] = NULL;         /* NULL it cuz it's an alias and illegal desk name.  */
+        switch_toggle = true;
+        if ((status = toggle_board_get_prev(teccfg.base.task, &args)))
+            return elog(1, errfmt, "PREV", "could not get previous desk");
+    }
+
     do {
-        args.board = argv[i];
+        args.board = args.board != NULL ? args.board : argv[i];
         if ((status = check_arg_board(&args, errfmt, quiet)))
             return status;
     } while (++i < argc);
