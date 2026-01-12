@@ -10,6 +10,7 @@
 
 - `cli/help`: Update help messages
 - `cli`: Fix command renaming issues
+- `cli/desk`: Update help messages
 
 
 ## [0.2.0] - (2026-01-10)

@@ -263,7 +263,7 @@ struct help helptab[] = {
       cat     Concatenate desks info (under development)\n\
       cd      Switch to desk\n\
       ls      List desks\n\
-      move    Move (rename) desks\n\
+      mv      Move (rename) desks\n\
       prev    Switch to previous desks\n\
       rm      Remove desk with all tasks\n\
       set     Set desks vaules\n\
@@ -308,8 +308,8 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "desk-move",
-     .synop = "Usage: " PROGRAM " desk move [OPTION] [SRC|DST]\n",
+     .name = "desk-mv",
+     .synop = "Usage: " PROGRAM " desk mv [OPTION] [SRC|DST]\n",
      .desc_short = "Move or renome desk.\n",
      .desc_long = "\n\
     Options:\n\
