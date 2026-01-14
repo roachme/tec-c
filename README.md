@@ -110,6 +110,7 @@ Usage: tec [OPTION]... COMMAND|PLUGIN
       set        - Set task unit values.
 
     Object:
+      cfg        - Manage and show configs (under development).
       desk       - Manage and show desks.
       column     - Manage and show columns.
       env        - Manage and show environments.

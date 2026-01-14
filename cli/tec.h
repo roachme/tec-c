@@ -95,6 +95,7 @@ int llog(int status, const char *fmt, ...);
 int tec_cli_add(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_cat(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_cd(int argc, char **argv, tec_ctx_t * ctx);
+int tec_cli_cfg(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_column(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_env(int argc, char **argv, tec_ctx_t * ctx);
 int tec_cli_desk(int argc, char **argv, tec_ctx_t * ctx);

@@ -251,6 +251,29 @@ struct help helptab[] = {
 
     {
      .tag = TAGOBJ,
+     .name = "cfg",
+     .synop = "Usage: " PROGRAM " cfg SUBCMD [OPTION] ARGS\n",
+     .desc_short = "Manage and show configs (under development).\n",
+     .desc_long = "\n\
+    Arguments:\n\
+      SUBCMD  cfg subcommand\n\
+    \n\
+    Subcommands:\n\
+      get     Get config values(under development)\n\
+      list    List config values (under development)\n\
+      set     Set config values (under development)\n\
+      revert  Revert config values (under development)\n\
+      save    Save config values into file (under development)\n\
+    \n\
+    Note:\n\
+      Use '" PROGRAM " help cfg-SUBCMD' to get help on subcommands. \n\
+      For example: " PROGRAM " help cfg-list\n\
+    \n\
+    Exit status:\n\
+    The return status is return status of subcommand.\n"},
+
+    {
+     .tag = TAGOBJ,
      .name = "desk",
      .synop = "Usage: " PROGRAM " desk SUBCMD [OPTION] NAME\n",
      .desc_short = "Manage and show desks.\n",
