@@ -82,14 +82,6 @@ struct help helptab[] = {
      .desc_long = "\n\
     Exit status:\n\
     Under development\n"},
-    {
-     .tag = TAGSYSTEM,
-     .name = "version",
-     .synop = "Usage: " PROGRAM " version\n",
-     .desc_short = "Show program version.\n",
-     .desc_long = "\n\
-    Exit status:\n\
-    Under development\n"},
 
     {
      .tag = TAGBASIC,

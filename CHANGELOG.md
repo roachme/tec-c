@@ -18,6 +18,10 @@
 - `cli`: Fix command renaming issues
 - `cli/desk`: Update help messages
 
+### Deleted
+
+- `cli/version`: Delete command version
+
 
 ## [0.2.0] - (2026-01-10)
 

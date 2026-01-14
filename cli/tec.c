@@ -36,8 +36,13 @@ static builtin_t builtins[] = {
     {.name = "mv",.func = &tec_cli_mv,.option = TEC_SETUP_HARD},
     {.name = "rm",.func = &tec_cli_rm,.option = TEC_SETUP_HARD},
     {.name = "set",.func = &tec_cli_set,.option = TEC_SETUP_HARD},
-    {.name = "version",.func = &tec_cli_version,.option = TEC_SETUP_HARD},
 };
+
+static int show_version(void)
+{
+    printf("%s version %s\n", PROGRAM, VERSION);
+    return 0;
+}
 
 static int tec_setup(int setuplvl)
 {
@@ -374,7 +379,7 @@ int main(int argc, char **argv)
     if (showhelp == true)
         cmd = "help";
     else if (showversion == true)
-        cmd = "version";
+        return show_version();
     else if (cmd == NULL) {
         /* The user didn't specify a command; give them help */
         help_list_commands();
