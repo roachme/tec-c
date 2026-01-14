@@ -56,12 +56,10 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
     char c;
     int i, quiet, status;
     tec_arg_t args;
-    int atleast_one_key_set;
     const char *errfmt = "cannot set task units '%s': %s";
 
     quiet = false;
     args.project = args.board = args.taskid = NULL;
-    atleast_one_key_set = false;
     while ((c = getopt(argc, argv, ":b:d:p:qt:P:")) != -1) {
         // TODO: add a protection for duplicates, use map data structure
         switch (c) {
@@ -80,7 +78,6 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
                 help_usage("set");
                 return 1;
             }
-            atleast_one_key_set = true;
             ctx->units = tec_unit_add(ctx->units, "type", optarg);
             break;
         case 'd':
@@ -89,7 +86,6 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
                 help_usage("set");
                 return 1;
             }
-            atleast_one_key_set = true;
             ctx->units = tec_unit_add(ctx->units, "desc", optarg);
             break;
         case 'P':
@@ -98,7 +94,6 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
                 help_usage("set");
                 return 1;
             }
-            atleast_one_key_set = true;
             ctx->units = tec_unit_add(ctx->units, "prio", optarg);
             break;
         case ':':
@@ -106,12 +101,6 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
         default:
             return elog(1, "invalid option `-%c'", optopt);
         }
-    }
-
-    if (atleast_one_key_set == false) {
-        elog(1, "gotta supply one of the options");
-        help_usage("set");
-        return 1;
     }
 
     if ((status = check_arg_project(&args, errfmt, quiet)))

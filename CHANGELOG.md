@@ -10,6 +10,7 @@
 - `cli/env`: Rename command `env` subcommand `sync` to `cd`
 - `cli/desk`: Rename command `desk` subcommand `sync` to `cd`
 - `cli/tec`: Fix memleak in case of invalid command
+- `cli/set`: Remove strict at least one key set
 
 ### Fixed
 
