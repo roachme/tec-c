@@ -145,7 +145,7 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
             filter.column = optarg;
             break;
         case 'h':
-            return help_usage("list");
+            return help_usage("ls");
         case 'q':
             quiet = true;
             break;

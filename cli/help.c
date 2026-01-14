@@ -258,7 +258,7 @@ struct help helptab[] = {
     Arguments:\n\
       SUBCMD  desk subcommand\n\
     \n\
-    SUBCMD list:\n\
+    Subcommands:\n\
       add     Add a new desk\n\
       cat     Concatenate desks info (under development)\n\
       cd      Switch to desk\n\
@@ -420,7 +420,7 @@ struct help helptab[] = {
     Arguments:\n\
       SUBCMD  column subcommand\n\
     \n\
-    SUBCMD list:\n\
+    Subcommands:\n\
       ls      List columns\n\
       move    Move task to column\n\
     \n\
@@ -471,7 +471,7 @@ struct help helptab[] = {
     Arguments:\n\
       SUBCMD  environment subcommand\n\
     \n\
-    SUBCMD list:\n\
+    Subcommands:\n\
       add     Add a new environment\n\
       cat     Concatenate environment info (under development)\n\
       cd      Switch to environment\n\
