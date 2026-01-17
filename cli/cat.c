@@ -71,9 +71,9 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
     unitpgn = NULL;
     quiet = showhelp = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:hk:p:q")) != -1) {
+    while ((c = getopt(argc, argv, ":d:e:hk:q")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'e':

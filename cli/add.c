@@ -51,9 +51,9 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
     switch_dir = switch_task = true;
     args.env = args.desk = args.taskid = NULL;
     errfmt = "cannot create task '%s': %s";
-    while ((c = getopt(argc, argv, ":b:e:n:hqN")) != -1) {
+    while ((c = getopt(argc, argv, ":d:e:n:hqN")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'e':

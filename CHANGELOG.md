@@ -12,6 +12,7 @@
 - `cli/tec`: Fix memleak in case of invalid command
 - `cli/set`: Remove strict at least one key set
 - `tec`: Change option `-p` to `-e`
+- `tec`: Change option `-b` to `-d`
 
 ### Fixed
 

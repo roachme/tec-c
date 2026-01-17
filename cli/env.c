@@ -41,9 +41,9 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
     showhelp = quiet = false;
     switch_dir = switch_env = true;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:hnqN")) != -1) {
+    while ((c = getopt(argc, argv, ":d:hnqN")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'h':
@@ -159,9 +159,9 @@ static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
     showprompt = true;
     choice = quiet = showhelp = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:hnq")) != -1) {
+    while ((c = getopt(argc, argv, ":d:hnq")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'h':
@@ -346,12 +346,18 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
     quiet = showhelp = false;
     atleast_one_key_set = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:d:hq")) != -1) {
+    while ((c = getopt(argc, argv, ":d:hqD:")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
-        case 'd':
+        case 'h':
+            showhelp = true;
+            break;
+        case 'q':
+            quiet = true;
+            break;
+        case 'D':
             if (valid_desc(optarg) == false) {
                 elog(1, "invalid description '%s'", optarg);
                 help_usage("env-set");
@@ -359,12 +365,6 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
             }
             atleast_one_key_set = true;
             ctx->units = tec_unit_add(ctx->units, "desc", optarg);
-            break;
-        case 'h':
-            showhelp = true;
-            break;
-        case 'q':
-            quiet = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -407,9 +407,9 @@ static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
     unitbin = unitpgn = NULL;
     quiet = showhelp = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:hq")) != -1) {
+    while ((c = getopt(argc, argv, ":d:hq")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'h':
@@ -457,9 +457,9 @@ static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:hnqN")) != -1) {
+    while ((c = getopt(argc, argv, ":d:hnqN")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'h':

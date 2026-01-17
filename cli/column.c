@@ -25,9 +25,9 @@ static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
     quiet = showhelp = false;
     errfmt = "cannot move task to column '%s': %s";
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:c:hp:q")) != -1) {
+    while ((c = getopt(argc, argv, ":d:e:c:hq")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'c':

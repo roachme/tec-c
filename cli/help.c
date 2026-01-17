@@ -223,10 +223,10 @@ struct help helptab[] = {
     Options:\n\
       -b DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
-      -d      task description\n\
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
       -t      task type\n\
+      -D      task description\n\
       -P      task priority\n\
     \n\
     Arguments:\n\
@@ -618,9 +618,9 @@ struct help helptab[] = {
       NAME    environment name (default is current)\n\
     \n\
     Options:\n\
-      -d      environment description\n\
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
+      -D      environment description\n\
     \n\
     Exit status:\n\
     Under development.\n"},

@@ -60,10 +60,10 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:d:p:qt:P:")) != -1) {
+    while ((c = getopt(argc, argv, ":d:e:qt:D:P:")) != -1) {
         // TODO: add a protection for duplicates, use map data structure
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'e':
@@ -80,7 +80,7 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
             }
             ctx->units = tec_unit_add(ctx->units, "type", optarg);
             break;
-        case 'd':
+        case 'D':
             if (valid_desc(optarg) == false) {
                 elog(1, "invalid description '%s'", optarg);
                 help_usage("set");

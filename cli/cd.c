@@ -16,9 +16,9 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
     swap_toggle = false;
     errfmt = "cannot switch to '%s': %s";
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:hnp:qN")) != -1) {
+    while ((c = getopt(argc, argv, ":d:e:hnqN")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'e':

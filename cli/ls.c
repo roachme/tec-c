@@ -136,9 +136,9 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = show_headers = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":b:c:hqvtH")) != -1) {
+    while ((c = getopt(argc, argv, ":d:c:hqvtH")) != -1) {
         switch (c) {
-        case 'b':
+        case 'd':
             args.desk = optarg;
             break;
         case 'c':
