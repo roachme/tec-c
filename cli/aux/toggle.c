@@ -35,7 +35,7 @@ static char *path_task_toggle(char *base, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/%s/.tec/toggles";
     static char pathname[PATH_MAX + 1];
-    sprintf(pathname, fmt, base, args->env, args->board);
+    sprintf(pathname, fmt, base, args->env, args->desk);
     //printf("path.c: %s:pathname: '%s'\n", __func__, pathname);
     return pathname;
 }
@@ -137,16 +137,16 @@ int toggle_env_get_prev(char *base, tec_arg_t *args)
 
 /* Toggles: env scope: END.   */
 
-int toggle_board_get_curr(char *base, tec_arg_t *args)
+int toggle_desk_get_curr(char *base, tec_arg_t *args)
 {
-    if (!args->board && !(args->board = brd_get_curr(base, args)))
+    if (!args->desk && !(args->desk = brd_get_curr(base, args)))
         return 1;
     return 0;
 }
 
-int toggle_board_get_prev(char *base, tec_arg_t *args)
+int toggle_desk_get_prev(char *base, tec_arg_t *args)
 {
-    if (!args->board && !(args->board = brd_get_prev(base, args)))
+    if (!args->desk && !(args->desk = brd_get_prev(base, args)))
         return 1;
     return 0;
 }
@@ -188,13 +188,13 @@ int toggle_env_set_curr(char *base, tec_arg_t *args)
     return 0;
 }
 
-int toggle_board_set_curr(char *base, tec_arg_t *args)
+int toggle_desk_set_curr(char *base, tec_arg_t *args)
 {
     char *curr, *prev;
     tec_unit_t *toggles;
 
     toggles = NULL;
-    curr = args->board;
+    curr = args->desk;
     prev = brd_get_curr(base, args);
 
     toggles = tec_unit_add(toggles, "curr", curr);
@@ -253,7 +253,7 @@ int toggle_env_swap(char *base, tec_arg_t *args)
     return tec_unit_save(path_prj_toggle(base, args), toggles);
 }
 
-int toggle_board_swap(char *base, tec_arg_t *args)
+int toggle_desk_swap(char *base, tec_arg_t *args)
 {
     char *curr, *prev;
     tec_unit_t *toggles;
@@ -292,7 +292,7 @@ int toggle_task_swap(char *base, tec_arg_t *args)
 /*
  * Update task toggles after a task is renamed.
  * If old_id matches curr or prev, update it to new_id.
- * args must have env and board set for the location.
+ * args must have env and desk set for the location.
  */
 int toggle_task_update(char *base, tec_arg_t *args,
                        const char *old_id, const char *new_id)
@@ -331,10 +331,10 @@ int toggle_task_update(char *base, tec_arg_t *args,
 }
 
 /*
- * Clear a task from toggles when it's moved to a different board/env.
+ * Clear a task from toggles when it's moved to a different desk/env.
  * If taskid matches curr, promote prev to curr and clear prev.
  * If taskid matches prev, just clear prev.
- * args must have env and board set for the source location.
+ * args must have env and desk set for the source location.
  */
 int toggle_task_clear(char *base, tec_arg_t *args, const char *taskid)
 {

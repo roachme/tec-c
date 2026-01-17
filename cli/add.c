@@ -49,12 +49,12 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
     last_taskid = NULL;
     quiet = showhelp = false;
     switch_dir = switch_task = true;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     errfmt = "cannot create task '%s': %s";
     while ((c = getopt(argc, argv, ":b:np:hqN")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'p':
             args.env = optarg;
@@ -84,7 +84,7 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
 
     if ((status = check_arg_env(&args, errfmt, quiet)))
         return status;
-    else if ((status = check_arg_board(&args, errfmt, quiet)))
+    else if ((status = check_arg_desk(&args, errfmt, quiet)))
         return status;
     else if (optind == argc && generate_task(&args)) {
         if (quiet == false)

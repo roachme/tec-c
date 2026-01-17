@@ -22,12 +22,12 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
     int o_quiet, o_showhelp, o_autoconfirm, o_verbose;
 
     o_autoconfirm = o_quiet = o_showhelp = o_verbose = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     errfmt = "cannot remove task '%s': %s";
     while ((c = getopt(argc, argv, ":b:hp:qyv")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'h':
             o_showhelp = true;
@@ -56,7 +56,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 
     if ((status = check_arg_env(&args, errfmt, o_quiet)))
         return status;
-    else if ((status = check_arg_board(&args, errfmt, o_quiet)))
+    else if ((status = check_arg_desk(&args, errfmt, o_quiet)))
         return status;
 
     // TODO: if non-current task gets deleted, then no need to

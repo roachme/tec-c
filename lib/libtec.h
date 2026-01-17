@@ -10,7 +10,7 @@ typedef struct tec_context tec_ctx_t;
 
 struct tec_arg {
     char *env;
-    char *board;
+    char *desk;
     char *taskid;
 };
 
@@ -87,8 +87,8 @@ void *tec_list_free(tec_list_t * list);
 /* Input argument functions.  */
 int tec_env_exist(const char *taskdir, tec_arg_t * args);
 int tec_env_valid(const char *taskdir, tec_arg_t * args);
-int tec_board_exist(const char *taskdir, tec_arg_t * args);
-int tec_board_valid(const char *taskdir, tec_arg_t * args);
+int tec_desk_exist(const char *taskdir, tec_arg_t * args);
+int tec_desk_valid(const char *taskdir, tec_arg_t * args);
 int tec_task_exist(const char *taskdir, tec_arg_t * args);
 int tec_task_valid(const char *taskdir, tec_arg_t * args);
 
@@ -104,16 +104,14 @@ int tec_task_column_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_task_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 
 /* Board functions.  */
-int tec_board_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_board_del(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_board_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_board_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_board_move(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_board_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_board_column_set(const char *taskdir, tec_arg_t * args,
-                         tec_ctx_t * ctx);
-int tec_board_column_get(const char *taskdir, tec_arg_t * args,
-                         tec_ctx_t * ctx);
+int tec_desk_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_desk_del(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_desk_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_desk_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_desk_move(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_desk_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_desk_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_desk_column_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 
 /* Project functions.  */
 int tec_env_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);

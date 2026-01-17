@@ -70,7 +70,7 @@ extern unsigned int nbuiltin_column;
 
 int is_valid_length(const char *obj, int len);
 int check_arg_env(tec_arg_t * args, const char *errfmt, int quiet);
-int check_arg_board(tec_arg_t * args, const char *errfmt, int quiet);
+int check_arg_desk(tec_arg_t * args, const char *errfmt, int quiet);
 int check_arg_task(tec_arg_t * args, const char *errfmt, int quiet);
 
 bool column_exist(const char *colname);
@@ -82,7 +82,7 @@ int help_lookup(const char *cmd);
 
 int tec_pwd_unset(void);
 int tec_pwd_task(tec_arg_t * args);
-int tec_pwd_board(tec_arg_t * args);
+int tec_pwd_desk(tec_arg_t * args);
 int tec_pwd_env(tec_arg_t * args);
 int elog(int status, const char *fmt, ...);
 int dlog(int level, const char *fmt, ...);

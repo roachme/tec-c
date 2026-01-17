@@ -35,16 +35,16 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
     int switch_dir, switch_env;
     int i, quiet, showhelp, status;
     const char *errfmt = "cannot add env '%s': %s";
-    const char *errfmt_board = "cannot add board '%s': %s";
+    const char *errfmt_desk = "cannot add desk '%s': %s";
 
     status = LIBTEC_OK;
     showhelp = quiet = false;
     switch_dir = switch_env = true;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hnqN")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'h':
             showhelp = true;
@@ -77,9 +77,9 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
         return 1;
     }
 
-    /* Set default board name to create.  */
-    if (args.board == NULL)
-        args.board = "board";
+    /* Set default desk name to create.  */
+    if (args.desk == NULL)
+        args.desk = "desk";
 
     for (i = optind; i < argc; ++i) {
         args.env = argv[i];
@@ -99,18 +99,17 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
             continue;
         }
 
-        if ((status = tec_board_valid(teccfg.base.task, &args))) {
+        if ((status = tec_desk_valid(teccfg.base.task, &args))) {
             if (quiet == false)
-                elog(status, errfmt_board, args.board, tec_strerror(status));
+                elog(status, errfmt_desk, args.desk, tec_strerror(status));
             continue;
-        } else if (is_valid_length(args.board, BRDSIZ) == false) {
+        } else if (is_valid_length(args.desk, BRDSIZ) == false) {
             if (quiet == false)
-                elog(status, errfmt_board, args.board,
-                     "board name is too long");
+                elog(status, errfmt_desk, args.desk, "desk name is too long");
             continue;
-        } else if (!(status = tec_board_exist(teccfg.base.task, &args))) {
+        } else if (!(status = tec_desk_exist(teccfg.base.task, &args))) {
             if (quiet == false)
-                elog(status, errfmt_board, args.board,
+                elog(status, errfmt_desk, args.desk,
                      tec_strerror(LIBTEC_ARG_EXISTS));
             continue;
         }
@@ -125,7 +124,7 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
             if (quiet == false)
                 elog(1, errfmt, argv[i], tec_strerror(status));
             continue;
-        } else if ((status = tec_board_add(teccfg.base.task, &args, ctx))) {
+        } else if ((status = tec_desk_add(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
                 elog(1, errfmt, argv[i], tec_strerror(status));
             continue;
@@ -141,9 +140,9 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
             elog(status, "could not update env toggles");
         return 1;
     } else if ((switch_env && status == LIBTEC_OK)
-               && toggle_board_set_curr(teccfg.base.task, &args)) {
+               && toggle_desk_set_curr(teccfg.base.task, &args)) {
         if (quiet == false)
-            elog(status, "could not update board toggles");
+            elog(status, "could not update desk toggles");
         return 1;
     }
 
@@ -159,11 +158,11 @@ static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
 
     showprompt = true;
     choice = quiet = showhelp = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hnq")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'h':
             showhelp = true;
@@ -211,7 +210,7 @@ static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
     tec_arg_t args;
 
     quiet = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":q")) != -1) {
         switch (c) {
         case 'q':
@@ -246,7 +245,7 @@ static int _env_prev(int argc, char **argv, tec_ctx_t *ctx)
     int quiet, showhelp, status;
 
     quiet = showhelp = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     errfmt = "cannot switch to previous env '%s': %s";
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
@@ -293,8 +292,8 @@ static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     errfmt = "could not rename env: %s";
-    src.env = src.board = src.taskid = NULL;
-    dst.env = dst.board = dst.taskid = NULL;
+    src.env = src.desk = src.taskid = NULL;
+    dst.env = dst.desk = dst.taskid = NULL;
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'h':
@@ -346,11 +345,11 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     atleast_one_key_set = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:d:hq")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'd':
             if (valid_desc(optarg) == false) {
@@ -407,11 +406,11 @@ static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
 
     unitbin = unitpgn = NULL;
     quiet = showhelp = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hq")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'h':
             showhelp = true;
@@ -457,11 +456,11 @@ static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hnqN")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'h':
             showhelp = true;

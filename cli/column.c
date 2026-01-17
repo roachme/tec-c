@@ -24,11 +24,11 @@ static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
     colname = "todo";           /* Default column to move task to.  */
     quiet = showhelp = false;
     errfmt = "cannot move task to column '%s': %s";
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:c:hp:q")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'c':
             colname = optarg;
@@ -55,9 +55,9 @@ static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
         if (quiet == false)
             elog(status, errfmt, "NOCURR", "no current env");
         return status;
-    } else if ((status = toggle_board_get_curr(teccfg.base.task, &args))) {
+    } else if ((status = toggle_desk_get_curr(teccfg.base.task, &args))) {
         if (quiet == false)
-            elog(status, errfmt, "NOCURR", "no current board");
+            elog(status, errfmt, "NOCURR", "no current desk");
         return status;
     } else if (column_exist(colname) == false) {
         if (quiet == false)

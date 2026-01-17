@@ -3,7 +3,7 @@
 
 int valid_column_name(char *name);
 int valid_env_name(char *name);
-int valid_board_name(char *name);
+int valid_desk_name(char *name);
 int valid_task_name(char *name);
 
 #endif

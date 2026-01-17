@@ -13,7 +13,7 @@ function _comp_tec()
         ["show"]="Show task unit values"
         ["sync"]="Switch or synchronize task"
 
-        ["board"]="Manage and show boards"
+        ["desk"]="Manage and show desks"
         ["env"]="Manage and show envs"
     )
     declare -A UTIL_OPT=(

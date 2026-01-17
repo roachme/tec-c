@@ -70,11 +70,11 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
     key = NULL;
     unitpgn = NULL;
     quiet = showhelp = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hk:p:q")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'h':
             showhelp = true;
@@ -100,7 +100,7 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
 
     if ((status = check_arg_env(&args, errfmt, quiet)))
         return status;
-    else if ((status = check_arg_board(&args, errfmt, quiet)))
+    else if ((status = check_arg_desk(&args, errfmt, quiet)))
         return status;
 
     i = optind;

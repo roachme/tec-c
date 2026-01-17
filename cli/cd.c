@@ -15,11 +15,11 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
     switch_toggle = switch_dir = true;
     swap_toggle = false;
     errfmt = "cannot switch to '%s': %s";
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hnp:qN")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'h':
             showhelp = true;
@@ -49,7 +49,7 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     if ((status = check_arg_env(&args, errfmt, quiet)))
         return status;
-    else if ((status = check_arg_board(&args, errfmt, quiet)))
+    else if ((status = check_arg_desk(&args, errfmt, quiet)))
         return status;
 
     i = optind;

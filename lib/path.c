@@ -13,9 +13,9 @@ char *path_generic(char *buf, const char *fmt, ...)
     return buf;
 }
 
-char *path_env_board(const char *taskdir, const tec_arg_t *args)
+char *path_env_desk(const char *taskdir, const tec_arg_t *args)
 {
-    const char *fmt = "%s/%s/.tec/useboard";
+    const char *fmt = "%s/%s/.tec/usedesk";
     static char pathname[PATH_MAX + 1];
     return path_generic(pathname, fmt, taskdir, args->env);
 }
@@ -27,18 +27,18 @@ char *path_env_dir(const char *taskdir, const tec_arg_t *args)
     return path_generic(pathname, fmt, taskdir, args->env);
 }
 
-char *path_board_dir(const char *taskdir, const tec_arg_t *args)
+char *path_desk_dir(const char *taskdir, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/%s";
     static char pathname[PATH_MAX + 1];
-    return path_generic(pathname, fmt, taskdir, args->env, args->board);
+    return path_generic(pathname, fmt, taskdir, args->env, args->desk);
 }
 
 char *path_task_dir(const char *taskdir, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/%s/%s";
     static char pathname[PATH_MAX + 1];
-    return path_generic(pathname, fmt, taskdir, args->env, args->board,
+    return path_generic(pathname, fmt, taskdir, args->env, args->desk,
                         args->taskid);
 }
 
@@ -50,18 +50,18 @@ char *path_env_unit(const char *taskdir, const tec_arg_t *args)
     return path_generic(pathname, fmt, taskdir, args->env);
 }
 
-char *path_board_unit(const char *taskdir, const tec_arg_t *args)
+char *path_desk_unit(const char *taskdir, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/%s/.tec/units";
     static char pathname[PATH_MAX + 1];
-    return path_generic(pathname, fmt, taskdir, args->env, args->board);
+    return path_generic(pathname, fmt, taskdir, args->env, args->desk);
 }
 
 char *path_task_unit(const char *taskdir, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/%s/%s/.tec/units";
     static char pathname[PATH_MAX + 1];
-    return path_generic(pathname, fmt, taskdir, args->env, args->board,
+    return path_generic(pathname, fmt, taskdir, args->env, args->desk,
                         args->taskid);
 }
 
@@ -72,17 +72,17 @@ char *path_env_column(const char *taskdir, const tec_arg_t *args)
     return path_generic(pathname, fmt, taskdir, args->env);
 }
 
-char *path_board_column(const char *taskdir, const tec_arg_t *args)
+char *path_desk_column(const char *taskdir, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/%s/.tec/column";
     static char pathname[PATH_MAX + 1];
-    return path_generic(pathname, fmt, taskdir, args->env, args->board);
+    return path_generic(pathname, fmt, taskdir, args->env, args->desk);
 }
 
 char *path_task_column(const char *taskdir, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/%s/%s/.tec/column";
     static char pathname[PATH_MAX + 1];
-    return path_generic(pathname, fmt, taskdir, args->env, args->board,
+    return path_generic(pathname, fmt, taskdir, args->env, args->desk,
                         args->taskid);
 }

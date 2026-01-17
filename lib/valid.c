@@ -25,7 +25,7 @@ int valid_env_name(char *name)
     return isalnum(*--name) != 0;
 }
 
-int valid_board_name(char *name)
+int valid_desk_name(char *name)
 {
     if (!isalnum(*name++))
         return 0;

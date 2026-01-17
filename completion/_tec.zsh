@@ -44,7 +44,7 @@ _tec_help() {
     case $state in
         command)
             local -a help_topics
-            help_topics=(${(k)_tec_subcommands} ${(k)_tec_board_subcommands} ${(k)_tec_column_subcommands} ${(k)_tec_env_subcommands})
+            help_topics=(${(k)_tec_subcommands} ${(k)_tec_desk_subcommands} ${(k)_tec_column_subcommands} ${(k)_tec_env_subcommands})
             _describe 'help topic' help_topics
             ;;
     esac
@@ -52,7 +52,7 @@ _tec_help() {
 
 _tec_add() {
     _arguments \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to task]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
@@ -63,7 +63,7 @@ _tec_add() {
 
 _tec_rm() {
     _arguments \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
@@ -74,7 +74,7 @@ _tec_rm() {
 _tec_ls() {
     _arguments \
         '(-a)'{-a,--all}'[list all tasks]' \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '(-v)'{-v,--verbose}'[show more verbose output]' \
@@ -94,7 +94,7 @@ _tec_mv() {
 
 _tec_prev() {
     _arguments \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]'
@@ -102,7 +102,7 @@ _tec_prev() {
 
 _tec_set() {
     _arguments \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-d)'{-d,--description}'[task description]' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
@@ -114,7 +114,7 @@ _tec_set() {
 
 _tec_cat() {
     _arguments \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-k)'{-k,--key}'[key to show]:key' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
@@ -124,7 +124,7 @@ _tec_cat() {
 
 _tec_cd() {
     _arguments \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-n)'{-n,--no-update}'[do not update toggles]' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
@@ -176,10 +176,10 @@ _tec_desk() {
 _tec_desk_add() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-n)'{-n,--no-switch}'[do not switch to new board]' \
+        '(-n)'{-n,--no-switch}'[do not switch to new desk]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:board name:'
+        '*:desk name:'
 }
 
 _tec_desk_rm() {
@@ -188,7 +188,7 @@ _tec_desk_rm() {
         '(-n)'{-n,--no-confirm}'[remove without confirmation]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:board name:_tec_boards'
+        '*:desk name:_tec_desks'
 }
 
 _tec_desk_ls() {
@@ -203,8 +203,8 @@ _tec_desk_mv() {
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        ':source board:_tec_boards' \
-        ':destination board:'
+        ':source desk:_tec_desks' \
+        ':destination desk:'
 }
 
 _tec_desk_prev() {
@@ -216,30 +216,30 @@ _tec_desk_prev() {
 
 _tec_desk_set() {
     _arguments \
-        '(-d)'{-d,--description}'[board description]' \
+        '(-d)'{-d,--description}'[desk description]' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:board name:_tec_boards'
+        '*:desk name:_tec_desks'
 }
 
 _tec_desk_cat() {
     _arguments \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-k)'{-k,--key}'[key to show]:key' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:board name:_tec_boards'
+        '*:desk name:_tec_desks'
 }
 
 _tec_desk_cd() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-n)'{-n,--no-switch}'[do not switch to board]' \
+        '(-n)'{-n,--no-switch}'[do not switch to desk]' \
         '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:board name:_tec_boards'
+        '*:desk name:_tec_desks'
 }
 
 # Column subcommands
@@ -277,7 +277,7 @@ _tec_column_ls() {
 
 _tec_column_move() {
     _arguments \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-c)'{-c,--column}'[column to move to]:column:_tec_columns' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
@@ -305,7 +305,7 @@ _tec_env() {
                 'ls:List envs'
                 'prev:Switch to previous env'
                 'rename:Rename env'
-                'rm:Remove env with all boards and tasks'
+                'rm:Remove env with all desks and tasks'
                 'set:Set env values'
             )
             _describe -t commands 'env subcommand' env_subcommands
@@ -327,7 +327,7 @@ _tec_env() {
 
 _tec_env_add() {
     _arguments \
-        '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
+        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to new environment]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
@@ -393,11 +393,11 @@ _tec_envs() {
     _describe 'env' envs
 }
 
-_tec_boards() {
-    local -a boards
-    # Similarly, this would query the actual boards
-    boards=('board1' 'board2' 'board3')
-    _describe 'board' boards
+_tec_desks() {
+    local -a desks
+    # Similarly, this would query the actual desks
+    desks=('desk1' 'desk2' 'desk3')
+    _describe 'desk' desks
 }
 
 _tec_columns() {

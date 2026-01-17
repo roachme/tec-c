@@ -20,7 +20,7 @@ Bugs:
      description than before.
   5. NULL-termination should follow `strncpy(dst, src, len)`. In case `src`
      is equal to `len` it'll end without '\0'. Checked it with valgrind.
-  6. Command `tec move` does not work after adding new feature to support boards.
+  6. Command `tec move` does not work after adding new feature to support desks.
 
 
 Ideas:
@@ -34,9 +34,9 @@ Ideas:
   7. Add plugin workflow to move task from columns to column
   8. Add libtec NOT as submodule but dependency
   9. Use command `gh` to generate releases
- 10. Unify environment/board/task's unit and column modules.
- 11. Add config option to enable/disable board support in environment.
- 12. Add commands export/import to move tasks in and out of boards.
+ 10. Unify environment/desk/task's unit and column modules.
+ 11. Add config option to enable/disable desk support in environment.
+ 12. Add commands export/import to move tasks in and out of desks.
  13. Add short list of exit statuses, other than libtec provides.
  14. Add support for command 'tec sync -n', to add task to curr column, but not change to task directory
  15. Make ID generatation bigger than the last ID. Might run outta IDs, but just think about it.

@@ -37,14 +37,14 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
 
     status = LIBTEC_OK;
     showhelp = quiet = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hnp:q")) != -1) {
         switch (c) {
         case 'h':
             showhelp = true;
             break;
         case 'n':
-            //opt.board_switch = false;
+            //opt.desk_switch = false;
             break;
         case 'p':
             args.env = optarg;
@@ -75,14 +75,14 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     for (i = optind; i < argc; ++i) {
-        args.board = argv[i];
+        args.desk = argv[i];
 
-        if (generate_units(ctx, args.board)) {
+        if (generate_units(ctx, args.desk)) {
             if (quiet == false)
                 elog(1, errfmt, args.env, "unit generation failed");
             continue;
         }
-        if ((status = tec_board_add(teccfg.base.task, &args, ctx))) {
+        if ((status = tec_desk_add(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
                 elog(1, errfmt, argv[i], tec_strerror(status));
             ctx->units = tec_unit_free(ctx->units);
@@ -93,7 +93,7 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     ctx->column = tec_unit_free(ctx->column);
-    //return status == LIBTEC_OK ? tec_pwd_board(&args) : 1;
+    //return status == LIBTEC_OK ? tec_pwd_desk(&args) : 1;
     return 0;
 }
 
@@ -107,7 +107,7 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
     showprompt = true;
     status = LIBTEC_OK;
     choice = quiet = showhelp = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hnq")) != -1) {
         switch (c) {
         case 'h':
@@ -131,7 +131,7 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        args.board = argv[i];
+        args.desk = argv[i];
 
         if (showprompt) {
             /* TODO: show desk name.  */
@@ -140,14 +140,14 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
                 continue;
         }
 
-        if ((status = tec_board_del(teccfg.base.task, &args, ctx))) {
+        if ((status = tec_desk_del(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
         }
     } while (++i < argc);
 
     // TODO: update current directory if current env got deleted.
-    return status == LIBTEC_OK ? tec_pwd_board(&args) : status;
+    return status == LIBTEC_OK ? tec_pwd_desk(&args) : status;
 }
 
 // TODO: show tasks in desk
@@ -176,19 +176,19 @@ static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
         return status;
     } else if ((status = tec_env_valid(teccfg.base.task, &args))) {
         if (quiet == false)
-            elog(status, errfmt, args.board, tec_strerror(status));
+            elog(status, errfmt, args.desk, tec_strerror(status));
         return status;
     }
 
     i = optind;
     do {
-        args.board = argv[i];
+        args.desk = argv[i];
 
-        if (check_arg_board(&args, errfmt, quiet))
+        if (check_arg_desk(&args, errfmt, quiet))
             continue;
-        if ((status = tec_board_list(teccfg.base.task, &args, ctx))) {
+        if ((status = tec_desk_list(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
-                elog(status, errfmt, args.board, tec_strerror(status));
+                elog(status, errfmt, args.desk, tec_strerror(status));
             continue;
         }
 
@@ -219,7 +219,7 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     atleast_one_key_set = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":d:hq")) != -1) {
         switch (c) {
         case 'd':
@@ -255,9 +255,9 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
     i = optind;
     do {
         int status;
-        args.board = argv[i];
+        args.desk = argv[i];
 
-        if ((status = tec_board_set(teccfg.base.task, &args, ctx))) {
+        if ((status = tec_desk_set(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
         }
@@ -276,7 +276,7 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
 
     units = unitpgn = NULL;
     quiet = showhelp = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'h':
@@ -297,14 +297,14 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        args.board = argv[i];
-        if ((status = tec_board_get(teccfg.base.task, &args, ctx)) != LIBTEC_OK) {
+        args.desk = argv[i];
+        if ((status = tec_desk_get(teccfg.base.task, &args, ctx)) != LIBTEC_OK) {
             if (quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
             continue;
         }
 
-        printf("%-7s : %s\n", "desk", args.board);
+        printf("%-7s : %s\n", "desk", args.desk);
         for (units = ctx->units; units; units = units->next)
             printf("%-7s : %s\n", units->key, units->val);
 
@@ -323,7 +323,7 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hnp:qN")) != -1) {
         switch (c) {
         case 'h':
@@ -361,22 +361,22 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
     if (argv[i] && strcmp("-", argv[i]) == 0) {
         argv[i] = NULL;         /* NULL it cuz it's an alias and illegal desk name.  */
         switch_toggle = true;
-        if ((status = toggle_board_get_prev(teccfg.base.task, &args)))
+        if ((status = toggle_desk_get_prev(teccfg.base.task, &args)))
             return elog(1, errfmt, "PREV", "could not get previous desk");
     }
 
     do {
-        args.board = args.board != NULL ? args.board : argv[i];
-        if ((status = check_arg_board(&args, errfmt, quiet)))
+        args.desk = args.desk != NULL ? args.desk : argv[i];
+        if ((status = check_arg_desk(&args, errfmt, quiet)))
             return status;
     } while (++i < argc);
 
     if (status == LIBTEC_OK && switch_toggle == true) {
-        if (toggle_board_set_curr(teccfg.base.task, &args) && quiet == false)
+        if (toggle_desk_set_curr(teccfg.base.task, &args) && quiet == false)
             status = elog(1, "could not update desk toggles");
     }
 
-    return status == LIBTEC_OK && switch_dir ? tec_pwd_board(&args) : status;
+    return status == LIBTEC_OK && switch_dir ? tec_pwd_desk(&args) : status;
 }
 
 static const builtin_t desk_commands[] = {

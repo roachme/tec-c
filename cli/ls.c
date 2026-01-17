@@ -135,11 +135,11 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
     int i, quiet, show_headers, status;
 
     quiet = show_headers = false;
-    args.env = args.board = args.taskid = NULL;
+    args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:c:hqvtH")) != -1) {
         switch (c) {
         case 'b':
-            args.board = optarg;
+            args.desk = optarg;
             break;
         case 'c':
             filter.column = optarg;
@@ -173,7 +173,7 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
 
         if ((status = check_arg_env(&args, errfmt, quiet)))
             continue;
-        else if ((status = check_arg_board(&args, errfmt, quiet)))
+        else if ((status = check_arg_desk(&args, errfmt, quiet)))
             continue;
         else if ((status = tec_task_list(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
@@ -198,8 +198,8 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
 
         ctx->list = tec_list_free(ctx->list);
 
-        // HOTFIX: cuz I've no clue how to sync board feature into envs.
-        args.board = NULL;
+        // HOTFIX: cuz I've no clue how to sync desk feature into envs.
+        args.desk = NULL;
     } while (++i < argc);
     return status;
 }
