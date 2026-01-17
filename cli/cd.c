@@ -21,14 +21,14 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
         case 'b':
             args.desk = optarg;
             break;
+        case 'e':
+            args.env = optarg;
+            break;
         case 'h':
             showhelp = true;
             break;
         case 'n':
             switch_toggle = false;
-            break;
-        case 'p':
-            args.env = optarg;
             break;
         case 'q':
             quiet = true;

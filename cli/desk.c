@@ -40,14 +40,14 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
     args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hnp:q")) != -1) {
         switch (c) {
+        case 'e':
+            args.env = optarg;
+            break;
         case 'h':
             showhelp = true;
             break;
         case 'n':
             //opt.desk_switch = false;
-            break;
-        case 'p':
-            args.env = optarg;
             break;
         case 'q':
             quiet = true;
@@ -332,7 +332,7 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
         case 'n':
             switch_toggle = false;
             break;
-        case 'p':
+        case 'e':
             args.env = optarg;
             break;
         case 'q':

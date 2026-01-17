@@ -24,16 +24,16 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
     o_autoconfirm = o_quiet = o_showhelp = o_verbose = false;
     args.env = args.desk = args.taskid = NULL;
     errfmt = "cannot remove task '%s': %s";
-    while ((c = getopt(argc, argv, ":b:hp:qyv")) != -1) {
+    while ((c = getopt(argc, argv, ":b:e:hqyv")) != -1) {
         switch (c) {
         case 'b':
             args.desk = optarg;
             break;
+        case 'e':
+            args.env = optarg;
+            break;
         case 'h':
             o_showhelp = true;
-            break;
-        case 'p':
-            args.env = optarg;
             break;
         case 'q':
             o_quiet = true;

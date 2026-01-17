@@ -33,11 +33,11 @@ static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
         case 'c':
             colname = optarg;
             break;
+        case 'e':
+            args.env = optarg;
+            break;
         case 'h':
             showhelp = true;
-            break;
-        case 'p':
-            args.env = optarg;
             break;
         case 'q':
             quiet = true;

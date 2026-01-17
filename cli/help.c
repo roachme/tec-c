@@ -91,9 +91,9 @@ struct help helptab[] = {
      .desc_long = "\n\
     Options:\n\
       -b DESK desk name (default is current)\n\
+      -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -n      do not switch to task\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
       -N      neither switch to task nor to task directory\n\
     \n\
@@ -112,9 +112,9 @@ struct help helptab[] = {
      .desc_long = "\n\
     Options:\n\
       -b DESK desk name (default is current)\n\
+      -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -k KEY  key to show (builtin or plugin)\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
     \n\
     Arguments:\n\
@@ -136,9 +136,9 @@ struct help helptab[] = {
     \n\
     Options:\n\
       -b DESK desk name (default is current)\n\
+      -e ENV  environment name (default is current)\n\
       -n      do not update toggles\n\
       -h      show this help and exit\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
       -N      neither update toggles nor switch to task directory\n\
     \n\
@@ -201,8 +201,8 @@ struct help helptab[] = {
      .desc_long = "\n\
     Options:\n\
       -b DESK desk name (default is current)\n\
+      -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
       -y      remove task without confirmation\n\
       -v      explain what is being done\n\
@@ -222,9 +222,9 @@ struct help helptab[] = {
      .desc_long = "\n\
     Options:\n\
       -b DESK desk name (default is current)\n\
+      -e ENV  environment name (default is current)\n\
       -d      task description\n\
       -h      show this help and exit\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
       -t      task type\n\
       -P      task priority\n\
@@ -296,9 +296,9 @@ struct help helptab[] = {
      .desc_short = "Add new desk.\n",
      .desc_long = "\n\
     Options:\n\
+      -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -n      do not switch to newly created environment\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
     \n\
     Arguments:\n\
@@ -328,8 +328,8 @@ struct help helptab[] = {
      .desc_short = "Move or renome desk.\n",
      .desc_long = "\n\
     Options:\n\
+      -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
     \n\
     Exit status:\n\
@@ -341,8 +341,8 @@ struct help helptab[] = {
      .desc_short = "Switch to previous desk in current environment.\n",
      .desc_long = "\n\
     Options:\n\
+      -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
     \n\
     Arguments:\n\
@@ -358,9 +358,9 @@ struct help helptab[] = {
      .desc_short = "Remove desk(s) from environment.\n",
      .desc_long = "\n\
     Options:\n\
+      -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -n      remove task without confirmation\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
     \n\
     Arguments:\n\
@@ -375,9 +375,9 @@ struct help helptab[] = {
      .desc_short = "Set task unit values.\n",
      .desc_long = "\n\
     Options:\n\
+      -e ENV  environment name (default is current)\n\
       -d      task description\n\
       -h      show this help and exit\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
     \n\
     Arguments:\n\
@@ -394,9 +394,9 @@ struct help helptab[] = {
      .desc_long = "\n\
     Options:\n\
       -b DESK desk name (default is current)\n\
+      -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -k KEY  key to show (builtin or plugin)\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
     \n\
     Arguments:\n\
@@ -414,9 +414,9 @@ struct help helptab[] = {
      .desc_short = "Switch to desk.\n",
      .desc_long = "\n\
     Options:\n\
+      -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -n      do not switch to task\n\
-      -p ENV  environment name (default is current)\n\
       -q      do not write anything to standard error output\n\
     \n\
     Arguments:\n\
@@ -463,10 +463,10 @@ struct help helptab[] = {
     \n\
     Options:\n\
       -b DESK desk name (default is current)\n\
+      -e ENV  environment name (default is current)\n\
       -c COL  column to move task to\n\
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
-      -p ENV  environment name (default is current)\n\
     \n\
     Arguments:\n\
       DESK    desk name (default is current)\n\

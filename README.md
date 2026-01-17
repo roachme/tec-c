@@ -2,7 +2,7 @@
    <!--<img align="center" width="128px" src="crates/gitbutler-tauri/icons/128x128@2x.png" /> -->
 	<h1 align="center"><b>Tec</b></h1>
 	<p align="center">
-        Terminal project and task  manager
+        Terminal project and task manager
     <br />
   </p>
 </div>

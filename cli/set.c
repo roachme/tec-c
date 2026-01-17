@@ -66,7 +66,7 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
         case 'b':
             args.desk = optarg;
             break;
-        case 'p':
+        case 'e':
             args.env = optarg;
             break;
         case 'q':
