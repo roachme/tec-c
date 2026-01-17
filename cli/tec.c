@@ -121,26 +121,26 @@ int is_valid_length(const char *obj, int len)
     return false;
 }
 
-int check_arg_project(tec_arg_t *args, const char *errfmt, int quiet)
+int check_arg_env(tec_arg_t *args, const char *errfmt, int quiet)
 {
     int status;
 
-    if ((status = toggle_project_get_curr(teccfg.base.task, args))) {
+    if ((status = toggle_env_get_curr(teccfg.base.task, args))) {
         if (quiet == false)
-            elog(status, errfmt, "NOCURR", "no current project");
+            elog(status, errfmt, "NOCURR", "no current env");
         return status;
-    } else if ((status = tec_project_valid(teccfg.base.task, args))) {
+    } else if ((status = tec_env_valid(teccfg.base.task, args))) {
         if (quiet == false)
-            elog(status, errfmt, args->project, tec_strerror(status));
+            elog(status, errfmt, args->env, tec_strerror(status));
         return status;
-    } else if (is_valid_length(args->project, PRJSIZ) == false) {
+    } else if (is_valid_length(args->env, PRJSIZ) == false) {
         status = 1;
         if (quiet == false)
-            elog(status, errfmt, args->project, "project name is too long");
+            elog(status, errfmt, args->env, "env name is too long");
         return status;
-    } else if ((status = tec_project_exist(teccfg.base.task, args))) {
+    } else if ((status = tec_env_exist(teccfg.base.task, args))) {
         if (quiet == false)
-            elog(status, errfmt, args->project, tec_strerror(status));
+            elog(status, errfmt, args->env, tec_strerror(status));
         return status;
     }
     return 0;
@@ -227,17 +227,17 @@ tec_unit_t *generate_column(char *colname)
     return column;
 }
 
-int tec_pwd_project(tec_arg_t *args)
+int tec_pwd_env(tec_arg_t *args)
 {
     FILE *fp;
     char *taskdir = teccfg.base.task;
 
     if ((fp = fopen(PWDFILE, "w"))) {
         const char *fmt = "%s/%s\n";
-        const char *debug_fmt = "PWD project: '%s'";
+        const char *debug_fmt = "PWD env: '%s'";
 
-        dlog(1, debug_fmt, args->project);
-        fprintf(fp, fmt, taskdir, args->project);
+        dlog(1, debug_fmt, args->env);
+        fprintf(fp, fmt, taskdir, args->env);
         return fclose(fp);
     }
     return 1;
@@ -251,10 +251,10 @@ int tec_pwd_board(tec_arg_t *args)
 
     if ((fp = fopen(PWDFILE, "w"))) {
         const char *fmt = "%s/%s/%s\n";
-        const char *debug_fmt = "PWD project: '%s', board: '%s'";
+        const char *debug_fmt = "PWD env: '%s', board: '%s'";
 
-        dlog(1, debug_fmt, args->project, args->board);
-        fprintf(fp, fmt, taskdir, args->project, args->board);
+        dlog(1, debug_fmt, args->env, args->board);
+        fprintf(fp, fmt, taskdir, args->env, args->board);
         return fclose(fp);
     }
     return 1;
@@ -267,10 +267,10 @@ int tec_pwd_task(tec_arg_t *args)
 
     if ((fp = fopen(PWDFILE, "w"))) {
         const char *fmt = "%s/%s/%s/%s\n";
-        const char *debug_fmt = "PWD project: '%s', board: '%s', task ID: '%s'";
+        const char *debug_fmt = "PWD env: '%s', board: '%s', task ID: '%s'";
 
-        dlog(1, debug_fmt, args->project, args->board, args->taskid);
-        fprintf(fp, fmt, taskdir, args->project, args->board, args->taskid);
+        dlog(1, debug_fmt, args->env, args->board, args->taskid);
+        fprintf(fp, fmt, taskdir, args->env, args->board, args->taskid);
         return fclose(fp);
     }
     return 1;

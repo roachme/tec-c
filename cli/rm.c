@@ -22,7 +22,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
     int o_quiet, o_showhelp, o_autoconfirm, o_verbose;
 
     o_autoconfirm = o_quiet = o_showhelp = o_verbose = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     errfmt = "cannot remove task '%s': %s";
     while ((c = getopt(argc, argv, ":b:hp:qyv")) != -1) {
         switch (c) {
@@ -33,7 +33,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
             o_showhelp = true;
             break;
         case 'p':
-            args.project = optarg;
+            args.env = optarg;
             break;
         case 'q':
             o_quiet = true;
@@ -54,7 +54,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
     if (o_showhelp == true)
         return help_usage("rm");
 
-    if ((status = check_arg_project(&args, errfmt, o_quiet)))
+    if ((status = check_arg_env(&args, errfmt, o_quiet)))
         return status;
     else if ((status = check_arg_board(&args, errfmt, o_quiet)))
         return status;
@@ -91,8 +91,8 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
             llog(0, "removed task '%s'", args.taskid);
     } while (++i < argc);
 
-    // FIXME: when delete task ID from non-current project,
-    // it switches to current task in current project.
+    // FIXME: when delete task ID from non-current env,
+    // it switches to current task in current env.
     // BUT should not change user's CWD at all.
     return status == LIBTEC_OK ? tec_pwd_task(&args) : status;
 }

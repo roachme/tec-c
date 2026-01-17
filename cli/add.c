@@ -49,7 +49,7 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
     last_taskid = NULL;
     quiet = showhelp = false;
     switch_dir = switch_task = true;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     errfmt = "cannot create task '%s': %s";
     while ((c = getopt(argc, argv, ":b:np:hqN")) != -1) {
         switch (c) {
@@ -57,7 +57,7 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
             args.board = optarg;
             break;
         case 'p':
-            args.project = optarg;
+            args.env = optarg;
             break;
         case 'h':
             showhelp = true;
@@ -82,7 +82,7 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
     if (showhelp == true)
         return help_usage("add");
 
-    if ((status = check_arg_project(&args, errfmt, quiet)))
+    if ((status = check_arg_env(&args, errfmt, quiet)))
         return status;
     else if ((status = check_arg_board(&args, errfmt, quiet)))
         return status;
@@ -115,7 +115,7 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
                 elog(1, errfmt, args.taskid, tec_strerror(LIBTEC_ARG_EXISTS));
             args.taskid = NULL; /* unset task ID, not to break loop.  */
             continue;
-        } else if (generate_units(ctx, args.project, args.taskid)) {
+        } else if (generate_units(ctx, args.env, args.taskid)) {
             if (quiet == false)
                 elog(1, errfmt, args.taskid, "unit generation failed");
             args.taskid = NULL; /* unset task ID, not to break loop.  */

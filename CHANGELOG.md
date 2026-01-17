@@ -17,6 +17,7 @@
 - `cli/help`: Update help messages
 - `cli`: Fix command renaming issues
 - `cli/desk`: Update help messages
+- `tec`: Remove all notions of project prefixes
 
 ### Deleted
 

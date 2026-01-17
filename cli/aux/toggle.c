@@ -26,7 +26,7 @@ static char *path_brd_toggle(char *base, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/.tec/toggles";
     static char pathname[PATH_MAX + 1];
-    sprintf(pathname, fmt, base, args->project);
+    sprintf(pathname, fmt, base, args->env);
     //printf("path.c: %s:pathname: '%s'\n", __func__, pathname);
     return pathname;
 }
@@ -35,7 +35,7 @@ static char *path_task_toggle(char *base, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/%s/.tec/toggles";
     static char pathname[PATH_MAX + 1];
-    sprintf(pathname, fmt, base, args->project, args->board);
+    sprintf(pathname, fmt, base, args->env, args->board);
     //printf("path.c: %s:pathname: '%s'\n", __func__, pathname);
     return pathname;
 }
@@ -118,24 +118,24 @@ static int task_set_prev(char *base, tec_arg_t * args)
 }
 */
 
-/* Toggles: project scope: BEGIN.   */
-int toggle_project_get_curr(char *base, tec_arg_t *args)
+/* Toggles: env scope: BEGIN.   */
+int toggle_env_get_curr(char *base, tec_arg_t *args)
 {
-    if (!args->project && !(args->project = prj_get_curr(base, args)))
+    if (!args->env && !(args->env = prj_get_curr(base, args)))
         return 1;
     return 0;
 }
 
-int toggle_project_get_prev(char *base, tec_arg_t *args)
+int toggle_env_get_prev(char *base, tec_arg_t *args)
 {
-    if (!args->project && !(args->project = prj_get_prev(base, args))) {
-        elog(1, "sserror '%s'", args->project);
+    if (!args->env && !(args->env = prj_get_prev(base, args))) {
+        elog(1, "sserror '%s'", args->env);
         return 1;
     }
     return 0;
 }
 
-/* Toggles: project scope: END.   */
+/* Toggles: env scope: END.   */
 
 int toggle_board_get_curr(char *base, tec_arg_t *args)
 {
@@ -165,13 +165,13 @@ int toggle_task_get_prev(char *base, tec_arg_t *args)
     return 0;
 }
 
-int toggle_project_set_curr(char *base, tec_arg_t *args)
+int toggle_env_set_curr(char *base, tec_arg_t *args)
 {
     char *curr, *prev;
     tec_unit_t *toggles;
 
     toggles = NULL;
-    curr = args->project;
+    curr = args->env;
     prev = prj_get_curr(base, args);
 
     toggles = tec_unit_add(toggles, "curr", curr);
@@ -235,7 +235,7 @@ int toggle_task_set_curr(char *base, tec_arg_t *args)
     return 0;
 }
 
-int toggle_project_swap(char *base, tec_arg_t *args)
+int toggle_env_swap(char *base, tec_arg_t *args)
 {
     char *curr, *prev;
     tec_unit_t *toggles;
@@ -292,7 +292,7 @@ int toggle_task_swap(char *base, tec_arg_t *args)
 /*
  * Update task toggles after a task is renamed.
  * If old_id matches curr or prev, update it to new_id.
- * args must have project and board set for the location.
+ * args must have env and board set for the location.
  */
 int toggle_task_update(char *base, tec_arg_t *args,
                        const char *old_id, const char *new_id)
@@ -331,10 +331,10 @@ int toggle_task_update(char *base, tec_arg_t *args,
 }
 
 /*
- * Clear a task from toggles when it's moved to a different board/project.
+ * Clear a task from toggles when it's moved to a different board/env.
  * If taskid matches curr, promote prev to curr and clear prev.
  * If taskid matches prev, just clear prev.
- * args must have project and board set for the source location.
+ * args must have env and board set for the source location.
  */
 int toggle_task_clear(char *base, tec_arg_t *args, const char *taskid)
 {

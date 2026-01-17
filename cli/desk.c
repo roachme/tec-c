@@ -37,7 +37,7 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
 
     status = LIBTEC_OK;
     showhelp = quiet = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hnp:q")) != -1) {
         switch (c) {
         case 'h':
@@ -47,7 +47,7 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
             //opt.board_switch = false;
             break;
         case 'p':
-            args.project = optarg;
+            args.env = optarg;
             break;
         case 'q':
             quiet = true;
@@ -70,7 +70,7 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
         return 1;
     }
 
-    if ((status = toggle_project_get_curr(teccfg.base.task, &args))) {
+    if ((status = toggle_env_get_curr(teccfg.base.task, &args))) {
         return status;
     }
 
@@ -79,7 +79,7 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
 
         if (generate_units(ctx, args.board)) {
             if (quiet == false)
-                elog(1, errfmt, args.project, "unit generation failed");
+                elog(1, errfmt, args.env, "unit generation failed");
             continue;
         }
         if ((status = tec_board_add(teccfg.base.task, &args, ctx))) {
@@ -107,7 +107,7 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
     showprompt = true;
     status = LIBTEC_OK;
     choice = quiet = showhelp = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hnq")) != -1) {
         switch (c) {
         case 'h':
@@ -146,7 +146,7 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
         }
     } while (++i < argc);
 
-    // TODO: update current directory if current project got deleted.
+    // TODO: update current directory if current env got deleted.
     return status == LIBTEC_OK ? tec_pwd_board(&args) : status;
 }
 
@@ -170,11 +170,11 @@ static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if ((status = toggle_project_get_curr(teccfg.base.task, &args))) {
+    if ((status = toggle_env_get_curr(teccfg.base.task, &args))) {
         if (quiet == false)
-            elog(status, errfmt, "NOCURR", "no current project");
+            elog(status, errfmt, "NOCURR", "no current env");
         return status;
-    } else if ((status = tec_project_valid(teccfg.base.task, &args))) {
+    } else if ((status = tec_env_valid(teccfg.base.task, &args))) {
         if (quiet == false)
             elog(status, errfmt, args.board, tec_strerror(status));
         return status;
@@ -219,7 +219,7 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     atleast_one_key_set = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":d:hq")) != -1) {
         switch (c) {
         case 'd':
@@ -272,11 +272,11 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
     tec_arg_t args;
     int c, i, quiet, showhelp, status;
     struct tec_unit *units, *unitpgn;
-    const char *errfmt = "cannot show project units '%s': %s";
+    const char *errfmt = "cannot show env units '%s': %s";
 
     units = unitpgn = NULL;
     quiet = showhelp = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'h':
@@ -323,7 +323,7 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hnp:qN")) != -1) {
         switch (c) {
         case 'h':
@@ -333,7 +333,7 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
             switch_toggle = false;
             break;
         case 'p':
-            args.project = optarg;
+            args.env = optarg;
             break;
         case 'q':
             quiet = true;
@@ -352,7 +352,7 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
     if (showhelp)
         return help_usage("desk-cd");
 
-    if ((status = check_arg_project(&args, errfmt, quiet)))
+    if ((status = check_arg_env(&args, errfmt, quiet)))
         return status;
 
     i = optind;

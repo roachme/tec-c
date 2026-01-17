@@ -78,7 +78,7 @@ options = {
     debug = false;  /* disable debug info */
 };
 
-/* list of hooks for all projects */
+/* list of hooks for all environments */
 hooks = {
     show = (
         { bincmd = "show"; pgname = "gmux"; pgncmd = "show" },
@@ -142,9 +142,9 @@ Note: \
 
 ## ⇁  Basic workflow
 1. To initalize util type in ` tec init `
-2. Now you're ready to create a project: ` tec project add test `
-3. Once task project is created you can fill it with tasks: ` tec add test1 `
-4. List all your task in current project: ` tec list `
+2. Now you're ready to create a environment: ` tec environment add test `
+3. Once task environment is created you can fill it with tasks: ` tec add test1 `
+4. List all your task in current environment: ` tec list `
 5. Show the content of task: ` tec show test1 `
 6. Sync with current task: ` tec sync `
 7. Or quickly switch to previous task: ` tec prev `

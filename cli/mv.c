@@ -10,26 +10,26 @@
 Usage: tec move SRC... DST
 
 Single move (rename):
-    tec move task1 task11           -> rename task1 to task11 in current project and current board
-    tec move ././task1 ././task11   -> same as above (explicit current project/board)
+    tec move task1 task11           -> rename task1 to task11 in current env and current board
+    tec move ././task1 ././task11   -> same as above (explicit current env/board)
 
 Multiple moves:
     tec move task1 task2 task3 otherboard/
         -> move task1, task2, task3 to otherboard (keeping same task IDs)
     tec move task1 task2 otherproj/otherboard/
-        -> move tasks to different project/board
+        -> move tasks to different env/board
 
 Notes:
-    '.'     - current project/board/task
-    '..'    - previous project/board/task
-    Trailing '/' in DST indicates destination is a directory (project/board), not a task rename
+    '.'     - current env/board/task
+    '..'    - previous env/board/task
+    Trailing '/' in DST indicates destination is a directory (env/board), not a task rename
 
 '.' in arguments can be omited so use current arg by default.
 */
 
 /*
  * Parse a path argument into tec_arg_t components.
- * Format: [project/[board/]]task or ././task
+ * Format: [env/[board/]]task or ././task
  * '.' means current, '..' means previous
  * Returns 0 on success, non-zero on error.
  */
@@ -42,8 +42,8 @@ static int parse_path(const char *path, tec_arg_t *args, const char *errfmt)
 
     if (path == NULL || *path == '\0') {
         /* Empty path means use current for all */
-        if ((status = toggle_project_get_curr(teccfg.base.task, args)))
-            return elog(status, errfmt, ".", "could not get current project");
+        if ((status = toggle_env_get_curr(teccfg.base.task, args)))
+            return elog(status, errfmt, ".", "could not get current env");
         if ((status = toggle_board_get_curr(teccfg.base.task, args)))
             return elog(status, errfmt, ".", "could not get current board");
         if ((status = toggle_task_get_curr(teccfg.base.task, args)))
@@ -64,9 +64,9 @@ static int parse_path(const char *path, tec_arg_t *args, const char *errfmt)
 
     if (nparts == 1) {
         /* Just task ID: "task1" or "." or ".." */
-        if ((status = toggle_project_get_curr(teccfg.base.task, args))) {
+        if ((status = toggle_env_get_curr(teccfg.base.task, args))) {
             free(buf);
-            return elog(status, errfmt, ".", "could not get current project");
+            return elog(status, errfmt, ".", "could not get current env");
         }
         if ((status = toggle_board_get_curr(teccfg.base.task, args))) {
             free(buf);
@@ -89,9 +89,9 @@ static int parse_path(const char *path, tec_arg_t *args, const char *errfmt)
         }
     } else if (nparts == 2) {
         /* board/task: "board/task1" or "./." */
-        if ((status = toggle_project_get_curr(teccfg.base.task, args))) {
+        if ((status = toggle_env_get_curr(teccfg.base.task, args))) {
             free(buf);
-            return elog(status, errfmt, ".", "could not get current project");
+            return elog(status, errfmt, ".", "could not get current env");
         }
 
         if (strcmp(parts[0], ".") == 0) {
@@ -124,21 +124,19 @@ static int parse_path(const char *path, tec_arg_t *args, const char *errfmt)
             args->taskid = strdup(parts[1]);
         }
     } else if (nparts == 3) {
-        /* project/board/task: "proj/board/task1" or "././." */
+        /* env/board/task: "proj/board/task1" or "././." */
         if (strcmp(parts[0], ".") == 0) {
-            if ((status = toggle_project_get_curr(teccfg.base.task, args))) {
+            if ((status = toggle_env_get_curr(teccfg.base.task, args))) {
                 free(buf);
-                return elog(status, errfmt, ".",
-                            "could not get current project");
+                return elog(status, errfmt, ".", "could not get current env");
             }
         } else if (strcmp(parts[0], "..") == 0) {
-            if ((status = toggle_project_get_prev(teccfg.base.task, args))) {
+            if ((status = toggle_env_get_prev(teccfg.base.task, args))) {
                 free(buf);
-                return elog(status, errfmt, "..",
-                            "could not get previous project");
+                return elog(status, errfmt, "..", "could not get previous env");
             }
         } else {
-            args->project = strdup(parts[0]);
+            args->env = strdup(parts[0]);
         }
 
         if (strcmp(parts[1], ".") == 0) {
@@ -202,7 +200,7 @@ static int parse_dest(const char *path, tec_arg_t *args, int *is_dir,
         *is_dir = true;
 
         /* Now parse the path without trailing slash */
-        /* Count slashes to determine if it's project, board, or project/board */
+        /* Count slashes to determine if it's env, board, or env/board */
         int slashes = 0;
         for (size_t j = 0; j < len - 1; j++)
             if (buf[j] == '/')
@@ -224,32 +222,30 @@ static int parse_dest(const char *path, tec_arg_t *args, int *is_dir,
             } else {
                 args->board = strdup(buf);
             }
-            /* Use current project */
-            if (toggle_project_get_curr(teccfg.base.task, args)) {
+            /* Use current env */
+            if (toggle_env_get_curr(teccfg.base.task, args)) {
                 free(buf);
-                return elog(1, errfmt, ".", "could not get current project");
+                return elog(1, errfmt, ".", "could not get current env");
             }
         } else if (slashes == 1) {
-            /* "project/board/" */
+            /* "env/board/" */
             char *slash = strchr(buf, '/');
             *slash = '\0';
             char *proj = buf;
             char *board = slash + 1;
 
             if (strcmp(proj, ".") == 0) {
-                if (toggle_project_get_curr(teccfg.base.task, args)) {
+                if (toggle_env_get_curr(teccfg.base.task, args)) {
                     free(buf);
-                    return elog(1, errfmt, ".",
-                                "could not get current project");
+                    return elog(1, errfmt, ".", "could not get current env");
                 }
             } else if (strcmp(proj, "..") == 0) {
-                if (toggle_project_get_prev(teccfg.base.task, args)) {
+                if (toggle_env_get_prev(teccfg.base.task, args)) {
                     free(buf);
-                    return elog(1, errfmt, "..",
-                                "could not get previous project");
+                    return elog(1, errfmt, "..", "could not get previous env");
                 }
             } else {
-                args->project = strdup(proj);
+                args->env = strdup(proj);
             }
 
             if (strcmp(board, ".") == 0) {
@@ -286,8 +282,8 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
     showhelp = false;
     is_dir = false;
     errfmt = "cannot parse '%s': %s";
-    src.project = src.board = src.taskid = NULL;
-    dst.project = dst.board = dst.taskid = NULL;
+    src.env = src.board = src.taskid = NULL;
+    dst.env = dst.board = dst.taskid = NULL;
 
     while ((c = getopt(argc, argv, ":ft:h")) != -1) {
         switch (c) {
@@ -330,9 +326,9 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
         if ((status = parse_path(argv[i], &src, errfmt)))
             return status;
 
-        /* If destination has no project/board, inherit from source */
-        if (dst.project == NULL)
-            dst.project = src.project;
+        /* If destination has no env/board, inherit from source */
+        if (dst.env == NULL)
+            dst.env = src.env;
         if (dst.board == NULL)
             dst.board = src.board;
 
@@ -342,14 +338,13 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
         }
 
         /* Update toggles after successful move */
-        if (strcmp(src.project, dst.project) == 0 &&
-            strcmp(src.board, dst.board) == 0) {
+        if (strcmp(src.env, dst.env) == 0 && strcmp(src.board, dst.board) == 0) {
             /* Same board: rename - update task ID in toggles */
             if (strcmp(src.taskid, dst.taskid) != 0)
                 toggle_task_update(teccfg.base.task, &src, src.taskid,
                                    dst.taskid);
         } else {
-            /* Different board/project: clear from source toggles */
+            /* Different board/env: clear from source toggles */
             toggle_task_clear(teccfg.base.task, &src, src.taskid);
         }
     } else {
@@ -359,7 +354,7 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
         /* Iterate over all source arguments (all except the last one) */
         for (; i < argc - 1; i++) {
             /* Reset src for each iteration */
-            src.project = src.board = src.taskid = NULL;
+            src.env = src.board = src.taskid = NULL;
 
             if ((status = parse_path(argv[i], &src, errfmt))) {
                 last_status = status;
@@ -368,7 +363,7 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
 
             /* For directory destination, use source task ID as destination task ID */
             tec_arg_t move_dst;
-            move_dst.project = dst.project ? dst.project : src.project;
+            move_dst.env = dst.env ? dst.env : src.env;
             move_dst.board = dst.board ? dst.board : src.board;
             move_dst.taskid = src.taskid;       /* Keep same task ID */
 
@@ -379,14 +374,14 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
                 last_status = status;
             } else {
                 /* Update toggles after successful move */
-                if (strcmp(src.project, move_dst.project) == 0 &&
+                if (strcmp(src.env, move_dst.env) == 0 &&
                     strcmp(src.board, move_dst.board) == 0) {
                     /* Same board: rename - update task ID in toggles */
                     if (strcmp(src.taskid, move_dst.taskid) != 0)
                         toggle_task_update(teccfg.base.task, &src,
                                            src.taskid, move_dst.taskid);
                 } else {
-                    /* Different board/project: clear from source toggles */
+                    /* Different board/env: clear from source toggles */
                     toggle_task_clear(teccfg.base.task, &src, src.taskid);
                 }
             }

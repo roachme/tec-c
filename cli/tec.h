@@ -69,7 +69,7 @@ extern column_t builtin_columns[];
 extern unsigned int nbuiltin_column;
 
 int is_valid_length(const char *obj, int len);
-int check_arg_project(tec_arg_t * args, const char *errfmt, int quiet);
+int check_arg_env(tec_arg_t * args, const char *errfmt, int quiet);
 int check_arg_board(tec_arg_t * args, const char *errfmt, int quiet);
 int check_arg_task(tec_arg_t * args, const char *errfmt, int quiet);
 
@@ -83,7 +83,7 @@ int help_lookup(const char *cmd);
 int tec_pwd_unset(void);
 int tec_pwd_task(tec_arg_t * args);
 int tec_pwd_board(tec_arg_t * args);
-int tec_pwd_project(tec_arg_t * args);
+int tec_pwd_env(tec_arg_t * args);
 int elog(int status, const char *fmt, ...);
 int dlog(int level, const char *fmt, ...);
 int llog(int status, const char *fmt, ...);

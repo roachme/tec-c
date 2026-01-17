@@ -14,7 +14,7 @@ static char *path_pgn(tec_arg_t *args, char *name, char *cmd)
 {
     const char *fmt = "%s/%s/%s -T %s -P %s %s -p %s -b %s -i %s";
     sprintf(pathname, fmt, teccfg.base.pgn, name, name, teccfg.base.task,
-            teccfg.base.pgn, cmd, args->project, args->board, args->taskid);
+            teccfg.base.pgn, cmd, args->env, args->board, args->taskid);
     return pathname;
 }
 
@@ -62,7 +62,7 @@ int hook_show(tec_unit_t **units, tec_arg_t *args, char *cmd)
 }
 
 /*
-char *hook_list(struct tec_hook *hooks, char *pgnout, char *project, char *task)
+char *hook_list(struct tec_hook *hooks, char *pgnout, char *env, char *task)
 {
     FILE *pipe;
     char *prefix = "  ";
@@ -77,7 +77,7 @@ char *hook_list(struct tec_hook *hooks, char *pgnout, char *project, char *task)
             continue;
 
         if ((pipe =
-             popen(genpath_pgn(project, task, hooks->pgname, hooks->pgncmd),
+             popen(genpath_pgn(env, task, hooks->pgname, hooks->pgncmd),
                    "r")) == NULL) {
             return NULL;
         }

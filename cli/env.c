@@ -40,7 +40,7 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
     status = LIBTEC_OK;
     showhelp = quiet = false;
     switch_dir = switch_env = true;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hnqN")) != -1) {
         switch (c) {
         case 'b':
@@ -82,20 +82,20 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
         args.board = "board";
 
     for (i = optind; i < argc; ++i) {
-        args.project = argv[i];
+        args.env = argv[i];
 
-        if (is_valid_length(args.project, PRJSIZ) == false) {
+        if (is_valid_length(args.env, PRJSIZ) == false) {
             if (quiet == false)
-                elog(status, errfmt, args.project, "env name is too long");
+                elog(status, errfmt, args.env, "env name is too long");
             continue;
-        } else if ((status = tec_project_valid(teccfg.base.task, &args))) {
+        } else if ((status = tec_env_valid(teccfg.base.task, &args))) {
             if (quiet == false)
-                elog(status, errfmt, args.project, tec_strerror(status));
+                elog(status, errfmt, args.env, tec_strerror(status));
             continue;
-        } else if (!(status = tec_project_exist(teccfg.base.task, &args))) {
-            char *project = args.project;
+        } else if (!(status = tec_env_exist(teccfg.base.task, &args))) {
+            char *env = args.env;
             if (quiet == false)
-                elog(status, errfmt, project, tec_strerror(LIBTEC_ARG_EXISTS));
+                elog(status, errfmt, env, tec_strerror(LIBTEC_ARG_EXISTS));
             continue;
         }
 
@@ -115,13 +115,13 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
             continue;
         }
 
-        if (generate_units(ctx, args.project)) {
+        if (generate_units(ctx, args.env)) {
             if (quiet == false)
-                elog(1, errfmt, args.project, "unit generation failed");
+                elog(1, errfmt, args.env, "unit generation failed");
             continue;
         }
 
-        if ((status = tec_project_add(teccfg.base.task, &args, ctx))) {
+        if ((status = tec_env_add(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
                 elog(1, errfmt, argv[i], tec_strerror(status));
             continue;
@@ -136,7 +136,7 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
     ctx->column = tec_unit_free(ctx->column);
 
     if ((switch_env && status == LIBTEC_OK)
-        && toggle_project_set_curr(teccfg.base.task, &args)) {
+        && toggle_env_set_curr(teccfg.base.task, &args)) {
         if (quiet == false)
             elog(status, "could not update env toggles");
         return 1;
@@ -147,8 +147,7 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
         return 1;
     }
 
-    return (switch_dir
-            && status == LIBTEC_OK) ? tec_pwd_project(&args) : status;
+    return (switch_dir && status == LIBTEC_OK) ? tec_pwd_env(&args) : status;
 }
 
 static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
@@ -160,7 +159,7 @@ static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
 
     showprompt = true;
     choice = quiet = showhelp = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hnq")) != -1) {
         switch (c) {
         case 'b':
@@ -195,16 +194,15 @@ static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        args.project = argv[i];
-        if ((status =
-             tec_project_del(teccfg.base.task, &args, ctx)) != LIBTEC_OK) {
+        args.env = argv[i];
+        if ((status = tec_env_del(teccfg.base.task, &args, ctx)) != LIBTEC_OK) {
             if (quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
         }
     } while (++i < argc);
 
     // TODO: update current directory if current env got deleted.
-    return status == LIBTEC_OK ? tec_pwd_project(&args) : status;
+    return status == LIBTEC_OK ? tec_pwd_env(&args) : status;
 }
 
 static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
@@ -213,7 +211,7 @@ static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
     tec_arg_t args;
 
     quiet = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":q")) != -1) {
         switch (c) {
         case 'q':
@@ -226,7 +224,7 @@ static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if ((status = tec_project_list(teccfg.base.task, &args, ctx))) {
+    if ((status = tec_env_list(teccfg.base.task, &args, ctx))) {
         if (quiet == false) {
             const char *errfmt = "cannot list env(s) '%s': %s";
             elog(status, errfmt, "ENV", tec_strerror(status));
@@ -248,7 +246,7 @@ static int _env_prev(int argc, char **argv, tec_ctx_t *ctx)
     int quiet, showhelp, status;
 
     quiet = showhelp = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     errfmt = "cannot switch to previous env '%s': %s";
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
@@ -268,23 +266,23 @@ static int _env_prev(int argc, char **argv, tec_ctx_t *ctx)
     if (showhelp == true)
         return help_usage("env-prev");
 
-    if ((status = toggle_project_get_prev(teccfg.base.task, &args))) {
+    if ((status = toggle_env_get_prev(teccfg.base.task, &args))) {
         if (quiet == false)
             elog(status, errfmt, "NOPREV", "no previous env");
         return status;
-    } else if ((status = toggle_project_get_curr(teccfg.base.task, &args))) {
+    } else if ((status = toggle_env_get_curr(teccfg.base.task, &args))) {
         if (quiet == false)
             elog(status, errfmt, "NOCURR", "no current env");
         return status;
     }
 
-    if (toggle_project_swap(teccfg.base.task, &args)) {
+    if (toggle_env_swap(teccfg.base.task, &args)) {
         if (quiet == false)
             elog(1, "could not update toggle");
         return 1;
     }
 
-    return status == LIBTEC_OK ? tec_pwd_project(&args) : status;
+    return status == LIBTEC_OK ? tec_pwd_env(&args) : status;
 }
 
 static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
@@ -295,8 +293,8 @@ static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     errfmt = "could not rename env: %s";
-    src.project = src.board = src.taskid = NULL;
-    dst.project = dst.board = dst.taskid = NULL;
+    src.env = src.board = src.taskid = NULL;
+    dst.env = dst.board = dst.taskid = NULL;
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'h':
@@ -316,27 +314,27 @@ static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
     if (argc - optind != 2)
         return elog(1, "source or destination env name missing");
 
-    src.project = argv[optind];
-    dst.project = argv[optind + 1];
+    src.env = argv[optind];
+    dst.env = argv[optind + 1];
 
     /* TODO: trigger hooks if any */
 
-    if ((status = check_arg_project(&src, errfmt, quiet)))
+    if ((status = check_arg_env(&src, errfmt, quiet)))
         return status;
-    else if ((status = check_arg_project(&src, errfmt, quiet)))
+    else if ((status = check_arg_env(&src, errfmt, quiet)))
         return status;
-    else if (tec_project_exist(teccfg.base.task, &dst)) {
+    else if (tec_env_exist(teccfg.base.task, &dst)) {
         if (quiet == false)
-            elog(1, "'%s': destination env exists\n", dst.project);
+            elog(1, "'%s': destination env exists\n", dst.env);
         return status;
     }
 
-    if ((status = tec_project_rename(teccfg.base.task, &src, &dst, NULL))) {
+    if ((status = tec_env_rename(teccfg.base.task, &src, &dst, NULL))) {
         if (quiet == false)
             elog(status, errfmt, tec_strerror(status));
         return status;
     }
-    return tec_pwd_project(&dst);
+    return tec_pwd_env(&dst);
 }
 
 static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
@@ -348,7 +346,7 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     atleast_one_key_set = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:d:hq")) != -1) {
         switch (c) {
         case 'b':
@@ -387,9 +385,9 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
     i = optind;
     do {
         int status;
-        args.project = argv[i];
+        args.env = argv[i];
 
-        if ((status = tec_project_set(teccfg.base.task, &args, ctx))) {
+        if ((status = tec_env_set(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
         }
@@ -409,7 +407,7 @@ static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
 
     unitbin = unitpgn = NULL;
     quiet = showhelp = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hq")) != -1) {
         switch (c) {
         case 'b':
@@ -433,14 +431,14 @@ static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        args.project = argv[i];
-        if ((status = tec_project_get(teccfg.base.task, &args, ctx))) {
+        args.env = argv[i];
+        if ((status = tec_env_get(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
             continue;
         }
 
-        printf("%-7s : %s\n", "env", args.project);
+        printf("%-7s : %s\n", "env", args.env);
         for (unitbin = ctx->units; unitbin; unitbin = unitbin->next)
             printf("%-7s : %s\n", unitbin->key, unitbin->val);
 
@@ -459,7 +457,7 @@ static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:hnqN")) != -1) {
         switch (c) {
         case 'b':
@@ -494,25 +492,25 @@ static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
     if (argv[i] && strcmp("-", argv[i]) == 0) {
         argv[i] = NULL;         /* NULL it cuz it's an alias and illegal environment name.  */
         switch_toggle = true;
-        if ((status = toggle_project_get_prev(teccfg.base.task, &args)))
+        if ((status = toggle_env_get_prev(teccfg.base.task, &args)))
             return elog(1, errfmt, "PREV",
                         "could not get previous environment");
     }
 
     do {
-        args.project = args.project != NULL ? args.project : argv[i];
+        args.env = args.env != NULL ? args.env : argv[i];
 
-        if ((status = check_arg_project(&args, errfmt, quiet)))
+        if ((status = check_arg_env(&args, errfmt, quiet)))
             continue;
     } while (++i < argc);
 
     if (status == LIBTEC_OK && switch_toggle == true) {
-        if (toggle_project_set_curr(teccfg.base.task, &args)
+        if (toggle_env_set_curr(teccfg.base.task, &args)
             && quiet == false)
             status = elog(1, "could not update env toggles");
     }
 
-    return status == LIBTEC_OK && switch_dir ? tec_pwd_project(&args) : status;
+    return status == LIBTEC_OK && switch_dir ? tec_pwd_env(&args) : status;
 }
 
 static const builtin_t env_commands[] = {

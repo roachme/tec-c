@@ -9,7 +9,7 @@ typedef struct tec_list tec_list_t;
 typedef struct tec_context tec_ctx_t;
 
 struct tec_arg {
-    char *project;
+    char *env;
     char *board;
     char *taskid;
 };
@@ -85,8 +85,8 @@ int tec_unit_save(const char *filename, tec_unit_t * units);
 void *tec_list_free(tec_list_t * list);
 
 /* Input argument functions.  */
-int tec_project_exist(const char *taskdir, tec_arg_t * args);
-int tec_project_valid(const char *taskdir, tec_arg_t * args);
+int tec_env_exist(const char *taskdir, tec_arg_t * args);
+int tec_env_valid(const char *taskdir, tec_arg_t * args);
 int tec_board_exist(const char *taskdir, tec_arg_t * args);
 int tec_board_valid(const char *taskdir, tec_arg_t * args);
 int tec_task_exist(const char *taskdir, tec_arg_t * args);
@@ -116,16 +116,14 @@ int tec_board_column_get(const char *taskdir, tec_arg_t * args,
                          tec_ctx_t * ctx);
 
 /* Project functions.  */
-int tec_project_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_project_del(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_project_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_project_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_project_rename(const char *taskdir, tec_arg_t * src, tec_arg_t * dst,
-                       tec_ctx_t * ctx);
-int tec_project_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_project_column_set(const char *taskdir, tec_arg_t * args,
-                           tec_ctx_t * ctx);
-int tec_project_column_get(const char *taskdir, tec_arg_t * args,
-                           tec_ctx_t * ctx);
+int tec_env_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_env_del(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_env_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_env_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_env_rename(const char *taskdir, tec_arg_t * src, tec_arg_t * dst,
+                   tec_ctx_t * ctx);
+int tec_env_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_env_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
+int tec_env_column_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 
 #endif

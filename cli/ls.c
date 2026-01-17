@@ -135,7 +135,7 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
     int i, quiet, show_headers, status;
 
     quiet = show_headers = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:c:hqvtH")) != -1) {
         switch (c) {
         case 'b':
@@ -169,20 +169,20 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        args.project = argv[i];
+        args.env = argv[i];
 
-        if ((status = check_arg_project(&args, errfmt, quiet)))
+        if ((status = check_arg_env(&args, errfmt, quiet)))
             continue;
         else if ((status = check_arg_board(&args, errfmt, quiet)))
             continue;
         else if ((status = tec_task_list(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
-                elog(status, errfmt, args.project, tec_strerror(status));
+                elog(status, errfmt, args.env, tec_strerror(status));
             continue;
         }
 
         if (show_headers == true)
-            printf("Project: %s\n", args.project);
+            printf("Project: %s\n", args.env);
 
         // TODO: add hooks
         // TODO: optimize object traverse (traverse multiple times)
@@ -198,7 +198,7 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
 
         ctx->list = tec_list_free(ctx->list);
 
-        // HOTFIX: cuz I've no clue how to sync board feature into projects.
+        // HOTFIX: cuz I've no clue how to sync board feature into envs.
         args.board = NULL;
     } while (++i < argc);
     return status;

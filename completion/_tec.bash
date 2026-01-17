@@ -5,16 +5,16 @@ function _comp_tec()
         ["help"]="Show help message for command"
         ["init"]="Init directory structure"
 
-        ["add"]="Add task to project"
-        ["del"]="Delete task from project"
-        ["list"]="List project tasks"
+        ["add"]="Add task to env"
+        ["del"]="Delete task from env"
+        ["list"]="List env tasks"
         ["move"]="Move (rename) tasks"
         ["set"]="Set task unit values"
         ["show"]="Show task unit values"
         ["sync"]="Switch or synchronize task"
 
         ["board"]="Manage and show boards"
-        ["project"]="Manage and show projects"
+        ["env"]="Manage and show envs"
     )
     declare -A UTIL_OPT=(
         ["-h"]="display help information"

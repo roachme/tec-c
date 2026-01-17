@@ -59,7 +59,7 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
     const char *errfmt = "cannot set task units '%s': %s";
 
     quiet = false;
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:d:p:qt:P:")) != -1) {
         // TODO: add a protection for duplicates, use map data structure
         switch (c) {
@@ -67,7 +67,7 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
             args.board = optarg;
             break;
         case 'p':
-            args.project = optarg;
+            args.env = optarg;
             break;
         case 'q':
             quiet = true;
@@ -103,7 +103,7 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if ((status = check_arg_project(&args, errfmt, quiet)))
+    if ((status = check_arg_env(&args, errfmt, quiet)))
         return status;
     else if ((status = check_arg_board(&args, errfmt, quiet)))
         return status;

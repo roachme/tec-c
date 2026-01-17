@@ -24,7 +24,7 @@ static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
     colname = "todo";           /* Default column to move task to.  */
     quiet = showhelp = false;
     errfmt = "cannot move task to column '%s': %s";
-    args.project = args.board = args.taskid = NULL;
+    args.env = args.board = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":b:c:hp:q")) != -1) {
         switch (c) {
         case 'b':
@@ -37,7 +37,7 @@ static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
             showhelp = true;
             break;
         case 'p':
-            args.project = optarg;
+            args.env = optarg;
             break;
         case 'q':
             quiet = true;
@@ -51,9 +51,9 @@ static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
     if (showhelp == true)
         return help_usage("column-move");
 
-    if ((status = toggle_project_get_curr(teccfg.base.task, &args))) {
+    if ((status = toggle_env_get_curr(teccfg.base.task, &args))) {
         if (quiet == false)
-            elog(status, errfmt, "NOCURR", "no current project");
+            elog(status, errfmt, "NOCURR", "no current env");
         return status;
     } else if ((status = toggle_board_get_curr(teccfg.base.task, &args))) {
         if (quiet == false)

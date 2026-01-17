@@ -21,13 +21,13 @@ _subcommands() {
     subcommands=(
         'help:Show help for commands'
         'init:Init directory structure'
-        'add:Add a new task to project'
+        'add:Add a new task to env'
         'cat:Concatenate task unit values'
         'desk:Manage and show desks'
-        'ls:List project tasks'
+        'ls:List env tasks'
         'mv:Move (rename) tasks'
         'prev:Switch to previous task'
-        'rm:Remove task from project'
+        'rm:Remove task from env'
         'set:Set task unit values'
         'cd:Switch to task'
         'column:Manage and show columns'
@@ -44,7 +44,7 @@ _tec_help() {
     case $state in
         command)
             local -a help_topics
-            help_topics=(${(k)_tec_subcommands} ${(k)_tec_board_subcommands} ${(k)_tec_column_subcommands} ${(k)_tec_project_subcommands})
+            help_topics=(${(k)_tec_subcommands} ${(k)_tec_board_subcommands} ${(k)_tec_column_subcommands} ${(k)_tec_env_subcommands})
             _describe 'help topic' help_topics
             ;;
     esac
@@ -55,7 +55,7 @@ _tec_add() {
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to task]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '(-N)'{-N,--no-switch-dir}'[neither switch to task nor to task directory]' \
         '*:task ID:'
@@ -65,7 +65,7 @@ _tec_rm() {
     _arguments \
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '(-y)'{-y,--yes}'[remove without confirmation]' \
         '*:task ID:_tec_tasks'
@@ -80,15 +80,15 @@ _tec_ls() {
         '(-v)'{-v,--verbose}'[show more verbose output]' \
         '(-t)'{-t,--toggles}'[show only toggle switches]' \
         '(-H)'{-H,--headers}'[show headers]' \
-        '*:project:_tec_projects'
+        '*:env:_tec_envs'
 }
 
 _tec_mv() {
     _arguments \
-        '(-d)'{-d,--destination}'[destination project]:project:_tec_projects' \
+        '(-d)'{-d,--destination}'[destination env]:env:_tec_envs' \
         '(-f)'{-f,--force}'[overwrite destination task]' \
-        '(-s)'{-s,--source}'[source project]:project:_tec_projects' \
-        '(-T)'{-T,--tasks}'[treat all IDs as source to move to project]' \
+        '(-s)'{-s,--source}'[source env]:env:_tec_envs' \
+        '(-T)'{-T,--tasks}'[treat all IDs as source to move to env]' \
         '*:task ID:_tec_tasks'
 }
 
@@ -96,7 +96,7 @@ _tec_prev() {
     _arguments \
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]'
 }
 
@@ -105,7 +105,7 @@ _tec_set() {
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-d)'{-d,--description}'[task description]' \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '(-t)'{-t,--type}'[task type]:type:(task bugfix feature hotfix)' \
         '(-P)'{-P,--priority}'[task priority]:priority:(lowest low mid high highest)' \
@@ -117,7 +117,7 @@ _tec_cat() {
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-k)'{-k,--key}'[key to show]:key' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:task ID:_tec_tasks'
 }
@@ -127,7 +127,7 @@ _tec_cd() {
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-n)'{-n,--no-update}'[do not update toggles]' \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '(-N)'{-N,--no-switch-dir}'[neither update toggles nor switch to task directory]' \
         '*:task ID:_tec_tasks'
@@ -177,7 +177,7 @@ _tec_desk_add() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to new board]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:board name:'
 }
@@ -186,7 +186,7 @@ _tec_desk_rm() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-confirm}'[remove without confirmation]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:board name:_tec_boards'
 }
@@ -195,13 +195,13 @@ _tec_desk_ls() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        ':project:_tec_projects'
+        ':env:_tec_envs'
 }
 
 _tec_desk_mv() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         ':source board:_tec_boards' \
         ':destination board:'
@@ -210,7 +210,7 @@ _tec_desk_mv() {
 _tec_desk_prev() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]'
 }
 
@@ -218,7 +218,7 @@ _tec_desk_set() {
     _arguments \
         '(-d)'{-d,--description}'[board description]' \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:board name:_tec_boards'
 }
@@ -228,7 +228,7 @@ _tec_desk_cat() {
         '(-b)'{-b,--board}'[board name]:board:_tec_boards' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-k)'{-k,--key}'[key to show]:key' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:board name:_tec_boards'
 }
@@ -237,7 +237,7 @@ _tec_desk_cd() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to board]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '*:board name:_tec_boards'
 }
@@ -281,7 +281,7 @@ _tec_column_move() {
         '(-c)'{-c,--column}'[column to move to]:column:_tec_columns' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '(-p)'{-p,--project}'[project name]:project:_tec_projects' \
+        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
         '*:task ID:_tec_tasks'
 }
 
@@ -299,16 +299,16 @@ _tec_env() {
         subcmd)
             local -a env_subcommands
             env_subcommands=(
-                'add:Add a new project'
-                'cat:Concatenate project info'
+                'add:Add a new env'
+                'cat:Concatenate env info'
                 'cd:Switch to environment'
-                'ls:List projects'
-                'prev:Switch to previous project'
-                'rename:Rename project'
-                'rm:Remove project with all boards and tasks'
-                'set:Set project values'
+                'ls:List envs'
+                'prev:Switch to previous env'
+                'rename:Rename env'
+                'rm:Remove env with all boards and tasks'
+                'set:Set env values'
             )
-            _describe -t commands 'project subcommand' env_subcommands
+            _describe -t commands 'env subcommand' env_subcommands
             ;;
         args)
             case $line[1] in
@@ -331,7 +331,7 @@ _tec_env_add() {
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-switch}'[do not switch to new environment]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:project name:'
+        '*:env name:'
 }
 
 _tec_env_rm() {
@@ -339,7 +339,7 @@ _tec_env_rm() {
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-confirm}'[remove without confirmation]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:project name:_tec_projects'
+        '*:env name:_tec_envs'
 }
 
 _tec_env_ls() {
@@ -358,39 +358,39 @@ _tec_env_rename() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        ':source project:_tec_projects' \
-        ':destination project:'
+        ':source env:_tec_envs' \
+        ':destination env:'
 }
 
 _tec_env_set() {
     _arguments \
-        '(-d)'{-d,--description}'[project description]' \
+        '(-d)'{-d,--description}'[env description]' \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:project name:_tec_projects'
+        '*:env name:_tec_envs'
 }
 
 _tec_env_cat() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:project name:_tec_projects'
+        '*:env name:_tec_envs'
 }
 
 _tec_env_cd() {
     _arguments \
         '(-h)'{-h,--help}'[show help and exit]' \
-        '(-n)'{-n,--no-switch}'[do not switch to project]' \
+        '(-n)'{-n,--no-switch}'[do not switch to env]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '*:project name:_tec_projects'
+        '*:env name:_tec_envs'
 }
 
 # Helper functions
-_tec_projects() {
-    local -a projects
-    # This would ideally query the actual projects, but for completion we'll just provide a stub
-    projects=('project1' 'project2' 'project3')
-    _describe 'project' projects
+_tec_envs() {
+    local -a envs
+    # This would ideally query the actual envs, but for completion we'll just provide a stub
+    envs=('env1' 'env2' 'env3')
+    _describe 'env' envs
 }
 
 _tec_boards() {

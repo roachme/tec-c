@@ -14,7 +14,7 @@ Priorities:
 
 Bugs:
 + 1. Command `tec col prev <TASKID>` moves task to column 'prev' even if no current task ID is set.
-  2. Command `tec move` can't move multiple task to another project.
+  2. Command `tec move` can't move multiple task to another environment.
   3. Command `tec move` cant move 2 task to destination. It simply renames it.
 + 4. Command `tec set -d 'description'` causes malloc fail, when set longer
      description than before.
@@ -34,8 +34,8 @@ Ideas:
   7. Add plugin workflow to move task from columns to column
   8. Add libtec NOT as submodule but dependency
   9. Use command `gh` to generate releases
- 10. Unify project/board/task's unit and column modules.
- 11. Add config option to enable/disable board support in project.
+ 10. Unify environment/board/task's unit and column modules.
+ 11. Add config option to enable/disable board support in environment.
  12. Add commands export/import to move tasks in and out of boards.
  13. Add short list of exit statuses, other than libtec provides.
  14. Add support for command 'tec sync -n', to add task to curr column, but not change to task directory
