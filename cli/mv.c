@@ -16,7 +16,7 @@ Single move (rename):
 Multiple moves:
     tec move task1 task2 task3 otherdesk/
         -> move task1, task2, task3 to otherdesk (keeping same task IDs)
-    tec move task1 task2 otherproj/otherdesk/
+    tec move task1 task2 otherenv/otherdesk/
         -> move tasks to different env/desk
 
 Notes:
@@ -124,7 +124,7 @@ static int parse_path(const char *path, tec_arg_t *args, const char *errfmt)
             args->taskid = strdup(parts[1]);
         }
     } else if (nparts == 3) {
-        /* env/desk/task: "proj/desk/task1" or "././." */
+        /* env/desk/task: "env/desk/task1" or "././." */
         if (strcmp(parts[0], ".") == 0) {
             if ((status = toggle_env_get_curr(teccfg.base.task, args))) {
                 free(buf);
@@ -230,21 +230,21 @@ static int parse_dest(const char *path, tec_arg_t *args, int *is_dir,
             /* "env/desk/" */
             char *slash = strchr(buf, '/');
             *slash = '\0';
-            char *proj = buf;
+            char *env = buf;
             char *desk = slash + 1;
 
-            if (strcmp(proj, ".") == 0) {
+            if (strcmp(env, ".") == 0) {
                 if (toggle_env_get_curr(teccfg.base.task, args)) {
                     free(buf);
                     return elog(1, errfmt, ".", "could not get current env");
                 }
-            } else if (strcmp(proj, "..") == 0) {
+            } else if (strcmp(env, "..") == 0) {
                 if (toggle_env_get_prev(teccfg.base.task, args)) {
                     free(buf);
                     return elog(1, errfmt, "..", "could not get previous env");
                 }
             } else {
-                args->env = strdup(proj);
+                args->env = strdup(env);
             }
 
             if (strcmp(desk, ".") == 0) {

@@ -20,7 +20,7 @@ static int generate_task(tec_arg_t *args)
     return 1;
 }
 
-static int generate_units(tec_ctx_t *ctx, char *prj, char *task)
+static int generate_units(tec_ctx_t *ctx, char *env, char *task)
 {
     char date[BUFSIZ + 1];
     struct tec_unit *units = NULL;

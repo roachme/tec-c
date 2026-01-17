@@ -103,7 +103,7 @@ int tec_task_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_task_column_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_task_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 
-/* Board functions.  */
+/* Desk functions.  */
 int tec_desk_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_desk_del(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_desk_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
@@ -113,7 +113,7 @@ int tec_desk_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_desk_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_desk_column_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 
-/* Project functions.  */
+/* Environment functions.  */
 int tec_env_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_env_del(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_env_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);

@@ -2,7 +2,7 @@
 tec init
 
 # We create a testing environment, name it 'test' and add some tasks
-tec prj add test
+tec env add test
 tec add test1
 tec add test2
 tec add test3

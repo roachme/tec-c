@@ -182,7 +182,7 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
         }
 
         if (show_headers == true)
-            printf("Project: %s\n", args.env);
+            printf("Environment: %s\n", args.env);
 
         // TODO: add hooks
         // TODO: optimize object traverse (traverse multiple times)

@@ -4,16 +4,16 @@
 
 #include "../tec.h"
 
-static char prj_curr[PRJSIZ + 1];
-static char prj_prev[PRJSIZ + 1];
+static char env_curr[PRJSIZ + 1];
+static char env_prev[PRJSIZ + 1];
 
-static char brd_curr[BRDSIZ + 1];
-static char brd_prev[BRDSIZ + 1];
+static char desk_curr[BRDSIZ + 1];
+static char desk_prev[BRDSIZ + 1];
 
 static char task_curr[IDSIZ + 1];
 static char task_prev[IDSIZ + 1];
 
-static char *path_prj_toggle(char *base, const tec_arg_t *args)
+static char *path_env_toggle(char *base, const tec_arg_t *args)
 {
     const char *fmt = "%s/.tec/toggles";
     static char pathname[PATH_MAX + 1];
@@ -22,7 +22,7 @@ static char *path_prj_toggle(char *base, const tec_arg_t *args)
     return pathname;
 }
 
-static char *path_brd_toggle(char *base, const tec_arg_t *args)
+static char *path_desk_toggle(char *base, const tec_arg_t *args)
 {
     const char *fmt = "%s/%s/.tec/toggles";
     static char pathname[PATH_MAX + 1];
@@ -64,14 +64,14 @@ static char *_get_toggle(const char *fname, char *buf, char *togname)
     return buf[0] == '\0' ? NULL : buf;
 }
 
-static char *prj_get_curr(char *base, tec_arg_t *args)
+static char *env_get_curr(char *base, tec_arg_t *args)
 {
-    return _get_toggle(path_prj_toggle(base, args), prj_curr, "curr");
+    return _get_toggle(path_env_toggle(base, args), env_curr, "curr");
 }
 
-static char *brd_get_curr(char *base, tec_arg_t *args)
+static char *desk_get_curr(char *base, tec_arg_t *args)
 {
-    return _get_toggle(path_brd_toggle(base, args), brd_curr, "curr");
+    return _get_toggle(path_desk_toggle(base, args), desk_curr, "curr");
 }
 
 static char *task_get_curr(char *base, tec_arg_t *args)
@@ -80,25 +80,25 @@ static char *task_get_curr(char *base, tec_arg_t *args)
 }
 
 /*
-static char *prj_get_prev(char *base, tec_arg_t * args)
+static char *env_get_prev(char *base, tec_arg_t * args)
 {
-    return _get_toggle(path_prj_toggle(base, args), prj_prev, "prev");
+    return _get_toggle(path_env_toggle(base, args), env_prev, "prev");
 }
 
-static char *brd_get_prev(char *base, tec_arg_t * args)
+static char *desk_get_prev(char *base, tec_arg_t * args)
 {
-    return _get_toggle(path_brd_toggle(base, args), brd_prev, "prev");
+    return _get_toggle(path_desk_toggle(base, args), desk_prev, "prev");
 }
 */
 
-static char *prj_get_prev(char *base, tec_arg_t *args)
+static char *env_get_prev(char *base, tec_arg_t *args)
 {
-    return _get_toggle(path_prj_toggle(base, args), prj_prev, "prev");
+    return _get_toggle(path_env_toggle(base, args), env_prev, "prev");
 }
 
-static char *brd_get_prev(char *base, tec_arg_t *args)
+static char *desk_get_prev(char *base, tec_arg_t *args)
 {
-    return _get_toggle(path_brd_toggle(base, args), brd_prev, "prev");
+    return _get_toggle(path_desk_toggle(base, args), desk_prev, "prev");
 }
 
 static char *task_get_prev(char *base, tec_arg_t *args)
@@ -121,14 +121,14 @@ static int task_set_prev(char *base, tec_arg_t * args)
 /* Toggles: env scope: BEGIN.   */
 int toggle_env_get_curr(char *base, tec_arg_t *args)
 {
-    if (!args->env && !(args->env = prj_get_curr(base, args)))
+    if (!args->env && !(args->env = env_get_curr(base, args)))
         return 1;
     return 0;
 }
 
 int toggle_env_get_prev(char *base, tec_arg_t *args)
 {
-    if (!args->env && !(args->env = prj_get_prev(base, args))) {
+    if (!args->env && !(args->env = env_get_prev(base, args))) {
         elog(1, "sserror '%s'", args->env);
         return 1;
     }
@@ -139,14 +139,14 @@ int toggle_env_get_prev(char *base, tec_arg_t *args)
 
 int toggle_desk_get_curr(char *base, tec_arg_t *args)
 {
-    if (!args->desk && !(args->desk = brd_get_curr(base, args)))
+    if (!args->desk && !(args->desk = desk_get_curr(base, args)))
         return 1;
     return 0;
 }
 
 int toggle_desk_get_prev(char *base, tec_arg_t *args)
 {
-    if (!args->desk && !(args->desk = brd_get_prev(base, args)))
+    if (!args->desk && !(args->desk = desk_get_prev(base, args)))
         return 1;
     return 0;
 }
@@ -172,7 +172,7 @@ int toggle_env_set_curr(char *base, tec_arg_t *args)
 
     toggles = NULL;
     curr = args->env;
-    prev = prj_get_curr(base, args);
+    prev = env_get_curr(base, args);
 
     toggles = tec_unit_add(toggles, "curr", curr);
     if (prev)
@@ -182,7 +182,7 @@ int toggle_env_set_curr(char *base, tec_arg_t *args)
     if (prev && strcmp(curr, prev) == 0) {
         // do nothing
     } else {
-        tec_unit_save(path_prj_toggle(base, args), toggles);
+        tec_unit_save(path_env_toggle(base, args), toggles);
     }
     tec_unit_free(toggles);
     return 0;
@@ -195,7 +195,7 @@ int toggle_desk_set_curr(char *base, tec_arg_t *args)
 
     toggles = NULL;
     curr = args->desk;
-    prev = brd_get_curr(base, args);
+    prev = desk_get_curr(base, args);
 
     toggles = tec_unit_add(toggles, "curr", curr);
     if (prev)
@@ -205,7 +205,7 @@ int toggle_desk_set_curr(char *base, tec_arg_t *args)
     if (prev && strcmp(curr, prev) == 0) {
         // do nothing
     } else {
-        tec_unit_save(path_brd_toggle(base, args), toggles);
+        tec_unit_save(path_desk_toggle(base, args), toggles);
     }
     tec_unit_free(toggles);
     return 0;
@@ -241,8 +241,8 @@ int toggle_env_swap(char *base, tec_arg_t *args)
     tec_unit_t *toggles;
 
     toggles = NULL;
-    curr = prj_get_curr(base, args);
-    prev = prj_get_prev(base, args);
+    curr = env_get_curr(base, args);
+    prev = env_get_prev(base, args);
 
     if (curr == NULL || prev == NULL)
         return 1;
@@ -250,7 +250,7 @@ int toggle_env_swap(char *base, tec_arg_t *args)
     toggles = tec_unit_add(toggles, "curr", prev);
     toggles = tec_unit_add(toggles, "prev", curr);
 
-    return tec_unit_save(path_prj_toggle(base, args), toggles);
+    return tec_unit_save(path_env_toggle(base, args), toggles);
 }
 
 int toggle_desk_swap(char *base, tec_arg_t *args)
@@ -259,8 +259,8 @@ int toggle_desk_swap(char *base, tec_arg_t *args)
     tec_unit_t *toggles;
 
     toggles = NULL;
-    curr = brd_get_curr(base, args);
-    prev = brd_get_prev(base, args);
+    curr = desk_get_curr(base, args);
+    prev = desk_get_prev(base, args);
 
     if (curr == NULL || prev == NULL)
         return 1;
@@ -268,7 +268,7 @@ int toggle_desk_swap(char *base, tec_arg_t *args)
     toggles = tec_unit_add(toggles, "curr", prev);
     toggles = tec_unit_add(toggles, "prev", curr);
 
-    return tec_unit_save(path_brd_toggle(base, args), toggles);
+    return tec_unit_save(path_desk_toggle(base, args), toggles);
 }
 
 int toggle_task_swap(char *base, tec_arg_t *args)
