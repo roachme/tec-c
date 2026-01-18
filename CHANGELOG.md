@@ -25,6 +25,7 @@
 ### Deleted
 
 - `cli/version`: Delete command version
+- `cli/aux/hook`: Delete unnecessary option `-P` to hooks
 
 
 ## [0.2.0] - (2026-01-10)
