@@ -79,18 +79,6 @@ static char *task_get_curr(char *base, tec_arg_t *args)
     return _get_toggle(path_task_toggle(base, args), task_curr, "curr");
 }
 
-/*
-static char *env_get_prev(char *base, tec_arg_t * args)
-{
-    return _get_toggle(path_env_toggle(base, args), env_prev, "prev");
-}
-
-static char *desk_get_prev(char *base, tec_arg_t * args)
-{
-    return _get_toggle(path_desk_toggle(base, args), desk_prev, "prev");
-}
-*/
-
 static char *env_get_prev(char *base, tec_arg_t *args)
 {
     return _get_toggle(path_env_toggle(base, args), env_prev, "prev");
@@ -105,18 +93,6 @@ static char *task_get_prev(char *base, tec_arg_t *args)
 {
     return _get_toggle(path_task_toggle(base, args), task_prev, "prev");
 }
-
-/*
-static int task_set_curr(char *base, tec_arg_t * args)
-{
-    return 0;
-}
-
-static int task_set_prev(char *base, tec_arg_t * args)
-{
-    return 0;
-}
-*/
 
 /* Toggles: env scope: BEGIN.   */
 int toggle_env_get_curr(char *base, tec_arg_t *args)
