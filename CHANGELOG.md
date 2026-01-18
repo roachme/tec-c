@@ -22,6 +22,7 @@
 - `tec`: Remove all notions of project prefixes
 - `tec`: Remove all notions of board prefixes
 - `tec/aux/toggle`: Fix buffer size
+- `cli/cd`: Simplify logic to switch to alias
 
 ### Deleted
 
