@@ -114,13 +114,6 @@ static int valid_toggle(char *tog)
     return -1;
 }
 
-int is_valid_length(const char *obj, int len)
-{
-    if (strlen(obj) <= len)
-        return true;
-    return false;
-}
-
 int check_arg_env(tec_arg_t *args, const char *errfmt, int quiet)
 {
     int status;
