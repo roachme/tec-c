@@ -84,7 +84,7 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
     for (i = optind; i < argc; ++i) {
         args.env = argv[i];
 
-        if (is_valid_length(args.env, PRJSIZ) == false) {
+        if (is_valid_length(args.env, ENVSIZ) == false) {
             if (quiet == false)
                 elog(status, errfmt, args.env, "env name is too long");
             continue;
@@ -103,7 +103,7 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
             if (quiet == false)
                 elog(status, errfmt_desk, args.desk, tec_strerror(status));
             continue;
-        } else if (is_valid_length(args.desk, BRDSIZ) == false) {
+        } else if (is_valid_length(args.desk, DESKSIZ) == false) {
             if (quiet == false)
                 elog(status, errfmt_desk, args.desk, "desk name is too long");
             continue;
