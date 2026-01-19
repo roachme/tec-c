@@ -45,6 +45,8 @@ clean:
 	rm -rf artifacts build
 	rm -rf $(PROGRAM) $(OBJS)
 
+re: clean $(PROGRAM)
+
 check:
 	cppcheck --std=c89 --enable=all --language=c $(SRCS)
 
