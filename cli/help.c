@@ -90,7 +90,7 @@ struct help helptab[] = {
      .desc_short = "Add a new task to environment.\n",
      .desc_long = "\n\
     Options:\n\
-      -b DESK desk name (default is current)\n\
+      -d DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -n      do not switch to task\n\
@@ -111,7 +111,7 @@ struct help helptab[] = {
      .desc_short = "Concatenate task unit values.\n",
      .desc_long = "\n\
     Options:\n\
-      -b DESK desk name (default is current)\n\
+      -d DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -k KEY  key to show (builtin or plugin)\n\
@@ -135,7 +135,7 @@ struct help helptab[] = {
     If ID is \"-\", switch to previous task ID, if exists.\n\
     \n\
     Options:\n\
-      -b DESK desk name (default is current)\n\
+      -d DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
       -n      do not update toggles\n\
       -h      show this help and exit\n\
@@ -200,7 +200,7 @@ struct help helptab[] = {
      .desc_short = "Remove task from environment.\n",
      .desc_long = "\n\
     Options:\n\
-      -b DESK desk name (default is current)\n\
+      -d DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
@@ -221,7 +221,7 @@ struct help helptab[] = {
      .desc_short = "Set task unit values.\n",
      .desc_long = "\n\
     Options:\n\
-      -b DESK desk name (default is current)\n\
+      -d DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
@@ -393,7 +393,7 @@ struct help helptab[] = {
      .desc_short = "Concatenate desk unit values.\n",
      .desc_long = "\n\
     Options:\n\
-      -b DESK desk name (default is current)\n\
+      -d DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -k KEY  key to show (builtin or plugin)\n\
@@ -462,7 +462,7 @@ struct help helptab[] = {
      .desc_long = "\n\
     \n\
     Options:\n\
-      -b DESK desk name (default is current)\n\
+      -d DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
       -c COL  column to move task to\n\
       -h      show this help and exit\n\
@@ -509,7 +509,7 @@ struct help helptab[] = {
      .desc_short = "Add new environment(s).\n",
      .desc_long = "\n\
     Options:\n\
-      -b      desk name (default is 'desk-000')\n\
+      -d      desk name (default is 'desk-000')\n\
       -h      show this help and exit\n\
       -n      do not switch to newly created environment\n\
       -q      do not write anything to standard error output\n\

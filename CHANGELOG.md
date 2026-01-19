@@ -21,6 +21,7 @@
 - `cli/desk`: Update help messages
 - `tec`: Remove all notions of project prefixes
 - `tec`: Remove all notions of board prefixes
+- `cli`: Fix help messages
 
 ### Deleted
 
