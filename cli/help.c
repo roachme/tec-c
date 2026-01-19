@@ -156,8 +156,9 @@ struct help helptab[] = {
      .desc_short = "List environment tasks.\n",
      .desc_long = "\n\
     Options:\n\
-      -a      list all tasks\n\
-      -b DESK desk name (default is current)\n\
+      -a      list all tasks (including done)\n\
+      -c COL  list tasks on specific column\n\
+      -d DESK desk name (default is current)\n\
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
       -v      under development: show more verbose output\n\

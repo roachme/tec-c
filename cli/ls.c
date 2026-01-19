@@ -22,24 +22,25 @@ Note:
 */
 
 struct list_filter {
+    int all;
     int toggle;
     char *column;
 };
 
 static struct list_filter filter = {
+    .all = false,
     .toggle = false,
     .column = NULL,
 };
 
-// TODO: tec list -aT - fails. is that a bug?
-// roachme: refactor this shit
-static int check_filters(int quiet)
+static int check_filters(void)
 {
-    if (filter.toggle) {
-        filter.column = NULL;
-    } else if (filter.column) {
-        filter.toggle = false;
-    }
+    if (filter.toggle && filter.column)
+        return elog(1, "options `-%s' and `-%s' are not compatible", "t", "c");
+    else if (filter.toggle && filter.all)
+        return elog(1, "options `-%s' and `-%s' are not compatible", "t", "a");
+    else if (filter.column && filter.all)
+        return elog(1, "options `-%s' and `-%s' are not compatible", "c", "a");
     return 0;
 }
 
@@ -136,8 +137,11 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
 
     quiet = show_headers = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":d:c:hqvtH")) != -1) {
+    while ((c = getopt(argc, argv, ":ad:c:hqvtH")) != -1) {
         switch (c) {
+        case 'a':
+            filter.all = true;
+            break;
         case 'd':
             args.desk = optarg;
             break;
@@ -164,7 +168,7 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if (check_filters(quiet))
+    if (check_filters())
         return 1;
 
     i = optind;

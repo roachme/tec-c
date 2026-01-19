@@ -22,6 +22,7 @@
 - `tec`: Remove all notions of project prefixes
 - `tec`: Remove all notions of board prefixes
 - `cli`: Fix help messages
+- `cli`: Fix command `ls` option check
 
 ### Deleted
 
