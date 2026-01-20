@@ -39,7 +39,7 @@ Ideas:
  11. Add config option to enable/disable desk support in environment.
  12. Add commands export/import to move tasks in and out of desks.
  13. Add short list of exit statuses, other than libtec provides.
- 14. Add support for command 'tec sync -n', to add task to curr column, but not change to task directory
++14. Add support for command 'tec sync -n', to add task to curr column, but not change to task directory
  15. Make ID generatation bigger than the last ID. Might run outta IDs, but just think about it.
  16. Add support for mark into `tec list`. For builtin and custom columns
  17. Add task directory option for command `tec init [DIR]`. If nothing's passed use value from config file.
@@ -81,11 +81,12 @@ Prio: mid
 + 6. Print PWD in /tmp/tecpwd. Then shell part will it from there.
 + 7. In command `add`: if no ID provided then generate task ID.
 + 8. Why use tec_get_args() if tec_check_arg_id() get default values anyway?
-  9. Delete option `-A' from command `tec list`. Cuz i can use option `-a'
++ 9. Delete option `-A' from command `tec list`. Cuz i can use option `-a'
 +10. Module unit has unit_set() and unit_add(). Delete unit_add() cuz unit_set()
      will check if key exists and change it its value or adds new key-value in the end.
 
 
 Prio: low
-  1. Add command autocomplitions
-  7. Fucking OPTIMIZED core commands. The latency should be <= 0.01 with 100 tasks
++ 1. Add command autocomplitions
++ 2. Add command autocomplitions for bash
+  3. Fucking OPTIMIZED core commands. The latency should be <= 0.01 with 100 tasks
