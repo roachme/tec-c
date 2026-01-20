@@ -35,12 +35,12 @@
 #define IDFMT       "%0" xstr(IDSIZ) "u"
 #define PADDING_UNIT     6
 
-#define LIST_OBJ_UNITS(_mark, _obj, _pgnout, _desc) {\
+#define LIST_OBJ_UNITS(_mark, _obj, _pgnout, _desc) do {\
     color_print_str("%-" xstr(COLSIZ) "s ", (_mark), YEL); \
     color_print_str("%-" xstr(IDSIZ) "s ", (_obj), BBLU); \
     color_print_str("%s ", (_pgnout), WHT); \
     color_print_str("%s\n", (_desc), WHT); \
-}\
+} while (0)
 
 #define CTX_INIT { .column = NULL, .units = NULL, .list = NULL }
 
