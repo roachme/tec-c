@@ -23,6 +23,7 @@
 - `tec`: Remove all notions of board prefixes
 - `cli`: Fix help messages
 - `cli`: Fix command `ls` option check
+- `cli/cd`: Fix multiple task IDs
 
 ### Deleted
 

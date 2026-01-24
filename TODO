@@ -21,7 +21,7 @@ Bugs:
   5. NULL-termination should follow `strncpy(dst, src, len)`. In case `src`
      is equal to `len` it'll end without '\0'. Checked it with valgrind.
   6. Command `tec move` does not work after adding new feature to support desks.
-  7. `tec cd taskID1 taskID2` doesn't set previous toggle.
++ 7. `tec cd taskID1 taskID2` doesn't set previous toggle.
 
 
 Ideas:
