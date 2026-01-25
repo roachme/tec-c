@@ -7,6 +7,15 @@
 #include "aux/config.h"
 #include "aux/toggle.h"
 
+/*
+typedef struct tec_cli_status {
+    const char *fmt;
+    char *obj;
+    char *msg;
+    int status;
+} tec_cli_status_t;
+*/
+
 struct config teccfg;
 char *unitkeys[] = { "prio", "type", "date", "desc", };
 
