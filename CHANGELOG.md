@@ -1,3 +1,14 @@
+## [Unreleased]
+
+### Added
+
+### Changed
+
+### Fixed
+
+- `completion/_tec.zsh`: Update command list
+
+
 ## [0.2.1] - (2026-01-25)
 
 ### Added

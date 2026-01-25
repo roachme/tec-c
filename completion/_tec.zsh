@@ -19,17 +19,17 @@ global_opts=(
 
 _subcommands() {
     subcommands=(
-        'help:Show help for commands'
-        'init:Init directory structure'
         'add:Add a new task to env'
         'cat:Concatenate task unit values'
+        'cd:Switch to task'
+        'cfg:Manage and show configs'
         'desk:Manage and show desks'
+        'help:Show help for commands'
+        'init:Init directory structure'
         'ls:List env tasks'
         'mv:Move (rename) tasks'
-        'prev:Switch to previous task'
         'rm:Remove task from env'
         'set:Set task unit values'
-        'cd:Switch to task'
         'column:Manage and show columns'
         'env:Manage and show environments'
     )
