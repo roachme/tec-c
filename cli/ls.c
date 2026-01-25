@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "tec.h"
 #include "aux/toggle.h"
 #include "aux/config.h"
@@ -13,7 +15,7 @@ Column names:
     done
 
 Options:
-    -a      show alls (default)
+    -a      show alls
     -t      show only toggles
     -c COL  show tasks on specific column
 
@@ -89,7 +91,15 @@ static void show_column(tec_ctx_t *ctx, tec_arg_t *args, tec_list_t *obj,
             return;
         else if ((colname = get_column_name(ctx, args, quiet)) == NULL)
             return;
-        LIST_OBJ_UNITS(colname, obj->name, "", desc);
+
+        if (filter.column && strcmp(filter.column, colname) == 0) {
+            LIST_OBJ_UNITS(colname, obj->name, "", desc);
+        } else if (filter.all == true) {
+            LIST_OBJ_UNITS(colname, obj->name, "", desc);
+        } else if (filter.column == NULL && strcmp(colname, "done") != 0) {
+            LIST_OBJ_UNITS(colname, obj->name, "", desc);
+        }
+
         ctx->units = tec_unit_free(ctx->units);
         ctx->column = tec_unit_free(ctx->column);
     }
