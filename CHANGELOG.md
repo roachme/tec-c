@@ -24,6 +24,7 @@
 - `cli`: Fix help messages
 - `cli`: Fix command `ls` option check
 - `cli/cd`: Fix multiple task IDs
+- `cli/cd`: Fix task ID invalid loop
 
 ### Deleted
 

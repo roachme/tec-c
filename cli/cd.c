@@ -67,15 +67,19 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
     do {
         args.taskid = args.taskid != NULL ? args.taskid : argv[i];
 
-        if ((status = check_arg_task(&args, errfmt, quiet)))
+        if ((status = check_arg_task(&args, errfmt, quiet))) {
+            args.taskid = NULL; /* unset task ID, not to break loop.  */
             continue;
-        else if (hook_action(&args, "cd")) {
+        } else if (hook_action(&args, "cd")) {
             if (quiet == false)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
+            args.taskid = NULL; /* unset task ID, not to break loop.  */
             continue;
         } else if (switch_toggle == true) {
-            if (toggle_task_set_curr(teccfg.base.task, &args) && quiet == false)
+            if (toggle_task_set_curr(teccfg.base.task, &args) && quiet == false) {
                 status = elog(1, "could not update toggles");
+                args.taskid = NULL;     /* unset task ID, not to break loop.  */
+            }
         }
 
         /* TODO: find a better trick.  */
