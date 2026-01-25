@@ -26,6 +26,7 @@
 - `cli/cd`: Fix multiple task IDs
 - `cli/cd`: Fix task ID invalid loop
 - `cli/ls`: Fix logic for options
+- `cli/aux/hook`: Fix invalid desk option
 
 ### Deleted
 
