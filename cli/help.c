@@ -60,7 +60,7 @@ struct help helptab[] = {
     {
      .tag = TAGSYSTEM,
      .name = "help",
-     .synop = "Usage: " PROGRAM " help [OPTION] [CMD]\n",
+     .synop = "Usage: " PROGRAM " help [OPTION]... [CMD]\n",
      .desc_short = "Show help for commands.\n",
      .desc_long = "\n\
     If no CMD passed, list all commands with short description.\n\
@@ -245,7 +245,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJ,
      .name = "cfg",
-     .synop = "Usage: " PROGRAM " cfg SUBCMD [OPTION] ARGS\n",
+     .synop = "Usage: " PROGRAM " cfg SUBCMD [OPTION]... ARGS\n",
      .desc_short = "Manage and show configs (under development).\n",
      .desc_long = "\n\
     Arguments:\n\
@@ -268,7 +268,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJ,
      .name = "desk",
-     .synop = "Usage: " PROGRAM " desk SUBCMD [OPTION] NAME\n",
+     .synop = "Usage: " PROGRAM " desk SUBCMD [OPTION]... ARGS\n",
      .desc_short = "Manage and show desks.\n",
      .desc_long = "\n\
     Arguments:\n\
@@ -293,7 +293,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "desk-add",
-     .synop = "Usage: " PROGRAM " desk add [OPTION] [NAME]...\n",
+     .synop = "Usage: " PROGRAM " desk add [OPTION]... [NAME]...\n",
      .desc_short = "Add new desk.\n",
      .desc_long = "\n\
     Options:\n\
@@ -311,7 +311,7 @@ struct help helptab[] = {
      .tag = TAGOBJCMD,
      .name = "desk-ls",
      .synop = "Usage: " PROGRAM " desk ls [OPTION]... [ENV] \n",
-     .desc_short = "List desks\n",
+     .desc_short = "List desks.\n",
      .desc_long = "\n\
     Options:\n\
       -h      show this help and exit\n\
@@ -325,7 +325,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "desk-mv",
-     .synop = "Usage: " PROGRAM " desk mv [OPTION] [SRC|DST]\n",
+     .synop = "Usage: " PROGRAM " desk mv [OPTION]... [SRC|DST]\n",
      .desc_short = "Move or renome desk.\n",
      .desc_long = "\n\
     Options:\n\
@@ -355,7 +355,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "desk-rm",
-     .synop = "Usage: " PROGRAM " desk rm [OPTION] [NAME]...\n",
+     .synop = "Usage: " PROGRAM " desk rm [OPTION]... [NAME]...\n",
      .desc_short = "Remove desk(s) from environment.\n",
      .desc_long = "\n\
     Options:\n\
@@ -430,7 +430,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJ,
      .name = "column",
-     .synop = "Usage: " PROGRAM " column SUBCMD [OPTION] ARGS\n",
+     .synop = "Usage: " PROGRAM " column SUBCMD [OPTION]... ARGS\n",
      .desc_short = "Manage and show columns.\n",
      .desc_long = "\n\
     Arguments:\n\
@@ -449,7 +449,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "column-ls",
-     .synop = "Usage: " PROGRAM " column ls [OPTION]\n",
+     .synop = "Usage: " PROGRAM " column ls [OPTION]...\n",
      .desc_short = "List columns.\n",
      .desc_long = "\n\
     \n\
@@ -458,7 +458,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "column-move",
-     .synop = "Usage: " PROGRAM " column move [OPTION] [ID]...\n",
+     .synop = "Usage: " PROGRAM " column move [OPTION]... [ID]...\n",
      .desc_short = "Move task to column.\n",
      .desc_long = "\n\
     \n\
@@ -481,7 +481,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJ,
      .name = "env",
-     .synop = "Usage: " PROGRAM " env SUBCMD [OPTION] NAME\n",
+     .synop = "Usage: " PROGRAM " env SUBCMD [OPTION]... ARGS\n",
      .desc_short = "Manage and show environments.\n",
      .desc_long = "\n\
     Arguments:\n\
@@ -506,7 +506,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "env-add",
-     .synop = "Usage: " PROGRAM " env add [OPTION] NAME...\n",
+     .synop = "Usage: " PROGRAM " env add [OPTION]... [NAME]...\n",
      .desc_short = "Add new environment(s).\n",
      .desc_long = "\n\
     Options:\n\
@@ -523,7 +523,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "env-cat",
-     .synop = "Usage: " PROGRAM " env cat [OPTION] [NAME]...\n",
+     .synop = "Usage: " PROGRAM " env cat [OPTION]... [NAME]...\n",
      .desc_short = "Concatenate environment(s) info.\n",
      .desc_long = "\n\
     \n\
@@ -539,7 +539,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "env-cd",
-     .synop = "Usage: " PROGRAM " env cd [OPTION] NAME...\n",
+     .synop = "Usage: " PROGRAM " env cd [OPTION]... [NAME]...\n",
      .desc_short = "Switch to environment.\n",
      .desc_long = "\n\
     Options:\n\
@@ -555,7 +555,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "env-ls",
-     .synop = "Usage: " PROGRAM " env ls [OPTION]\n",
+     .synop = "Usage: " PROGRAM " env ls [OPTION]...\n",
      .desc_short = "List environment(s).\n",
      .desc_long = "\n\
     \n\
@@ -596,7 +596,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "env-rm",
-     .synop = "Usage: " PROGRAM " env rm [OPTION] NAME...\n",
+     .synop = "Usage: " PROGRAM " env rm [OPTION]... [NAME]...\n",
      .desc_short = "Remove environment(s).\n",
      .desc_long = "\n\
     Options:\n\
@@ -612,7 +612,7 @@ struct help helptab[] = {
     {
      .tag = TAGOBJCMD,
      .name = "env-set",
-     .synop = "Usage: " PROGRAM " env set [OPTION] [NAME]...\n",
+     .synop = "Usage: " PROGRAM " env set [OPTION]... [NAME]...\n",
      .desc_short = "Set environment unit values.\n",
      .desc_long = "\n\
     Arguments:\n\
