@@ -225,6 +225,7 @@ struct help helptab[] = {
       -d DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
+      -i      set unit values in interactive mode (under development)\n\
       -q      do not write anything to standard error output\n\
       -t      task type\n\
       -D      task description\n\

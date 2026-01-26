@@ -2,6 +2,8 @@
 
 ### Added
 
+- `cli/set`: Add skeleton for interactive option
+
 ### Changed
 
 ### Fixed

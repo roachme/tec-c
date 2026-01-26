@@ -56,11 +56,12 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
     char c;
     int i, quiet, status;
     tec_arg_t args;
+    int opt_interactive, opt_help;
     const char *errfmt = "cannot set task units '%s': %s";
 
-    quiet = false;
+    opt_help = opt_interactive = quiet = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":d:e:qt:D:P:")) != -1) {
+    while ((c = getopt(argc, argv, ":d:e:hiqt:D:P:")) != -1) {
         // TODO: add a protection for duplicates, use map data structure
         switch (c) {
         case 'd':
@@ -71,6 +72,12 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
             break;
         case 'q':
             quiet = true;
+            break;
+        case 'h':
+            opt_help = true;
+            break;
+        case 'i':
+            opt_interactive = true;
             break;
         case 't':
             if (valid_type(optarg) == false) {
@@ -102,6 +109,9 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+
+    if (opt_help == true)
+        return help_usage("set");
 
     if ((status = check_arg_env(&args, errfmt, quiet)))
         return status;
