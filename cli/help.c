@@ -658,7 +658,7 @@ int help_usage(const char *cmd)
         if (strcmp(helptab[i].name, cmd) == 0) {
             printf("%s", helptab[i].synop);
             printf("Try '" PROGRAM " help %s' for more info.\n", cmd);
-            return 1;
+            return 0;
         }
     }
     return elog(1, "%s: command not found", cmd);
