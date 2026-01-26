@@ -10,6 +10,7 @@
 
 - `completion/_tec.zsh`: Update command list
 - `cli/help`: Fix exit code
+- `cli`: Add missing help options
 
 
 ## [0.2.1] - (2026-01-25)

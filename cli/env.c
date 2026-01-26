@@ -208,13 +208,18 @@ static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
 {
     int c, quiet, status;
     tec_arg_t args;
+    int opt_help;
 
     quiet = false;
+    opt_help = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":q")) != -1) {
+    while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'q':
             quiet = true;
+            break;
+        case 'h':
+            opt_help = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -222,6 +227,9 @@ static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+
+    if (opt_help == true)
+        return help_usage("env-ls");
 
     if ((status = tec_env_list(teccfg.base.task, &args, ctx))) {
         if (quiet == false) {

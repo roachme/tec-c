@@ -155,13 +155,18 @@ static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     int c, i, quiet, status;
+    int opt_help;
     const char *errfmt = "cannot list desk(s) '%s': %s";
 
     quiet = false;
-    while ((c = getopt(argc, argv, ":q")) != -1) {
+    opt_help = false;
+    while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'q':
             quiet = true;
+            break;
+        case 'h':
+            opt_help = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -169,6 +174,9 @@ static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+
+    if (opt_help == true)
+        return help_usage("desk-ls");
 
     if ((status = toggle_env_get_curr(teccfg.base.task, &args))) {
         if (quiet == false)
