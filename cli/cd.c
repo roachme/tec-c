@@ -11,9 +11,7 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
     char alias[IDSIZ + 1] = { 0 };
     int i, quiet, showhelp, status;
     int switch_toggle, switch_dir;
-    char *last_taskid;
 
-    last_taskid = NULL;
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
     errfmt = "cannot switch to '%s': %s";
@@ -56,39 +54,39 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
 
-    /* Alias to switch to previous task ID.  */
-    if (argv[i] && strcmp("-", argv[i]) == 0) {
-        argv[i] = NULL;         /* NULL it cuz it's an alias and illegal task ID.  */
-        if ((status = toggle_task_get_prev(teccfg.base.task, &args)))
-            return elog(1, errfmt, "PREV", "could not get previous task ID");
-        args.taskid = strncpy(alias, args.taskid, IDSIZ);
+    /* Check that alias '-' is not passed among task IDs.  */
+    for (int idx = 1; idx < argc; ++idx) {
+        if (strcmp(argv[idx], "-") == 0 && argc > 2)
+            return elog(1, "alias '-' cannot be used with other task IDs");
     }
 
     do {
-        args.taskid = args.taskid != NULL ? args.taskid : argv[i];
+        args.taskid = argv[i];
+
+        /* TODO: move alias logic out of loop. But before that create custom
+         * structure to store argv and argc cuz they're gonno be rewritten.  */
+
+        /* Alias to switch to previous task ID.  */
+        if (args.taskid && strcmp("-", args.taskid) == 0) {
+            args.taskid = NULL; /* unset task ID.  */
+            if ((status = toggle_task_get_prev(teccfg.base.task, &args)))
+                return elog(1, errfmt, "PREV", "no previous task ID");
+            args.taskid = strncpy(alias, args.taskid, IDSIZ);
+        }
 
         if ((status = check_arg_task(&args, errfmt, quiet))) {
-            args.taskid = NULL; /* unset task ID, not to break loop.  */
             continue;
         } else if (hook_action(&args, "cd")) {
             if (quiet == false)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
-            args.taskid = NULL; /* unset task ID, not to break loop.  */
             continue;
         } else if (switch_toggle == true) {
             if (toggle_task_set_curr(teccfg.base.task, &args) && quiet == false) {
                 status = elog(1, "could not update toggles");
-                args.taskid = NULL;     /* unset task ID, not to break loop.  */
             }
         }
-
-        /* TODO: find a better trick.  */
-        last_taskid = args.taskid;
-        args.taskid = NULL;     /* unset task ID, not to break loop.  */
     } while (++i < argc);
 
-    // BUG: it switches to last successfull task ID, not the one passed by user.
-    args.taskid = last_taskid;
-
+    // BUG: if one of the task ID is invalid return non-zero return code
     return status == LIBTEC_OK && switch_dir ? tec_pwd_task(&args) : status;
 }

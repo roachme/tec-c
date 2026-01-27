@@ -133,6 +133,8 @@ struct help helptab[] = {
      .desc_long = "\n\
     Swtich to task ID. The default ID is the current task ID.\n\
     If ID is \"-\", switch to previous task ID, if exists.\n\
+    Alias \"-\" cannot be used with other task IDs. Doudle '-'\n\
+    cannot be passed either.\n\
     \n\
     Options:\n\
       -d DESK desk name (default is current)\n\
@@ -148,7 +150,8 @@ struct help helptab[] = {
       ENV     environment name (default current)\n\
     \n\
     Exit status:\n\
-    Under development\n"},
+    The return code is zero, unless invalid option passed, one of the task ID\n\
+    is invalid or one the hooks falied to execute (if hooks used).\n"},
     {
      .tag = TAGBASIC,
      .name = "ls",
