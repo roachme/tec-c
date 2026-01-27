@@ -13,6 +13,7 @@
 - `cli`: Add missing help options
 - `cli/aux/toggle`: Fix toggle logic if no toggle found
 - `cli/cd`: Fix alias mixed with task IDs
+- `cli/cd`: Fix return code
 
 
 ## [0.2.1] - (2026-01-25)

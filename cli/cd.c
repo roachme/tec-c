@@ -9,9 +9,10 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
     tec_arg_t args;
     char c, *errfmt;
     char alias[IDSIZ + 1] = { 0 };
-    int i, quiet, showhelp, status;
+    int i, quiet, showhelp, retcode, status;
     int switch_toggle, switch_dir;
 
+    retcode = LIBTEC_OK;
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
     errfmt = "cannot switch to '%s': %s";
@@ -62,6 +63,7 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     do {
         args.taskid = argv[i];
+        retcode = status == LIBTEC_OK ? retcode : status;
 
         /* TODO: move alias logic out of loop. But before that create custom
          * structure to store argv and argc cuz they're gonno be rewritten.  */
@@ -79,14 +81,18 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
         } else if (hook_action(&args, "cd")) {
             if (quiet == false)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
+            status = 1;         /* TODO: use cli return codes.  */
             continue;
         } else if (switch_toggle == true) {
             if (toggle_task_set_curr(teccfg.base.task, &args) && quiet == false) {
-                status = elog(1, "could not update toggles");
+                if (quiet == false)
+                    elog(1, "could not update toggles");
+                status = 1;     /* TODO: use cli return codes.  */
+                continue;
             }
         }
     } while (++i < argc);
 
-    // BUG: if one of the task ID is invalid return non-zero return code
-    return status == LIBTEC_OK && switch_dir ? tec_pwd_task(&args) : status;
+    retcode = status == LIBTEC_OK ? retcode : status;
+    return retcode == LIBTEC_OK && switch_dir ? tec_pwd_task(&args) : retcode;
 }
