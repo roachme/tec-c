@@ -57,6 +57,8 @@ static char *_get_toggle(const char *fname, char *buf, char *togname)
     if ((toggle = tec_unit_key(units, togname))) {
         strncpy(buf, toggle, PRJSIZ);
         buf[PRJSIZ] = '\0';
+    } else {
+        buf[0] = '\0';          /* toggle current or previous not found. */
     }
 
     tec_unit_free(units);
