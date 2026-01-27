@@ -87,6 +87,7 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
         args.taskid = NULL;     /* unset task ID, not to break loop.  */
     } while (++i < argc);
 
+    // BUG: it switches to last successfull task ID, not the one passed by user.
     args.taskid = last_taskid;
 
     return status == LIBTEC_OK && switch_dir ? tec_pwd_task(&args) : status;
