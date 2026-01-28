@@ -341,23 +341,6 @@ struct help helptab[] = {
     Under development.\n"},
     {
      .tag = TAGOBJCMD,
-     .name = "desk-prev",
-     .synop = "Usage: " PROGRAM " desk prev [OPTION]...\n",
-     .desc_short = "Switch to previous desk in current environment.\n",
-     .desc_long = "\n\
-    Options:\n\
-      -e ENV  environment name (default is current)\n\
-      -h      show this help and exit\n\
-      -q      do not write anything to standard error output\n\
-    \n\
-    Arguments:\n\
-      DESK    desk name (default is current)\n\
-      ENV     environment name (default is current)\n\
-    \n\
-    Exit status:\n\
-    Under development\n"},
-    {
-     .tag = TAGOBJCMD,
      .name = "desk-rm",
      .synop = "Usage: " PROGRAM " desk rm [OPTION]... [NAME]...\n",
      .desc_short = "Remove desk(s) from environment.\n",
@@ -418,11 +401,17 @@ struct help helptab[] = {
      .synop = "Usage: " PROGRAM " desk cd [OPTION]... [DESK]...\n",
      .desc_short = "Switch to desk.\n",
      .desc_long = "\n\
+    Swtich to desk. The default is the current desk.\n\
+    If desk is \"-\", switch to previous desk, if exists.\n\
+    Alias \"-\" cannot be used with other desks. Doudle \"-\"\n\
+    cannot be passed either.\n\
+    \n\
     Options:\n\
       -e ENV  environment name (default is current)\n\
       -h      show this help and exit\n\
       -n      do not switch to task\n\
       -q      do not write anything to standard error output\n\
+      -N      neither switch to task nor to task directory\n\
     \n\
     Arguments:\n\
       DESK    desk name (default is current)\n\
@@ -546,12 +535,20 @@ struct help helptab[] = {
      .synop = "Usage: " PROGRAM " env cd [OPTION]... [NAME]...\n",
      .desc_short = "Switch to environment.\n",
      .desc_long = "\n\
+    Swtich to environment. The default is the current environment.\n\
+    If environment is \"-\", switch to previous environment, if exists.\n\
+    Alias \"-\" cannot be used with other environments. Doudle \"-\"\n\
+    cannot be passed either.\n\
+    \n\
     Options:\n\
+      -d DESK desk name (default is current)\n\
       -h      show this help and exit\n\
       -n      do not switch to environment\n\
       -q      do not write anything to standard error output\n\
+      -N      neither switch to task nor to task directory\n\
     \n\
     Arguments:\n\
+      DESK    desk name (default is current)\n\
       NAME    environment name (default current)\n\
     \n\
     Exit status:\n\
@@ -567,17 +564,6 @@ struct help helptab[] = {
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
       -v      under development: show more info\n\
-    \n\
-    Exit status:\n\
-    Under development.\n"},
-    {
-     .tag = TAGOBJCMD,
-     .name = "env-prev",
-     .synop = "Usage: " PROGRAM " env prev\n",
-     .desc_short = "Switch to previous environment.\n",
-     .desc_long = "\n\
-    Arguments:\n\
-      NAME    environment name (default is current)\n\
     \n\
     Exit status:\n\
     Under development.\n"},

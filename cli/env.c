@@ -246,52 +246,6 @@ static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
     return status;
 }
 
-static int _env_prev(int argc, char **argv, tec_ctx_t *ctx)
-{
-    tec_arg_t args;
-    char c, *errfmt;
-    int quiet, showhelp, status;
-
-    quiet = showhelp = false;
-    args.env = args.desk = args.taskid = NULL;
-    errfmt = "cannot switch to previous env '%s': %s";
-    while ((c = getopt(argc, argv, ":hq")) != -1) {
-        switch (c) {
-        case 'h':
-            showhelp = true;
-            break;
-        case 'q':
-            quiet = true;
-            break;
-        case ':':
-            return elog(1, "option `-%c' requires an argument", optopt);
-        default:
-            return elog(1, "invalid option `-%c'", optopt);
-        }
-    }
-
-    if (showhelp == true)
-        return help_usage("env-prev");
-
-    if ((status = toggle_env_get_prev(teccfg.base.task, &args))) {
-        if (quiet == false)
-            elog(status, errfmt, "NOPREV", "no previous env");
-        return status;
-    } else if ((status = toggle_env_get_curr(teccfg.base.task, &args))) {
-        if (quiet == false)
-            elog(status, errfmt, "NOCURR", "no current env");
-        return status;
-    }
-
-    if (toggle_env_swap(teccfg.base.task, &args)) {
-        if (quiet == false)
-            elog(1, "could not update toggle");
-        return 1;
-    }
-
-    return status == LIBTEC_OK ? tec_pwd_env(&args) : status;
-}
-
 static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
 {
     char *errfmt;
@@ -458,10 +412,12 @@ static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
 static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
-    int c, i, quiet, showhelp, status;
+    char alias[PRJSIZ + 1] = { 0 };
+    int c, i, quiet, showhelp, retcode, status;
     const char *errfmt = "cannot switch to '%s': %s";
     int switch_toggle, switch_dir;
 
+    retcode = LIBTEC_OK;
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
     args.env = args.desk = args.taskid = NULL;
@@ -495,29 +451,40 @@ static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
 
-    /* Alias to switch to previous environment.  */
-    if (argv[i] && strcmp("-", argv[i]) == 0) {
-        argv[i] = NULL;         /* NULL it cuz it's an alias and illegal environment name.  */
-        switch_toggle = true;
-        if ((status = toggle_env_get_prev(teccfg.base.task, &args)))
-            return elog(1, errfmt, "PREV",
-                        "could not get previous environment");
+    /* Check that alias '-' is not passed among task IDs.  */
+    for (int idx = 1; idx < argc; ++idx) {
+        if (strcmp(argv[idx], "-") == 0 && argc > 2)
+            return elog(1, "alias '-' is used alone");
     }
 
     do {
-        args.env = args.env != NULL ? args.env : argv[i];
+        args.env = argv[i];
+        retcode = status == LIBTEC_OK ? retcode : status;
 
-        if ((status = check_arg_env(&args, errfmt, quiet)))
+        /* Alias to switch to previous environment.  */
+        if (argv[i] && strcmp("-", argv[i]) == 0) {
+            args.env = NULL;    /* unset environment name.  */
+            if ((status = toggle_env_get_prev(teccfg.base.task, &args)))
+                return elog(1, errfmt, "PREV", "no previous environment");
+            args.taskid = strncpy(alias, args.env, PRJSIZ);
+        }
+        // TODO: add hooks after env check and before switch toggle
+
+        if ((status = check_arg_env(&args, errfmt, quiet))) {
             continue;
+        } else if (switch_toggle == true) {
+            if (toggle_env_set_curr(teccfg.base.task, &args) && quiet == false) {
+                if (quiet == false)
+                    elog(1, "could not update toggles");
+                status = 1;     /* TODO: use cli return codes.  */
+                continue;
+            }
+        }
+
     } while (++i < argc);
 
-    if (status == LIBTEC_OK && switch_toggle == true) {
-        if (toggle_env_set_curr(teccfg.base.task, &args)
-            && quiet == false)
-            status = elog(1, "could not update env toggles");
-    }
-
-    return status == LIBTEC_OK && switch_dir ? tec_pwd_env(&args) : status;
+    retcode = status == LIBTEC_OK ? retcode : status;
+    return retcode == LIBTEC_OK && switch_dir ? tec_pwd_env(&args) : retcode;
 }
 
 static const builtin_t env_commands[] = {
@@ -525,7 +492,6 @@ static const builtin_t env_commands[] = {
     {.name = "cat",.func = &_env_cat},
     {.name = "cd",.func = &_env_cd},
     {.name = "ls",.func = &_env_ls},
-    {.name = "prev",.func = &_env_prev},
     {.name = "rename",.func = &_env_rename},
     {.name = "rm",.func = &_env_rm},
     {.name = "set",.func = &_env_set},

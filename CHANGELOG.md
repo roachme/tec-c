@@ -15,6 +15,10 @@
 - `cli/cd`: Fix alias mixed with task IDs
 - `cli/cd`: Fix return code
 
+### Deleted
+
+- `cli`: Delete `env` and `desk` subcommands `prev`
+
 
 ## [0.2.1] - (2026-01-25)
 

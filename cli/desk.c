@@ -208,11 +208,6 @@ static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
     return status;
 }
 
-static int _desk_prev(int argc, char **argv, tec_ctx_t *ctx)
-{
-    return elog(1, "under development");
-}
-
 static int _desk_mv(int argc, char **argv, tec_ctx_t *ctx)
 {
     return elog(1, "%s: under development", __FUNCTION__);
@@ -325,10 +320,12 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
 static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
-    int c, i, quiet, showhelp, status;
+    char alias[BRDSIZ + 1] = { 0 };
+    int c, i, quiet, retcode, showhelp, status;
     const char *errfmt = "cannot switch to '%s': %s";
     int switch_toggle, switch_dir;
 
+    retcode = LIBTEC_OK;
     quiet = showhelp = false;
     switch_toggle = switch_dir = true;
     args.env = args.desk = args.taskid = NULL;
@@ -365,26 +362,39 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
 
-    /* Alias to switch to previous desk.  */
-    if (argv[i] && strcmp("-", argv[i]) == 0) {
-        argv[i] = NULL;         /* NULL it cuz it's an alias and illegal desk name.  */
-        switch_toggle = true;
-        if ((status = toggle_desk_get_prev(teccfg.base.task, &args)))
-            return elog(1, errfmt, "PREV", "could not get previous desk");
+    /* Check that alias '-' is not passed among task IDs.  */
+    for (int idx = 1; idx < argc; ++idx) {
+        if (strcmp(argv[idx], "-") == 0 && argc > 2)
+            return elog(1, "alias '-' is used alone");
     }
 
     do {
-        args.desk = args.desk != NULL ? args.desk : argv[i];
-        if ((status = check_arg_desk(&args, errfmt, quiet)))
+        args.desk = argv[i];
+        retcode = status == LIBTEC_OK ? retcode : status;
+
+        /* Alias to switch to previous environment.  */
+        if (argv[i] && strcmp("-", argv[i]) == 0) {
+            args.desk = NULL;   /* unset desk name.  */
+            if ((status = toggle_desk_get_prev(teccfg.base.task, &args)))
+                return elog(1, errfmt, "PREV", "no previous environment");
+            args.taskid = strncpy(alias, args.desk, BRDSIZ);
+        }
+        // TODO: add hooks after env check and before switch toggle
+
+        if ((status = check_arg_desk(&args, errfmt, quiet))) {
             return status;
+        } else if (switch_toggle == true) {
+            if (toggle_desk_set_curr(teccfg.base.task, &args) && quiet == false) {
+                if (quiet == false)
+                    elog(1, "could not update toggles");
+                status = 1;     /* TODO: use cli return codes.  */
+                continue;
+            }
+        }
     } while (++i < argc);
 
-    if (status == LIBTEC_OK && switch_toggle == true) {
-        if (toggle_desk_set_curr(teccfg.base.task, &args) && quiet == false)
-            status = elog(1, "could not update desk toggles");
-    }
-
-    return status == LIBTEC_OK && switch_dir ? tec_pwd_desk(&args) : status;
+    retcode = status == LIBTEC_OK ? retcode : status;
+    return retcode == LIBTEC_OK && switch_dir ? tec_pwd_desk(&args) : retcode;
 }
 
 static const builtin_t desk_commands[] = {
@@ -392,7 +402,6 @@ static const builtin_t desk_commands[] = {
     {.name = "cat",.func = &_desk_cat},
     {.name = "cd",.func = &_desk_cd},
     {.name = "ls",.func = &_desk_ls},
-    {.name = "prev",.func = &_desk_prev},
     {.name = "mv",.func = &_desk_mv},
     {.name = "rm",.func = &_desk_rm},
     {.name = "set",.func = &_desk_set},

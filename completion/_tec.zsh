@@ -92,14 +92,6 @@ _tec_mv() {
         '*:task ID:_tec_tasks'
 }
 
-_tec_prev() {
-    _arguments \
-        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
-        '(-h)'{-h,--help}'[show help and exit]' \
-        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
-        '(-q)'{-q,--quiet}'[do not write to stderr]'
-}
-
 _tec_set() {
     _arguments \
         '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
@@ -152,7 +144,6 @@ _tec_desk() {
                 'cd:Switch to desk'
                 'ls:List desks'
                 'mv:Move (rename) desk'
-                'prev:Switch to previous desk'
                 'rm:Remove desk with all tasks'
                 'set:Set desk values'
             )
@@ -165,7 +156,6 @@ _tec_desk() {
                 cd) _tec_desk_cd ;;
                 ls) _tec_desk_ls ;;
                 mv) _tec_desk_mv ;;
-                prev) _tec_desk_prev ;;
                 rm) _tec_desk_rm ;;
                 set) _tec_desk_set ;;
             esac
@@ -205,13 +195,6 @@ _tec_desk_mv() {
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         ':source desk:_tec_desks' \
         ':destination desk:'
-}
-
-_tec_desk_prev() {
-    _arguments \
-        '(-h)'{-h,--help}'[show help and exit]' \
-        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
-        '(-q)'{-q,--quiet}'[do not write to stderr]'
 }
 
 _tec_desk_set() {
@@ -303,7 +286,6 @@ _tec_env() {
                 'cat:Concatenate env info'
                 'cd:Switch to environment'
                 'ls:List envs'
-                'prev:Switch to previous env'
                 'rename:Rename env'
                 'rm:Remove env with all desks and tasks'
                 'set:Set env values'
@@ -316,7 +298,6 @@ _tec_env() {
                 cat) _tec_env_cat ;;
                 cd) _tec_env_cd ;;
                 ls) _tec_env_ls ;;
-                prev) _tec_env_prev ;;
                 rename) _tec_env_rename ;;
                 rm) _tec_env_rm ;;
                 set) _tec_env_set ;;
@@ -347,11 +328,6 @@ _tec_env_ls() {
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-q)'{-q,--quiet}'[do not write to stderr]' \
         '(-v)'{-v,--verbose}'[show more info]'
-}
-
-_tec_env_prev() {
-    _arguments \
-        '(-h)'{-h,--help}'[show help and exit]'
 }
 
 _tec_env_rename() {
@@ -439,7 +415,6 @@ _tec() {
                 desk) _tec_desk ;;
                 ls) _tec_ls ;;
                 mv) _tec_mv ;;
-                prev) _tec_prev ;;
                 rm) _tec_rm ;;
                 set) _tec_set ;;
                 column) _tec_column ;;
