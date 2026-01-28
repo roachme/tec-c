@@ -135,7 +135,7 @@ int check_arg_env(tec_arg_t *args, const char *errfmt, int quiet)
         if (quiet == false)
             elog(status, errfmt, args->env, tec_strerror(status));
         return status;
-    } else if (is_valid_length(args->env, PRJSIZ) == false) {
+    } else if (is_valid_length(args->env, ENVSIZ) == false) {
         status = 1;
         if (quiet == false)
             elog(status, errfmt, args->env, "env name is too long");
@@ -160,7 +160,7 @@ int check_arg_desk(tec_arg_t *args, const char *errfmt, int quiet)
         if (quiet == false)
             elog(status, errfmt, args->desk, tec_strerror(status));
         return status;
-    } else if (is_valid_length(args->desk, BRDSIZ) == false) {
+    } else if (is_valid_length(args->desk, DESKSIZ) == false) {
         status = 1;
         if (quiet == false)
             elog(status, errfmt, args->desk, "desk name is too long");

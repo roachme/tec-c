@@ -84,7 +84,7 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
     for (i = optind; i < argc; ++i) {
         args.env = argv[i];
 
-        if (is_valid_length(args.env, PRJSIZ) == false) {
+        if (is_valid_length(args.env, ENVSIZ) == false) {
             if (quiet == false)
                 elog(status, errfmt, args.env, "env name is too long");
             continue;
@@ -103,7 +103,7 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
             if (quiet == false)
                 elog(status, errfmt_desk, args.desk, tec_strerror(status));
             continue;
-        } else if (is_valid_length(args.desk, BRDSIZ) == false) {
+        } else if (is_valid_length(args.desk, DESKSIZ) == false) {
             if (quiet == false)
                 elog(status, errfmt_desk, args.desk, "desk name is too long");
             continue;
@@ -412,7 +412,7 @@ static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
 static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
-    char alias[PRJSIZ + 1] = { 0 };
+    char alias[ENVSIZ + 1] = { 0 };
     int c, i, quiet, showhelp, retcode, status;
     const char *errfmt = "cannot switch to '%s': %s";
     int switch_toggle, switch_dir;
@@ -466,7 +466,7 @@ static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
             args.env = NULL;    /* unset environment name.  */
             if ((status = toggle_env_get_prev(teccfg.base.task, &args)))
                 return elog(1, errfmt, "PREV", "no previous environment");
-            args.taskid = strncpy(alias, args.env, PRJSIZ);
+            args.taskid = strncpy(alias, args.env, ENVSIZ);
         }
         // TODO: add hooks after env check and before switch toggle
 

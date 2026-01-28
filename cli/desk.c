@@ -320,7 +320,7 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
 static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
-    char alias[BRDSIZ + 1] = { 0 };
+    char alias[DESKSIZ + 1] = { 0 };
     int c, i, quiet, retcode, showhelp, status;
     const char *errfmt = "cannot switch to '%s': %s";
     int switch_toggle, switch_dir;
@@ -377,7 +377,7 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
             args.desk = NULL;   /* unset desk name.  */
             if ((status = toggle_desk_get_prev(teccfg.base.task, &args)))
                 return elog(1, errfmt, "PREV", "no previous environment");
-            args.taskid = strncpy(alias, args.desk, BRDSIZ);
+            args.taskid = strncpy(alias, args.desk, DESKSIZ);
         }
         // TODO: add hooks after env check and before switch toggle
 

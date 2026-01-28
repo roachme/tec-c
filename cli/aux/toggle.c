@@ -4,11 +4,11 @@
 
 #include "../tec.h"
 
-static char env_curr[PRJSIZ + 1];
-static char env_prev[PRJSIZ + 1];
+static char env_curr[ENVSIZ + 1];
+static char env_prev[ENVSIZ + 1];
 
-static char desk_curr[BRDSIZ + 1];
-static char desk_prev[BRDSIZ + 1];
+static char desk_curr[DESKSIZ + 1];
+static char desk_prev[DESKSIZ + 1];
 
 static char task_curr[IDSIZ + 1];
 static char task_prev[IDSIZ + 1];
@@ -55,8 +55,8 @@ static char *_get_toggle(const char *fname, char *buf, char *togname)
         units = tec_unit_parse(units, buf);
 
     if ((toggle = tec_unit_key(units, togname))) {
-        strncpy(buf, toggle, PRJSIZ);
-        buf[PRJSIZ] = '\0';
+        strncpy(buf, toggle, ENVSIZ);
+        buf[ENVSIZ] = '\0';
     } else {
         buf[0] = '\0';          /* toggle current or previous not found. */
     }

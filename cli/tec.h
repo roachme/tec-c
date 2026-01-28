@@ -20,8 +20,8 @@
 #define str(s) #s
 
 #define IDSIZ           8
-#define BRDSIZ          10
-#define PRJSIZ          10
+#define DESKSIZ         10
+#define ENVSIZ          10
 #define CMDSIZ          10
 #define COLSIZ          7
 

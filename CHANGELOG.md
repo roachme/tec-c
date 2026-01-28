@@ -14,6 +14,7 @@
 - `cli/aux/toggle`: Fix toggle logic if no toggle found
 - `cli/cd`: Fix alias mixed with task IDs
 - `cli/cd`: Fix return code
+- `cli`: Remove board and project namings
 
 ### Deleted
 
