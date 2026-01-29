@@ -393,7 +393,9 @@ static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
     i = optind;
     do {
         args.env = argv[i];
-        if ((status = tec_env_get(teccfg.base.task, &args, ctx))) {
+        if ((status = check_arg_env(&args, errfmt, quiet))) {
+            continue;
+        } else if ((status = tec_env_get(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
             continue;

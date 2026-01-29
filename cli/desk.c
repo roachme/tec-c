@@ -298,10 +298,15 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
     if (showhelp)
         return help_usage("desk-cat");
 
+    if ((status = check_arg_env(&args, errfmt, quiet)))
+        return status;
+
     i = optind;
     do {
         args.desk = argv[i];
-        if ((status = tec_desk_get(teccfg.base.task, &args, ctx)) != LIBTEC_OK) {
+        if ((status = check_arg_desk(&args, errfmt, quiet))) {
+            continue;
+        } else if ((status = tec_desk_get(teccfg.base.task, &args, ctx))) {
             if (quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
             continue;
