@@ -33,7 +33,7 @@ int hook_action(tec_arg_t *args, char *cmd)
         if (strcmp(cmd, hooks->cmd) == 0) {
             char *cmd = path_pgn(args, hooks->pgname, hooks->pgncmd);
             dlog(1, cmd);
-            status = system(cmd);
+            status = system(cmd) == EXIT_SUCCESS ? EXIT_SUCCESS : EXIT_FAILURE;
             retcode = status == LIBTEC_OK ? retcode : status;
         }
     }

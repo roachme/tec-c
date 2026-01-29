@@ -4,17 +4,22 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
+/*
+ * TODO:
+ * 1. Use conts agrv. Gotta create a new dynamic struct cuz code alters it
+ */
+
 int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
-    char c, *errfmt;
+    const char *errfmt;
+    int c, i, retcode, status;
     char alias[IDSIZ + 1] = { 0 };
-    int i, quiet, showhelp, retcode, status;
-    int switch_toggle, switch_dir;
+    int opt_quiet, opt_help, opt_cd_dir, opt_cd_toggle;
 
     retcode = LIBTEC_OK;
-    quiet = showhelp = false;
-    switch_toggle = switch_dir = true;
+    opt_quiet = opt_help = false;
+    opt_cd_toggle = opt_cd_dir = true;
     errfmt = "cannot switch to '%s': %s";
     args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":d:e:hnqN")) != -1) {
@@ -26,17 +31,17 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
             args.env = optarg;
             break;
         case 'h':
-            showhelp = true;
+            opt_help = true;
             break;
         case 'n':
-            switch_toggle = false;
+            opt_cd_toggle = false;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         case 'N':
-            switch_dir = false;
-            switch_toggle = false;
+            opt_cd_dir = false;
+            opt_cd_toggle = false;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -45,54 +50,44 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if (showhelp == true)
-        return help_usage("cd");
-
-    if ((status = check_arg_env(&args, errfmt, quiet)))
-        return status;
-    else if ((status = check_arg_desk(&args, errfmt, quiet)))
-        return status;
-
     i = optind;
 
-    /* Check that alias '-' is not passed among task IDs.  */
-    for (int idx = 1; idx < argc; ++idx) {
+    if (opt_help == true)
+        return help_usage("cd");
+
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
+        return status;
+    else if ((status = check_arg_desk(&args, errfmt, opt_quiet)))
+        return status;
+
+    /* Check that alias '-' is not passed with other task IDs nor duplicated.  */
+    for (int idx = i; idx < argc; ++idx) {
         if (strcmp(argv[idx], "-") == 0 && argc > 2)
             return elog(1, "alias '-' is used alone");
     }
 
+    /* Resolve alias '-' to switch to previous task ID.  */
+    if (argv[i] && strcmp("-", argv[i]) == 0) {
+        if ((status = toggle_task_get_prev(teccfg.base.task, &args)))
+            return elog(1, errfmt, "PREV", "no previous task ID");
+        argv[i] = strncpy(alias, args.taskid, IDSIZ);
+    }
+
     do {
         args.taskid = argv[i];
-        retcode = status == LIBTEC_OK ? retcode : status;
-
-        /* TODO: move alias logic out of loop. But before that create custom
-         * structure to store argv and argc cuz they're gonno be rewritten.  */
-
-        /* Alias to switch to previous task ID.  */
-        if (args.taskid && strcmp("-", args.taskid) == 0) {
-            args.taskid = NULL; /* unset task ID.  */
-            if ((status = toggle_task_get_prev(teccfg.base.task, &args)))
-                return elog(1, errfmt, "PREV", "no previous task ID");
-            args.taskid = strncpy(alias, args.taskid, IDSIZ);
-        }
-
-        if ((status = check_arg_task(&args, errfmt, quiet))) {
-            continue;
-        } else if (hook_action(&args, "cd")) {
-            if (quiet == false)
+        if ((status = check_arg_task(&args, errfmt, opt_quiet))) {
+            ;
+        } else if ((status = hook_action(&args, "cd"))) {
+            if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
-            status = 1;         /* TODO: use cli return codes.  */
-            continue;
-        } else if (switch_toggle == true) {
-            if (toggle_task_set_curr(teccfg.base.task, &args) && quiet == false) {
-                if (quiet == false)
+        } else if (opt_cd_toggle == true) {
+            if ((status = toggle_task_set_curr(teccfg.base.task, &args))) {
+                if (opt_quiet == false)
                     elog(1, "could not update toggles");
-                status = 1;     /* TODO: use cli return codes.  */
-                continue;
             }
         }
+        retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 
-    retcode = status == LIBTEC_OK ? retcode : status;
-    return retcode == LIBTEC_OK && switch_dir ? tec_pwd_task(&args) : retcode;
+    return retcode == LIBTEC_OK && opt_cd_dir ? tec_pwd_task(&args) : retcode;
 }

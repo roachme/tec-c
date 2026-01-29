@@ -15,6 +15,7 @@
 - `cli/cd`: Fix alias mixed with task IDs
 - `cli/cd`: Fix return code
 - `cli`: Remove board and project namings
+- `cli/cd`: Style code
 
 ### Deleted
 
