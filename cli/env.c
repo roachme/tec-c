@@ -412,14 +412,14 @@ static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
 static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
+    int c, i, retcode, status;
     char alias[ENVSIZ + 1] = { 0 };
-    int c, i, quiet, showhelp, retcode, status;
     const char *errfmt = "cannot switch to '%s': %s";
-    int switch_toggle, switch_dir;
+    int opt_quiet, opt_help, opt_cd_toggle, opt_cd_dir;
 
     retcode = LIBTEC_OK;
-    quiet = showhelp = false;
-    switch_toggle = switch_dir = true;
+    opt_quiet = opt_help = false;
+    opt_cd_toggle = opt_cd_dir = true;
     args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":d:hnqN")) != -1) {
         switch (c) {
@@ -427,17 +427,17 @@ static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
             args.desk = optarg;
             break;
         case 'h':
-            showhelp = true;
+            opt_help = true;
             break;
         case 'n':
-            switch_toggle = false;
+            opt_cd_toggle = false;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         case 'N':
-            switch_dir = false;
-            switch_toggle = false;
+            opt_cd_dir = false;
+            opt_cd_toggle = false;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -446,45 +446,41 @@ static int _env_cd(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if (showhelp)
-        return help_usage("env-cd");
-
     i = optind;
 
-    /* Check that alias '-' is not passed among task IDs.  */
-    for (int idx = 1; idx < argc; ++idx) {
+    if (opt_help == true)
+        return help_usage("env-cd");
+
+    /* Check that alias '-' is not passed with other envs nor duplicated.  */
+    for (int idx = i; idx < argc; ++idx) {
         if (strcmp(argv[idx], "-") == 0 && argc > 2)
             return elog(1, "alias '-' is used alone");
     }
 
+    /* Resolve alias '-' to switch to previous environment.  */
+    if (argv[i] && strcmp("-", argv[i]) == 0) {
+        if ((status = toggle_env_get_prev(teccfg.base.task, &args)))
+            return elog(1, errfmt, "PREV", "no previous environment");
+        argv[i] = strncpy(alias, args.env, ENVSIZ);
+    }
+
     do {
         args.env = argv[i];
-        retcode = status == LIBTEC_OK ? retcode : status;
-
-        /* Alias to switch to previous environment.  */
-        if (argv[i] && strcmp("-", argv[i]) == 0) {
-            args.env = NULL;    /* unset environment name.  */
-            if ((status = toggle_env_get_prev(teccfg.base.task, &args)))
-                return elog(1, errfmt, "PREV", "no previous environment");
-            args.taskid = strncpy(alias, args.env, ENVSIZ);
-        }
-        // TODO: add hooks after env check and before switch toggle
-
-        if ((status = check_arg_env(&args, errfmt, quiet))) {
-            continue;
-        } else if (switch_toggle == true) {
-            if (toggle_env_set_curr(teccfg.base.task, &args) && quiet == false) {
-                if (quiet == false)
+        if ((status = check_arg_env(&args, errfmt, opt_quiet))) {
+            ;
+        } else if ((status = hook_action(&args, "env-cd"))) {
+            if (opt_quiet == false)
+                elog(status, errfmt, args.taskid, "failed to execute hooks");
+        } else if (opt_cd_toggle == true) {
+            if ((status = toggle_env_set_curr(teccfg.base.task, &args))) {
+                if (opt_quiet == false)
                     elog(1, "could not update toggles");
-                status = 1;     /* TODO: use cli return codes.  */
-                continue;
             }
         }
-
+        retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 
-    retcode = status == LIBTEC_OK ? retcode : status;
-    return retcode == LIBTEC_OK && switch_dir ? tec_pwd_env(&args) : retcode;
+    return retcode == LIBTEC_OK && opt_cd_dir ? tec_pwd_env(&args) : retcode;
 }
 
 static const builtin_t env_commands[] = {

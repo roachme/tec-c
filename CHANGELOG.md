@@ -17,6 +17,7 @@
 - `cli`: Remove board and project namings
 - `cli/cd`: Style code
 - `cli/desk`: Style code
+- `cli/env`: Style code
 
 ### Deleted
 
