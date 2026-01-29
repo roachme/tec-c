@@ -16,6 +16,7 @@
 - `cli/cd`: Fix return code
 - `cli`: Remove board and project namings
 - `cli/cd`: Style code
+- `cli/desk`: Style code
 
 ### Deleted
 
