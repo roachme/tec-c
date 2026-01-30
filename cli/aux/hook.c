@@ -44,8 +44,11 @@ int hook_action(tec_arg_t *args, char *cmd)
 int hook_show(tec_unit_t **units, tec_arg_t *args, char *cmd)
 {
     FILE *pipe;
+    int retcode, status;
     char line[BUFSIZ + 1] = { 0 };
     struct tec_hook *hooks = teccfg.hooks;
+
+    retcode = status = LIBTEC_OK;
 
     /* Execute hooks only if they are enabled.  */
     if (teccfg.opts.hook == false)
@@ -63,7 +66,7 @@ int hook_show(tec_unit_t **units, tec_arg_t *args, char *cmd)
             *units = tec_unit_parse(*units, line);
         pclose(pipe);
     }
-    return 0;
+    return retcode;
 }
 
 /*

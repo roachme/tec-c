@@ -45,12 +45,11 @@ static int show_key(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn,
 
 static int show_keys(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn)
 {
-    struct tec_unit *units;
     const char *fmt = "%-" xstr(PADDING_UNIT) "s : %s\n";
 
     printf(fmt, "id", task);
 
-    for (units = unitbin; units; units = units->next)
+    for (struct tec_unit * units = unitbin; units; units = units->next)
         printf(fmt, units->key, units->val);
 
     for (; unitpgn; unitpgn = unitpgn->next)
@@ -61,15 +60,16 @@ static int show_keys(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn)
 
 int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char c;
     char *key;
     tec_arg_t args;
     tec_unit_t *unitpgn;
-    int i, quiet, showhelp, status;
+    int opt_quiet, opt_help;
+    int c, i, retcode, status;
 
     key = NULL;
     unitpgn = NULL;
-    quiet = showhelp = false;
+    retcode = LIBTEC_OK;
+    opt_quiet = opt_help = false;
     args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":d:e:hk:q")) != -1) {
         switch (c) {
@@ -80,13 +80,13 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
             args.env = optarg;
             break;
         case 'h':
-            showhelp = true;
+            opt_help = true;
             break;
         case 'k':
             key = optarg;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -94,45 +94,43 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+    i = optind;
 
-    if (showhelp == true)
+    if (opt_help == true)
         return help_usage("cat");
 
-    if ((status = check_arg_env(&args, errfmt, quiet)))
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
         return status;
-    else if ((status = check_arg_desk(&args, errfmt, quiet)))
+    else if ((status = check_arg_desk(&args, errfmt, opt_quiet)))
         return status;
 
-    i = optind;
     do {
         args.taskid = argv[i];
 
-        if ((status = check_arg_task(&args, errfmt, quiet)))
-            continue;
-        else if ((status = tec_task_get(teccfg.base.task, &args, ctx))) {
-            if (quiet == false)
+        if ((status = check_arg_task(&args, errfmt, opt_quiet))) {
+            ;
+        } else if ((status = tec_task_get(teccfg.base.task, &args, ctx))) {
+            if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, tec_strerror(status));
-            continue;
-        } else if (valid_unitkeys(ctx->units)) {
-            if (quiet == false)
+        } else if ((status = valid_unitkeys(ctx->units))) {
+            if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, "invalid unit keys");
-            continue;
-        } else if (hook_show(&unitpgn, &args, "cat")) {
-            if (quiet == false)
+        } else if ((status = hook_show(&unitpgn, &args, "cat"))) {
+            if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
-            continue;
+        } else if (key != NULL) {
+            if ((status = show_key(args.taskid, ctx->units, unitpgn, key)))
+                if (opt_quiet == false)
+                    elog(1, "cannot show key '%s': no such key", key);
+        } else if ((status = show_keys(args.taskid, ctx->units, unitpgn))) {
+            if (opt_quiet == false)
+                elog(1, errfmt, args.taskid, "internal error");
         }
-
-        if (key != NULL) {
-            if ((status = show_key(args.taskid, ctx->units, unitpgn, key))
-                && quiet == false)
-                elog(1, "cannot show key '%s': no such key", key);
-        } else
-            show_keys(args.taskid, ctx->units, unitpgn);
 
         unitpgn = tec_unit_free(unitpgn);
         ctx->units = tec_unit_free(ctx->units);
+        retcode = status == LIBTEC_OK ? retcode : status;
     }
     while (++i < argc);
-    return status;
+    return retcode;
 }
