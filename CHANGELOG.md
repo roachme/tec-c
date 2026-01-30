@@ -1,3 +1,16 @@
+## [Unreleased]
+
+### Added
+
+### Changed
+
+### Fixed
+
+- `lib/errmod`: Fix array boundary check
+
+### Deleted
+
+
 ## [0.2.2] - (2026-01-30)
 
 ### Added

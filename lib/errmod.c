@@ -45,7 +45,7 @@ char *emod_strerror(int errnum)
 {
     static char errmsg[TEC_ERRMSGSIZ + 1];
 
-    if (errnum < 0 || errnum > __LIBTEC_STATUS_LAST)
+    if (errnum < 0 || errnum >= __LIBTEC_STATUS_LAST)
         return strncpy(errmsg, "internal unknown error", TEC_ERRMSGSIZ);
     return strncpy(errmsg, errcodes[errnum], TEC_ERRMSGSIZ);
 }
