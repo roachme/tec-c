@@ -123,6 +123,16 @@ static int valid_toggle(char *tog)
     return -1;
 }
 
+bool tec_cli_get_user_choice(void)
+{
+    char choice[10] = { 0 };
+
+    fgets(choice, sizeof(choice), stdin);
+    if (choice[0] == 'y' || choice[0] == 'Y')
+        return true;
+    return false;
+}
+
 int check_arg_env(tec_arg_t *args, const char *errfmt, int quiet)
 {
     int status;

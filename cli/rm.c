@@ -10,16 +10,6 @@
  * 4. Find when GNU rm command uses interctive mode and copy it
  * */
 
-static int get_user_choice(void)
-{
-    char choice[10] = { 0 };
-
-    fgets(choice, sizeof(choice), stdin);
-    if (choice[0] == 'y' || choice[0] == 'Y')
-        return 1;
-    return 0;
-}
-
 /* FIXME:
  * 1. When task gets deleted shell scripts tries to switch nonexistent directory
  * 2. If no task ID is passed then delete current task.
@@ -85,7 +75,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 
     if (opt_ask_once == true) {
         printf("Are you sure to remove task(s)? [y/N] ");
-        if (get_user_choice() == false) {
+        if (tec_cli_get_user_choice() == false) {
             return LIBTEC_OK;
         }
     }
@@ -101,7 +91,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
             continue;
         } else if (opt_ask_every == true) {
             printf("Are you sure to remove task '%s'? [y/N] ", args.taskid);
-            if (get_user_choice() != true) {
+            if (tec_cli_get_user_choice() == false) {
                 continue;
             }
         }

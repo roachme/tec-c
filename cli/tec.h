@@ -80,6 +80,8 @@ int help_list_pretty_commands(void);
 int help_usage(const char *cmd);
 int help_lookup(const char *cmd);
 
+bool tec_cli_get_user_choice(void);
+
 int tec_pwd_unset(void);
 int tec_pwd_task(tec_arg_t * args);
 int tec_pwd_desk(tec_arg_t * args);
