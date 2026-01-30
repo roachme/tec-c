@@ -53,6 +53,7 @@ Ideas:
  21. Prevent column update when new column name is the same as old. Same about units
  22. Add pager like in git.
  23. Add option --no-pager to turn pager feature off. like in git.
+ 24. Maybe let command `set' let not to take any values to change? In that case change nothing.
 
 
 Prio: high
