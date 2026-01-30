@@ -10,6 +10,16 @@
  * 4. Find when GNU rm command uses interctive mode and copy it
  * */
 
+static int get_user_choice(void)
+{
+    char choice[10] = { 0 };
+
+    fgets(choice, sizeof(choice), stdin);
+    if (choice[0] == 'y' || choice[0] == 'Y')
+        return 1;
+    return 0;
+}
+
 /* FIXME:
  * 1. When task gets deleted shell scripts tries to switch nonexistent directory
  * 2. If no task ID is passed then delete current task.
@@ -17,14 +27,18 @@
 int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
-    char *errfmt;
-    int c, i, choice, status;
-    int o_quiet, o_showhelp, o_autoconfirm, o_verbose;
+    const char *errfmt;
+    int c, i, retcode, status;
+    int opt_quiet, opt_help, opt_verbose;
+    int opt_ask_once, opt_ask_every;
 
-    o_autoconfirm = o_quiet = o_showhelp = o_verbose = false;
-    args.env = args.desk = args.taskid = NULL;
+    opt_ask_every = true;       /* prompt before every removal.  */
+    opt_ask_once = false;       /* prompt before once for all task IDs.  */
+    retcode = LIBTEC_OK;
     errfmt = "cannot remove task '%s': %s";
-    while ((c = getopt(argc, argv, ":d:e:hqyv")) != -1) {
+    args.env = args.desk = args.taskid = NULL;
+    opt_quiet = opt_help = opt_verbose = false;
+    while ((c = getopt(argc, argv, ":d:e:fihqvI")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -32,17 +46,26 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
         case 'e':
             args.env = optarg;
             break;
+        case 'f':
+            opt_ask_every = false;
+            opt_ask_once = false;
+            break;
         case 'h':
-            o_showhelp = true;
+            opt_help = true;
+            break;
+        case 'i':
+            opt_ask_every = true;
+            opt_ask_once = false;
             break;
         case 'q':
-            o_quiet = true;
-            break;
-        case 'y':
-            o_autoconfirm = true;
+            opt_quiet = true;
             break;
         case 'v':
-            o_verbose = true;
+            opt_verbose = true;
+            break;
+        case 'I':
+            opt_ask_every = false;
+            opt_ask_once = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -51,14 +74,20 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if (o_showhelp == true)
+    if (opt_help == true)
         return help_usage("rm");
 
-    if ((status = check_arg_env(&args, errfmt, o_quiet)))
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
         return status;
-    else if ((status = check_arg_desk(&args, errfmt, o_quiet)))
+    else if ((status = check_arg_desk(&args, errfmt, opt_quiet)))
         return status;
 
+    if (opt_ask_once == true) {
+        printf("Are you sure to remove task(s)? [y/N] ");
+        if (get_user_choice() == false) {
+            return LIBTEC_OK;
+        }
+    }
     // TODO: if non-current task gets deleted, then no need to
     // change user's current directory.
     i = optind;
@@ -67,32 +96,33 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 
         /* Get and check input values explicitly because it's one of the rare
          * cases when hooks get exectude before the main action.  */
-        if ((status = check_arg_task(&args, errfmt, o_quiet))) {
+        if ((status = check_arg_task(&args, errfmt, opt_quiet))) {
+            retcode = status == LIBTEC_OK ? retcode : status;
             continue;
-        } else if (o_autoconfirm == false) {
+        } else if (opt_ask_every == true) {
             printf("Are you sure to remove task '%s'? [y/N] ", args.taskid);
-            if ((choice = getchar()) != 'y' && choice != 'Y')
+            if (get_user_choice() != true) {
                 continue;
+            }
         }
 
-        if (hook_action(&args, "rm")) {
-            if (o_quiet == false)
+        if ((status = hook_action(&args, "rm"))) {
+            if (opt_quiet == false)
                 elog(1, errfmt, args.taskid, "failed to execute hooks");
-            continue;
         } else if ((status = tec_task_del(teccfg.base.task, &args, ctx))) {
-            if (o_quiet == false)
+            if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, tec_strerror(status));
-            continue;
         }
 
         /* TODO: handle current and previos task IDs. */
 
-        if (o_verbose == true)
+        if (opt_verbose == true)
             llog(0, "removed task '%s'", args.taskid);
+        retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 
     // FIXME: when delete task ID from non-current env,
     // it switches to current task in current env.
     // BUT should not change user's CWD at all.
-    return status == LIBTEC_OK ? tec_pwd_task(&args) : status;
+    return retcode == LIBTEC_OK ? tec_pwd_task(&args) : retcode;
 }

@@ -206,10 +206,12 @@ struct help helptab[] = {
     Options:\n\
       -d DESK desk name (default is current)\n\
       -e ENV  environment name (default is current)\n\
+      -f      never prompt\n\
+      -i      prompt before every removal\n\
       -h      show this help and exit\n\
       -q      do not write anything to standard error output\n\
-      -y      remove task without confirmation\n\
       -v      explain what is being done\n\
+      -I      prompt once before removing more than one task ID\n\
     \n\
     Arguments:\n\
       DESK    desk name (default is current)\n\
