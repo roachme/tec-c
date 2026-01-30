@@ -23,6 +23,7 @@
 - `cli/rm`: Style code
 - `cli/set`: Style code
 - `cli/env`: Style code
+- `cli/desk`: Style code
 
 ### Deleted
 

@@ -6,6 +6,16 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
+static int get_user_choice(void)
+{
+    char choice[10] = { 0 };
+
+    fgets(choice, sizeof(choice), stdin);
+    if (choice[0] == 'y' || choice[0] == 'Y')
+        return 1;
+    return 0;
+}
+
 static int valid_desc(const char *val)
 {
     if (!isalnum(*val++))
@@ -32,92 +42,118 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
 {
     char c;
     tec_arg_t args;
+    int i, retcode, status;
     const char *errfmt = "cannot add desk '%s': %s";
-    int i, quiet, showhelp, status;
+    int opt_quiet, opt_help, opt_cd_dir, opt_cd_toggle;
 
-    status = LIBTEC_OK;
-    showhelp = quiet = false;
+    retcode = LIBTEC_OK;
+    opt_help = opt_quiet = false;
+    opt_cd_dir = opt_cd_toggle = true;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":hnp:q")) != -1) {
+    while ((c = getopt(argc, argv, ":e:hnqN")) != -1) {
         switch (c) {
         case 'e':
             args.env = optarg;
             break;
         case 'h':
-            showhelp = true;
+            opt_help = true;
             break;
         case 'n':
-            //opt.desk_switch = false;
+            opt_cd_toggle = false;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
+        case 'N':
+            opt_cd_dir = false;
+            opt_cd_toggle = false;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
         default:
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+    i = optind;
 
-    if (showhelp)
+    if (opt_help)
         return help_usage("desk-add");
 
     if (optind == argc)
         return elog(1, "desk name required");
     else if ((ctx->column = generate_column("todo")) == NULL) {
-        if (quiet == false)
+        if (opt_quiet == false)
             elog(1, "could not generate column");
         return 1;
     }
 
-    if ((status = toggle_env_get_curr(teccfg.base.task, &args))) {
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
         return status;
-    }
 
-    for (i = optind; i < argc; ++i) {
+    do {
         args.desk = argv[i];
 
         if (generate_units(ctx, args.desk)) {
-            if (quiet == false)
-                elog(1, errfmt, args.env, "unit generation failed");
+            if (opt_quiet == false)
+                elog(1, errfmt, args.desk, "unit generation failed");
+            retcode = status == LIBTEC_OK ? retcode : status;
             continue;
         }
+
         if ((status = tec_desk_add(teccfg.base.task, &args, ctx))) {
-            if (quiet == false)
+            if (opt_quiet == false)
                 elog(1, errfmt, argv[i], tec_strerror(status));
             ctx->units = tec_unit_free(ctx->units);
-            continue;
+        } else if ((status = hook_action(&args, "desk-add"))) {
+            if (opt_quiet == false)
+                elog(1, errfmt, args.taskid, "failed to execute hooks");
+        } else if (opt_cd_toggle == true) {
+            if ((status = toggle_desk_set_curr(teccfg.base.task, &args))) {
+                if (opt_quiet == false)
+                    elog(status, "could not update toggles");
+            }
         }
-        // TODO: add hooks
         ctx->units = tec_unit_free(ctx->units);
-    }
-
-    ctx->column = tec_unit_free(ctx->column);
-    //return status == LIBTEC_OK ? tec_pwd_desk(&args) : 1;
-    return 0;
+        ctx->column = tec_unit_free(ctx->column);
+        retcode = status == LIBTEC_OK ? retcode : status;
+    } while (++i < argc);
+    return retcode == LIBTEC_OK && opt_cd_dir ? tec_pwd_desk(&args) : retcode;
 }
 
 static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char c;
     tec_arg_t args;
+    int c, i, retcode, status;
+    int opt_quiet, opt_help;
     const char *errfmt = "cannot remove: %s";
-    int i, choice, quiet, showhelp, showprompt, status;
+    int opt_ask_once, opt_ask_every, opt_verbose;
 
-    showprompt = true;
-    status = LIBTEC_OK;
-    choice = quiet = showhelp = false;
+    retcode = LIBTEC_OK;
+    opt_ask_every = true;       /* prompt before every removal.  */
+    opt_ask_once = false;       /* prompt before once for all desks.  */
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":hnq")) != -1) {
+    opt_quiet = opt_help = opt_verbose = false;
+    while ((c = getopt(argc, argv, ":fhiqvI")) != -1) {
         switch (c) {
-        case 'h':
-            showhelp = true;
+        case 'f':
+            opt_ask_every = false;
+            opt_ask_once = false;
             break;
-        case 'n':
-            showprompt = false;
+        case 'h':
+            opt_help = true;
+            break;
+        case 'i':
+            opt_ask_every = true;
+            opt_ask_once = false;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
+            break;
+        case 'v':
+            opt_verbose = false;
+            break;
+        case 'I':
+            opt_ask_every = false;
+            opt_ask_once = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -125,45 +161,66 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+    i = optind;
 
-    if (showhelp)
+    if (opt_help)
         return help_usage("desk-rm");
 
-    i = optind;
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
+        return status;
+
+    if (opt_ask_once == true) {
+        printf("Are you sure to remove desk(s)? [y/N] ");
+        if (get_user_choice() == false) {
+            return LIBTEC_OK;
+        }
+    }
+
     do {
         args.desk = argv[i];
 
-        if (showprompt) {
-            /* TODO: show desk name.  */
-            printf("Are you sure to remove desk(s)? [y/N] ");
-            if ((choice = getchar()) != 'y' && choice != 'Y')
+        if ((status = check_arg_desk(&args, errfmt, opt_quiet))) {
+            retcode = status == LIBTEC_OK ? retcode : status;
+            continue;
+        } else if (opt_ask_every == true) {
+            printf("Are you sure to remove desk '%s'? [y/N] ", args.desk);
+            if (get_user_choice() != true) {
                 continue;
+            }
         }
 
-        if ((status = tec_desk_del(teccfg.base.task, &args, ctx))) {
-            if (quiet == false)
+        if ((status = hook_action(&args, "desk-rm"))) {
+            if (opt_quiet == false)
+                elog(1, errfmt, args.desk, "failed to execute hooks");
+        } else if ((status = tec_desk_del(teccfg.base.task, &args, ctx))) {
+            if (opt_quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
         }
+
+        /* TODO: handle current and previos task IDs. */
+
+        if (opt_verbose == true)
+            llog(0, "removed desk '%s'", args.taskid);
+        retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 
     // TODO: update current directory if current env got deleted.
-    return status == LIBTEC_OK ? tec_pwd_desk(&args) : status;
+    return retcode == LIBTEC_OK ? tec_pwd_desk(&args) : retcode;
 }
 
 // TODO: show tasks in desk
 static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
-    int c, i, quiet, status;
-    int opt_help;
+    int c, i, status;
+    int opt_help, opt_quiet;
     const char *errfmt = "cannot list desk(s) '%s': %s";
 
-    quiet = false;
-    opt_help = false;
+    opt_help = opt_quiet = false;
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         case 'h':
             opt_help = true;
@@ -178,24 +235,17 @@ static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
     if (opt_help == true)
         return help_usage("desk-ls");
 
-    if ((status = toggle_env_get_curr(teccfg.base.task, &args))) {
-        if (quiet == false)
-            elog(status, errfmt, "NOCURR", "no current env");
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
         return status;
-    } else if ((status = tec_env_valid(teccfg.base.task, &args))) {
-        if (quiet == false)
-            elog(status, errfmt, args.desk, tec_strerror(status));
-        return status;
-    }
 
     i = optind;
     do {
         args.desk = argv[i];
 
-        if (check_arg_desk(&args, errfmt, quiet))
+        if (check_arg_desk(&args, errfmt, opt_quiet))
             continue;
         if ((status = tec_desk_list(teccfg.base.task, &args, ctx))) {
-            if (quiet == false)
+            if (opt_quiet == false)
                 elog(status, errfmt, args.desk, tec_strerror(status));
             continue;
         }
@@ -217,15 +267,23 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     int atleast_one_key_set;
-    int c, i, quiet, showhelp;
+    int opt_quiet, opt_help;
+    int c, i, retcode, status;
     const char *errfmt = "could not set desk unit value '%s': %s";
 
-    quiet = showhelp = false;
+    retcode = LIBTEC_OK;
+    opt_quiet = opt_help = false;
     atleast_one_key_set = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":d:hq")) != -1) {
+    while ((c = getopt(argc, argv, ":hqD:")) != -1) {
         switch (c) {
-        case 'd':
+        case 'h':
+            opt_help = true;
+            break;
+        case 'q':
+            opt_quiet = true;
+            break;
+        case 'D':
             if (valid_desc(optarg) == false) {
                 elog(1, "invalid description '%s'", optarg);
                 help_usage("desk-set");
@@ -234,12 +292,6 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
             atleast_one_key_set = true;
             ctx->units = tec_unit_add(ctx->units, "desc", optarg);
             break;
-        case 'h':
-            showhelp = true;
-            break;
-        case 'q':
-            quiet = true;
-            break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
         default:
@@ -247,7 +299,7 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if (showhelp)
+    if (opt_help)
         return help_usage("desk-set");
     if (atleast_one_key_set == false) {
         elog(1, "gotta supply one of the options");
@@ -255,38 +307,48 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
         return 1;
     }
 
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
+        return status;
+
     i = optind;
     do {
-        int status;
         args.desk = argv[i];
 
-        if ((status = tec_desk_set(teccfg.base.task, &args, ctx))) {
-            if (quiet == false)
+        if ((status = check_arg_desk(&args, errfmt, opt_quiet))) {
+            ;
+        } else if ((status = tec_desk_set(teccfg.base.task, &args, ctx))) {
+            if (opt_quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
+        } else if ((status = hook_action(&args, "desk-set"))) {
+            if (opt_quiet == false)
+                elog(1, errfmt, args.taskid, "failed to execute hooks");
         }
-    } while (++i < argc);
 
-    ctx->units = tec_unit_free(ctx->units);
-    return 0;
+        ctx->units = tec_unit_free(ctx->units);
+        retcode = status == LIBTEC_OK ? retcode : status;
+    } while (++i < argc);
+    return retcode;
 }
 
 static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
-    int c, i, quiet, showhelp, status;
+    int opt_quiet, opt_help;
+    int c, i, retcode, status;
     struct tec_unit *units, *unitpgn;
     const char *errfmt = "cannot show env units '%s': %s";
 
+    retcode = LIBTEC_OK;
     units = unitpgn = NULL;
-    quiet = showhelp = false;
+    opt_quiet = opt_help = false;
     args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'h':
-            showhelp = true;
+            opt_help = true;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -294,32 +356,35 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+    i = optind;
 
-    if (showhelp)
+    if (opt_help)
         return help_usage("desk-cat");
 
-    if ((status = check_arg_env(&args, errfmt, quiet)))
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
         return status;
 
-    i = optind;
     do {
         args.desk = argv[i];
-        if ((status = check_arg_desk(&args, errfmt, quiet))) {
-            continue;
+        if ((status = check_arg_desk(&args, errfmt, opt_quiet))) {
+            ;
         } else if ((status = tec_desk_get(teccfg.base.task, &args, ctx))) {
-            if (quiet == false)
+            if (opt_quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
-            continue;
+            ;
+        } else {
+            printf("%-7s : %s\n", "desk", args.desk);
+            for (units = ctx->units; units; units = units->next)
+                printf("%-7s : %s\n", units->key, units->val);
+
+            // TODO: add plugin output
         }
 
-        printf("%-7s : %s\n", "desk", args.desk);
-        for (units = ctx->units; units; units = units->next)
-            printf("%-7s : %s\n", units->key, units->val);
-
-        // TODO: add plugin output
+        unitpgn = tec_unit_free(unitpgn);
+        ctx->units = tec_unit_free(ctx->units);
+        retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
-
-    return status;
+    return retcode;
 }
 
 static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
@@ -334,7 +399,7 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
     opt_quiet = opt_help = false;
     opt_cd_toggle = opt_cd_dir = true;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":hnp:qN")) != -1) {
+    while ((c = getopt(argc, argv, ":e:hnqN")) != -1) {
         switch (c) {
         case 'h':
             opt_help = true;

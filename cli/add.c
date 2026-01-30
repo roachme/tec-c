@@ -136,6 +136,7 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
                     elog(status, "could not update toggles");
             }
         }
+        ctx->column = tec_unit_free(ctx->column);
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);

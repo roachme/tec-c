@@ -73,6 +73,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+    i = optind;
 
     if (opt_help == true)
         return help_usage("rm");
@@ -90,7 +91,6 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
     }
     // TODO: if non-current task gets deleted, then no need to
     // change user's current directory.
-    i = optind;
     do {
         args.taskid = argv[i];
 

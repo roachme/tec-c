@@ -167,6 +167,8 @@ static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
     int opt_ask_once, opt_ask_every, opt_quiet, opt_help, opt_verbose;
 
     retcode = LIBTEC_OK;
+    opt_ask_every = true;       /* prompt before every removal.  */
+    opt_ask_once = false;       /* prompt before once for all environments.  */
     opt_quiet = opt_help = opt_verbose = false;
     args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":d:fhiqvI")) != -1) {
@@ -227,7 +229,7 @@ static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
 
         if ((status = hook_action(&args, "env-rm"))) {
             if (opt_quiet == false)
-                elog(1, errfmt, args.taskid, "failed to execute hooks");
+                elog(1, errfmt, args.env, "failed to execute hooks");
         } else if ((status = tec_env_del(teccfg.base.task, &args, ctx))) {
             if (opt_quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
