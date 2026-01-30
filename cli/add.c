@@ -9,13 +9,15 @@
 /* Note: should be static cuz args->task point to it.  */
 static char gentask[IDSIZ + 1];
 
-static int generate_task(tec_arg_t *args)
+static int generate_task(tec_arg_t *args, char **argv, int argv_idx)
 {
     args->taskid = gentask;
     for (register unsigned int i = 1; i < IDLIMIT; ++i) {
         sprintf(gentask, IDFMT, i);
-        if (tec_task_exist(teccfg.base.task, args) != LIBTEC_OK)
+        if (tec_task_exist(teccfg.base.task, args) != LIBTEC_OK) {
+            argv[argv_idx] = strcpy(gentask, args->taskid);
             return 0;
+        }
     }
     return 1;
 }
@@ -41,17 +43,17 @@ static int generate_units(tec_ctx_t *ctx, char *env, char *task)
 
 int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char *errfmt;
     tec_arg_t args;
-    char *last_taskid;
-    int quiet, showhelp, status, switch_dir, switch_task, i, c;
+    const char *errfmt;
+    int c, i, retcode, status;
+    int opt_quiet, opt_help, opt_cd_dir, opt_cd_toggle;
 
-    last_taskid = NULL;
-    quiet = showhelp = false;
-    switch_dir = switch_task = true;
+    retcode = LIBTEC_OK;
+    opt_quiet = opt_help = false;
+    opt_cd_dir = opt_cd_toggle = true;
     args.env = args.desk = args.taskid = NULL;
     errfmt = "cannot create task '%s': %s";
-    while ((c = getopt(argc, argv, ":d:e:n:hqN")) != -1) {
+    while ((c = getopt(argc, argv, ":d:e:hqnN")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -60,17 +62,17 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
             args.env = optarg;
             break;
         case 'h':
-            showhelp = true;
+            opt_help = true;
             break;
         case 'n':
-            switch_task = false;
+            opt_cd_toggle = false;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         case 'N':
-            switch_dir = false;
-            switch_task = false;
+            opt_cd_dir = false;
+            opt_cd_toggle = false;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -78,73 +80,65 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+    i = optind;
 
-    if (showhelp == true)
+    if (opt_help == true)
         return help_usage("add");
 
-    if ((status = check_arg_env(&args, errfmt, quiet)))
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
         return status;
-    else if ((status = check_arg_desk(&args, errfmt, quiet)))
+    else if ((status = check_arg_desk(&args, errfmt, opt_quiet)))
         return status;
-    else if (optind == argc && generate_task(&args)) {
-        if (quiet == false)
+    else if (optind == argc && generate_task(&args, argv, i)) {
+        if (opt_quiet == false)
             elog(1, "could not generate task ID: limit is %d", IDLIMIT);
         return 1;
     } else if ((ctx->column = generate_column("todo")) == NULL) {
-        if (quiet == false)
+        if (opt_quiet == false)
             elog(1, "could not generate column");
         return 1;
     }
 
-    i = optind;
     do {
-        // TODO: maybe there's no need cuz i use task ID generator
-        args.taskid = args.taskid == NULL ? argv[i] : args.taskid;
+        args.taskid = argv[i];
 
         if ((status = tec_task_valid(teccfg.base.task, &args))) {
-            if (quiet == false)
+            if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, tec_strerror(status));
-            args.taskid = NULL; /* unset task ID, not to break loop.  */
+            retcode = status == LIBTEC_OK ? retcode : status;
             continue;
         } else if (is_valid_length(args.taskid, IDSIZ) == false) {
-            if (quiet == false)
+            if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, "task ID is too long");
-            return status;
+            retcode = status == LIBTEC_OK ? retcode : status;
+            continue;
         } else if (!(status = tec_task_exist(teccfg.base.task, &args))) {
-            if (quiet == false)
+            if (opt_quiet == false)
                 elog(1, errfmt, args.taskid, tec_strerror(LIBTEC_ARG_EXISTS));
-            args.taskid = NULL; /* unset task ID, not to break loop.  */
+            retcode = !(status == LIBTEC_OK) ? retcode : !status;
             continue;
         } else if (generate_units(ctx, args.env, args.taskid)) {
-            if (quiet == false)
+            if (opt_quiet == false)
                 elog(1, errfmt, args.taskid, "unit generation failed");
-            args.taskid = NULL; /* unset task ID, not to break loop.  */
+            retcode = status == LIBTEC_OK ? retcode : status;
             continue;
         }
 
         if ((status = tec_task_add(teccfg.base.task, &args, ctx))) {
-            if (quiet == false)
+            if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, tec_strerror(status));
-        } else if (hook_action(&args, "add")) {
-            if (quiet == false)
+        } else if ((status = hook_action(&args, "add"))) {
+            if (opt_quiet == false)
                 elog(1, errfmt, args.taskid, "failed to execute hooks");
+        } else if (opt_cd_toggle == true) {
+            if ((status = toggle_task_set_curr(teccfg.base.task, &args))) {
+                if (opt_quiet == false)
+                    elog(status, "could not update toggles");
+            }
         }
-
         ctx->units = tec_unit_free(ctx->units);
-
-        /* TODO: find a better trick.  */
-        last_taskid = args.taskid;
-        args.taskid = NULL;     /* unset task ID, not to break loop.  */
+        retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 
-    args.taskid = last_taskid;
-
-    if ((switch_task && status == LIBTEC_OK)
-        && toggle_task_set_curr(teccfg.base.task, &args)) {
-        if (quiet == false)
-            elog(status, "could not update toggles");
-        return 1;
-    }
-
-    return (switch_dir && status == LIBTEC_OK) ? tec_pwd_task(&args) : status;
+    return retcode == LIBTEC_OK && opt_cd_dir ? tec_pwd_task(&args) : retcode;
 }

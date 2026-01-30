@@ -19,6 +19,7 @@
 - `cli/desk`: Style code
 - `cli/env`: Style code
 - `cli`: Fix `env` and `desk` cat commands
+- `cli/add`: Style code
 
 ### Deleted
 
