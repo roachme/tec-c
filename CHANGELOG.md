@@ -3,6 +3,7 @@
 ### Added
 
 - `cli/set`: Add skeleton for interactive option
+- `cli/help`: Add new option for command `help`
 
 ### Changed
 

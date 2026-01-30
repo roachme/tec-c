@@ -67,6 +67,7 @@ struct help helptab[] = {
     \n\
     Options:\n\
       -d      output short description for each topic\n\
+      -l      output only description for all commands\n\
       -s      output only a short usage synopsis for each topic matching\n\
     \n\
     Arguments:\n\
@@ -643,7 +644,19 @@ static void show_cmd_section(const char *title, const char *tag)
     }
 }
 
-int help_list_commands(void)
+static int help_list_short_commands(void)
+{
+    const char *name, *desc;
+
+    for (int i = 0; i < ARRAY_SIZE(helptab); ++i) {
+        name = helptab[i].name;
+        desc = helptab[i].desc_short;
+        printf("%-" xstr(CMDSIZ) "s - %s", name, desc);
+    }
+    return 0;
+}
+
+int help_list_pretty_commands(void)
 {
     printf("Usage: " PROGRAM " [OPTION]... COMMAND|PLUGIN\n");
     printf(PADDING "Run '" PROGRAM " help " PROGRAM "' to get more info.\n");
@@ -694,16 +707,20 @@ int help_lookup(const char *cmd)
 
 int tec_cli_help(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char c;
-    int i, status;
+    int c, i, status;
+    int opt_list_cmds;
 
     status = LIBTEC_OK;
-    while ((c = getopt(argc, argv, ":ds")) != -1) {
+    opt_list_cmds = false;
+    while ((c = getopt(argc, argv, ":dls")) != -1) {
         switch (c) {
         case 'd':
             helpctx.desc_short = true;
             helpctx.synop = false;
             helpctx.desc_long = false;
+            break;
+        case 'l':
+            opt_list_cmds = true;
             break;
         case 's':
             helpctx.synop = true;
@@ -717,8 +734,10 @@ int tec_cli_help(int argc, char **argv, tec_ctx_t *ctx)
         };
     }
 
-    if (optind == argc)
-        return help_list_commands();
+    if (opt_list_cmds)
+        return help_list_short_commands();
+    else if (optind == argc)
+        return help_list_pretty_commands();
 
     for (i = optind; i < argc; ++i)
         if ((status = help_lookup(argv[i])))

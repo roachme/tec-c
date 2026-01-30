@@ -384,7 +384,7 @@ int main(int argc, char **argv)
         return show_version();
     else if (cmd == NULL) {
         /* The user didn't specify a command; give them help */
-        help_list_commands();
+        help_list_pretty_commands();
         exit(1);
     }
 

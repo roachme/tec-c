@@ -76,7 +76,7 @@ int check_arg_task(tec_arg_t * args, const char *errfmt, int quiet);
 bool column_exist(const char *colname);
 tec_unit_t *generate_column(char *colname);
 
-int help_list_commands(void);
+int help_list_pretty_commands(void);
 int help_usage(const char *cmd);
 int help_lookup(const char *cmd);
 
