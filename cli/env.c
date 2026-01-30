@@ -6,6 +6,16 @@
 #include "aux/config.h"
 #include "aux/toggle.h"
 
+static int get_user_choice(void)
+{
+    char choice[10] = { 0 };
+
+    fgets(choice, sizeof(choice), stdin);
+    if (choice[0] == 'y' || choice[0] == 'Y')
+        return 1;
+    return 0;
+}
+
 static int generate_units(tec_ctx_t *ctx, char *env)
 {
     struct tec_unit *units = NULL;
@@ -151,27 +161,39 @@ static int _env_add(int argc, char **argv, tec_ctx_t *ctx)
 
 static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char c;
     tec_arg_t args;
+    int i, c, retcode, status;
     const char *errfmt = "cannot delete env: %s";
-    int i, choice, quiet, showhelp, showprompt, status;
+    int opt_ask_once, opt_ask_every, opt_quiet, opt_help, opt_verbose;
 
-    showprompt = true;
-    choice = quiet = showhelp = false;
+    retcode = LIBTEC_OK;
+    opt_quiet = opt_help = opt_verbose = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":d:hnq")) != -1) {
+    while ((c = getopt(argc, argv, ":d:fhiqvI")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
             break;
-        case 'h':
-            showhelp = true;
+        case 'f':
+            opt_ask_every = false;
+            opt_ask_once = false;
             break;
-        case 'n':
-            showprompt = false;
+        case 'h':
+            opt_help = true;
+            break;
+        case 'i':
+            opt_ask_every = true;
+            opt_ask_once = false;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
+            break;
+        case 'v':
+            opt_verbose = true;
+            break;
+        case 'I':
+            opt_ask_every = false;
+            opt_ask_once = true;
             break;
         case ':':
             return elog(1, "option `-%c' requires an argument", optopt);
@@ -179,44 +201,60 @@ static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+    i = optind;
 
-    if (showhelp)
+    if (opt_help)
         return help_usage("env-rm");
 
-    if (showprompt) {
-        printf("Are you sure to delete env(s)? [y/N] ");
-        choice = getchar();
-        if (choice != 'y' && choice != 'Y') {
-            return 0;
+    if (opt_ask_once == true) {
+        printf("Are you sure to remove environment(s)? [y/N] ");
+        if (get_user_choice() == false) {
+            return LIBTEC_OK;
         }
     }
 
-    i = optind;
     do {
         args.env = argv[i];
-        if ((status = tec_env_del(teccfg.base.task, &args, ctx)) != LIBTEC_OK) {
-            if (quiet == false)
+        if ((status = check_arg_env(&args, errfmt, opt_quiet))) {
+            retcode = status == LIBTEC_OK ? retcode : status;
+            continue;
+        } else if (opt_ask_every == true) {
+            printf("Are you sure to remove environment '%s'? [y/N] ", args.env);
+            if (get_user_choice() != true) {
+                continue;
+            }
+        }
+
+        if ((status = hook_action(&args, "env-rm"))) {
+            if (opt_quiet == false)
+                elog(1, errfmt, args.taskid, "failed to execute hooks");
+        } else if ((status = tec_env_del(teccfg.base.task, &args, ctx))) {
+            if (opt_quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
         }
+
+        if (opt_verbose == true)
+            llog(0, "removed environment '%s'", args.env);
+        retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 
     // TODO: update current directory if current env got deleted.
-    return status == LIBTEC_OK ? tec_pwd_env(&args) : status;
+    return retcode == LIBTEC_OK ? tec_pwd_env(&args) : retcode;
 }
 
 static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
 {
-    int c, quiet, status;
+    int c, status;
     tec_arg_t args;
-    int opt_help;
+    int opt_help, opt_quiet;
 
-    quiet = false;
+    opt_quiet = false;
     opt_help = false;
     args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         case 'h':
             opt_help = true;
@@ -232,7 +270,7 @@ static int _env_ls(int argc, char **argv, tec_ctx_t *ctx)
         return help_usage("env-ls");
 
     if ((status = tec_env_list(teccfg.base.task, &args, ctx))) {
-        if (quiet == false) {
+        if (opt_quiet == false) {
             const char *errfmt = "cannot list env(s) '%s': %s";
             elog(status, errfmt, "ENV", tec_strerror(status));
             return status;

@@ -22,6 +22,7 @@
 - `cli/add`: Style code
 - `cli/rm`: Style code
 - `cli/set`: Style code
+- `cli/env`: Style code
 
 ### Deleted
 

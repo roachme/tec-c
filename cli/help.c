@@ -593,9 +593,12 @@ struct help helptab[] = {
      .desc_short = "Remove environment(s).\n",
      .desc_long = "\n\
     Options:\n\
+      -f      never prompt\n\
       -h      show this help and exit\n\
-      -n      delete environment without confirmation\n\
+      -i      prompt before every removal\n\
       -q      do not write anything to standard error output\n\
+      -v      explain what is being done\n\
+      -I      prompt once before removing more than one task ID\n\
     \n\
     Arguments:\n\
       NAME    environment name (default current)\n\
