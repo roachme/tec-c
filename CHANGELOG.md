@@ -21,6 +21,7 @@
 - `cli`: Fix `env` and `desk` cat commands
 - `cli/add`: Style code
 - `cli/rm`: Style code
+- `cli/set`: Style code
 
 ### Deleted
 

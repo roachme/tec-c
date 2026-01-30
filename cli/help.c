@@ -232,7 +232,7 @@ struct help helptab[] = {
       -h      show this help and exit\n\
       -i      set unit values in interactive mode (under development)\n\
       -q      do not write anything to standard error output\n\
-      -t      task type\n\
+      -T      task type\n\
       -D      task description\n\
       -P      task priority\n\
     \n\
@@ -509,6 +509,7 @@ struct help helptab[] = {
       -h      show this help and exit\n\
       -n      do not switch to newly created environment\n\
       -q      do not write anything to standard error output\n\
+      -N      neither switch to task nor to environment directory\n\
     \n\
     Arguments:\n\
       NAME    environment name (default is current)\n\
@@ -611,7 +612,9 @@ struct help helptab[] = {
       NAME    environment name (default is current)\n\
     \n\
     Options:\n\
+      -d DESK desk name (default is current)\n\
       -h      show this help and exit\n\
+      -i      set unit values in interactive mode (under development)\n\
       -q      do not write anything to standard error output\n\
       -D      environment description\n\
     \n\

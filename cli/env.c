@@ -250,26 +250,27 @@ static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
 {
     char *errfmt;
     tec_arg_t src, dst;
-    int c, quiet, showhelp, status;
+    int status;
+    int c, opt_quiet, opt_help;
 
-    quiet = showhelp = false;
+    opt_quiet = opt_help = false;
     errfmt = "could not rename env: %s";
     src.env = src.desk = src.taskid = NULL;
     dst.env = dst.desk = dst.taskid = NULL;
     while ((c = getopt(argc, argv, ":hq")) != -1) {
         switch (c) {
         case 'h':
-            showhelp = true;
+            opt_help = true;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         default:
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
 
-    if (showhelp)
+    if (opt_help)
         return help_usage("env-rename");
 
     if (argc - optind != 2)
@@ -280,18 +281,18 @@ static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
 
     /* TODO: trigger hooks if any */
 
-    if ((status = check_arg_env(&src, errfmt, quiet)))
+    if ((status = check_arg_env(&src, errfmt, opt_quiet)))
         return status;
-    else if ((status = check_arg_env(&src, errfmt, quiet)))
+    else if ((status = check_arg_env(&src, errfmt, opt_quiet)))
         return status;
     else if (tec_env_exist(teccfg.base.task, &dst)) {
-        if (quiet == false)
+        if (opt_quiet == false)
             elog(1, "'%s': destination env exists\n", dst.env);
         return status;
     }
 
     if ((status = tec_env_rename(teccfg.base.task, &src, &dst, NULL))) {
-        if (quiet == false)
+        if (opt_quiet == false)
             elog(status, errfmt, tec_strerror(status));
         return status;
     }
@@ -302,10 +303,12 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     int atleast_one_key_set;
-    int c, i, quiet, showhelp;
+    int c, i, retcode, status;
+    int opt_quiet, opt_help;
     const char *errfmt = "could not set env unit value '%s': %s";
 
-    quiet = showhelp = false;
+    retcode = LIBTEC_OK;
+    opt_quiet = opt_help = false;
     atleast_one_key_set = false;
     args.env = args.desk = args.taskid = NULL;
     while ((c = getopt(argc, argv, ":d:hqD:")) != -1) {
@@ -314,10 +317,10 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
             args.desk = optarg;
             break;
         case 'h':
-            showhelp = true;
+            opt_help = true;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         case 'D':
             if (valid_desc(optarg) == false) {
@@ -335,9 +338,9 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
         }
     }
 
-    if (showhelp)
+    if (opt_help)
         return help_usage("env-set");
-    if (atleast_one_key_set == false) {
+    else if (atleast_one_key_set == false) {
         elog(1, "gotta supply one of the options");
         help_usage("env-set");
         return 1;
@@ -345,20 +348,24 @@ static int _env_set(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        int status;
         args.env = argv[i];
 
-        if ((status = tec_env_set(teccfg.base.task, &args, ctx))) {
-            if (quiet == false)
+        if ((status = check_arg_env(&args, errfmt, opt_quiet))) {
+            ;
+        } else if ((status = tec_env_set(teccfg.base.task, &args, ctx))) {
+            if (opt_quiet == false)
                 elog(status, errfmt, argv[i], tec_strerror(status));
+        } else if ((status = hook_action(&args, "env-set"))) {
+            if (opt_quiet == false)
+                elog(status, errfmt, args.taskid, "failed to execute hooks");
         }
+        retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 
     ctx->units = tec_unit_free(ctx->units);
-    return 0;
+    return status;
 }
 
-// roach: maybe it'll be useful
 static int _env_cat(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;

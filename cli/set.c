@@ -53,15 +53,14 @@ static int valid_desc(const char *val)
 // TODO: Find a good error message in case option fails.  */
 int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char c;
-    int i, quiet, status;
     tec_arg_t args;
-    int opt_interactive, opt_help;
+    int c, i, retcode, status;
+    int opt_help, opt_interactive, opt_quiet;
     const char *errfmt = "cannot set task units '%s': %s";
 
-    opt_help = opt_interactive = quiet = false;
+    opt_help = opt_interactive = opt_quiet = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":d:e:hiqt:D:P:")) != -1) {
+    while ((c = getopt(argc, argv, ":d:e:hiqD:T:P:")) != -1) {
         // TODO: add a protection for duplicates, use map data structure
         switch (c) {
         case 'd':
@@ -71,15 +70,16 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
             args.env = optarg;
             break;
         case 'q':
-            quiet = true;
+            opt_quiet = true;
             break;
         case 'h':
             opt_help = true;
             break;
         case 'i':
             opt_interactive = true;
+            return elog(1, "this option is under development");
             break;
-        case 't':
+        case 'T':
             if (valid_type(optarg) == false) {
                 elog(1, "invalid priority '%s'", optarg);
                 help_usage("set");
@@ -109,31 +109,32 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
             return elog(1, "invalid option `-%c'", optopt);
         }
     }
+    i = optind;
 
     if (opt_help == true)
         return help_usage("set");
 
-    if ((status = check_arg_env(&args, errfmt, quiet)))
+    if ((status = check_arg_env(&args, errfmt, opt_quiet)))
         return status;
-    else if ((status = check_arg_desk(&args, errfmt, quiet)))
+    else if ((status = check_arg_desk(&args, errfmt, opt_quiet)))
         return status;
 
-    i = optind;
     do {
         args.taskid = argv[i];
 
-        if ((status = check_arg_task(&args, errfmt, quiet)))
-            continue;
-        else if ((status = tec_task_set(teccfg.base.task, &args, ctx))) {
+        if ((status = check_arg_task(&args, errfmt, opt_quiet))) {
+            ;
+        } else if ((status = tec_task_set(teccfg.base.task, &args, ctx))) {
             args.taskid = args.taskid ? args.taskid : "NOCURR";
-            if (quiet == false)
+            if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, tec_strerror(status));
-            continue;
-        } else if (hook_action(&args, "set")) {
-            if (quiet == false)
+        } else if ((status = hook_action(&args, "set"))) {
+            if (opt_quiet == false)
                 elog(1, errfmt, args.taskid, "failed to execute hooks");
         }
+
         ctx->units = tec_unit_free(ctx->units);
+        retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
-    return status;
+    return retcode;
 }
