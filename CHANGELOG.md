@@ -7,6 +7,8 @@
 
 ### Changed
 
+- `cli/column`: Rename subcommands
+
 ### Fixed
 
 - `completion/_tec.zsh`: Update command list

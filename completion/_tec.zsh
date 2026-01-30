@@ -240,14 +240,14 @@ _tec_column() {
             local -a column_subcommands
             column_subcommands=(
                 'ls:List columns'
-                'move:Move task to column'
+                'mv:Move task to column'
             )
             _describe -t commands 'column subcommand' column_subcommands
             ;;
         args)
             case $line[1] in
                 ls) _tec_column_ls ;;
-                move) _tec_column_move ;;
+                move) _tec_column_mv ;;
             esac
             ;;
     esac
@@ -258,7 +258,7 @@ _tec_column_ls() {
         '(-h)'{-h,--help}'[show help and exit]'
 }
 
-_tec_column_move() {
+_tec_column_mv() {
     _arguments \
         '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
         '(-c)'{-c,--column}'[column to move to]:column:_tec_columns' \

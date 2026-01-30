@@ -15,7 +15,7 @@ static int _column_ls(int argc, char **argv, tec_ctx_t *ctx)
     return 0;
 }
 
-static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
+static int _column_mv(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     char c, *errfmt, *colname;
@@ -92,15 +92,15 @@ static int _column_move(int argc, char **argv, tec_ctx_t *ctx)
     return status;
 }
 
-static int _column_rename(int argc, char **argv, tec_ctx_t *ctx)
+static int _column_ren(int argc, char **argv, tec_ctx_t *ctx)
 {
     return elog(1, "under development: rename column in file .tec/column");
 }
 
 static const builtin_t column_commands[] = {
     {.name = "ls",.func = &_column_ls},
-    {.name = "move",.func = &_column_move},
-    {.name = "rename",.func = &_column_rename},
+    {.name = "move",.func = &_column_mv},
+    {.name = "rename",.func = &_column_ren},
 };
 
 int tec_cli_column(int argc, char **argv, tec_ctx_t *ctx)
