@@ -24,6 +24,7 @@ Bugs:
 + 7. `tec cd taskID1 taskID2` doesn't set previous toggle.
   8. If current or previous task is moved to done, update desk toggles.
   9. `tec env add <env>` causes desk description duplicated cuz they both use ctx->units.
+ 10. `hook_show` does not return proper return code. Mabye popen() is problem.
 
 
 Ideas:
