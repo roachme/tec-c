@@ -7,6 +7,7 @@
 ### Fixed
 
 - `lib/errmod`: Fix array boundary check
+- `cli/aux/toggle`: Fix buffer boundary
 
 ### Deleted
 
