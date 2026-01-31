@@ -8,6 +8,7 @@
 
 - `lib/errmod`: Fix array boundary check
 - `cli/aux/toggle`: Fix buffer boundary
+- `cli/rm`: Fix toggle removal
 
 ### Deleted
 

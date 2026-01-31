@@ -105,6 +105,12 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
         }
 
         /* TODO: handle current and previos task IDs. */
+        // TODO: maybe use different function to clear curr and prev task IDs?
+        if (toggle_task_is_curr(teccfg.base.task, &args)) {
+            toggle_task_clear(teccfg.base.task, &args, args.taskid);
+        } else if (toggle_task_is_prev(teccfg.base.task, &args)) {
+            toggle_task_clear(teccfg.base.task, &args, args.taskid);
+        }
 
         if (opt_verbose == true)
             llog(0, "removed task '%s'", args.taskid);

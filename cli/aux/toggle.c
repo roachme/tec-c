@@ -84,18 +84,6 @@ static char *task_get_curr(char *base, tec_arg_t *args)
     return _get_toggle(path_task_toggle(base, args), task_curr, IDSIZ, "curr");
 }
 
-/*
-static char *env_get_prev(char *base, tec_arg_t * args)
-{
-    return _get_toggle(path_env_toggle(base, args), env_prev, "prev");
-}
-
-static char *desk_get_prev(char *base, tec_arg_t * args)
-{
-    return _get_toggle(path_desk_toggle(base, args), desk_prev, "prev");
-}
-*/
-
 static char *env_get_prev(char *base, tec_arg_t *args)
 {
     return _get_toggle(path_env_toggle(base, args), env_prev, ENVSIZ, "prev");
@@ -169,6 +157,24 @@ int toggle_task_get_prev(char *base, tec_arg_t *args)
     if (!args->taskid && !(args->taskid = task_get_prev(base, args)))
         return 1;
     return 0;
+}
+
+bool toggle_task_is_curr(char *base, tec_arg_t *args)
+{
+    char tmp[IDSIZ + 1] = { 0 };
+
+    if (_get_toggle(path_task_toggle(base, args), tmp, IDSIZ, "curr"))
+        return true;
+    return false;
+}
+
+bool toggle_task_is_prev(char *base, tec_arg_t *args)
+{
+    char tmp[IDSIZ + 1] = { 0 };
+
+    if (_get_toggle(path_task_toggle(base, args), tmp, IDSIZ, "prev"))
+        return true;
+    return false;
 }
 
 int toggle_env_set_curr(char *base, tec_arg_t *args)
@@ -371,9 +377,7 @@ int toggle_task_clear(char *base, tec_arg_t *args, const char *taskid)
     if (prev)
         toggles = tec_unit_add(toggles, "prev", prev);
 
-    if (toggles) {
-        tec_unit_save(path_task_toggle(base, args), toggles);
-        tec_unit_free(toggles);
-    }
+    tec_unit_save(path_task_toggle(base, args), toggles);
+    tec_unit_free(toggles);
     return 0;
 }
