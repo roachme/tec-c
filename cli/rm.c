@@ -1,6 +1,36 @@
+#include <stdio.h>
+#include <string.h>
+
 #include "tec.h"
 #include "aux/toggle.h"
 #include "aux/config.h"
+
+#ifdef __linux__
+#include <unistd.h>
+
+#define CWD_DELIM "/"
+#endif
+
+static char _user_cwd[FILENAME_MAX + 1];
+
+
+
+#ifdef __linux__
+char *GET_USER_CWD()
+{
+    char *prev, *token;
+
+    if (getcwd(_user_cwd, sizeof(_user_cwd)) == NULL)
+        return NULL;
+
+    token = strtok(_user_cwd, CWD_DELIM);
+
+    while ((token = strtok(NULL, CWD_DELIM)) != NULL)
+        prev = token;
+    return prev;
+}
+#endif
+
 
 /* TODO: Find a good error message in case option fails.
  *
@@ -17,14 +47,17 @@
 int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
+    char *user_cwd;
     const char *errfmt;
-    int c, i, retcode, status;
+    int c, change_dir, i, retcode, status;
     int opt_quiet, opt_help, opt_verbose;
     int opt_ask_once, opt_ask_every;
 
+    change_dir = false;
     opt_ask_every = true;       /* prompt before every removal.  */
     opt_ask_once = false;       /* prompt before once for all task IDs.  */
     retcode = LIBTEC_OK;
+    user_cwd = GET_USER_CWD();
     errfmt = "cannot remove task '%s': %s";
     args.env = args.desk = args.taskid = NULL;
     opt_quiet = opt_help = opt_verbose = false;
@@ -79,8 +112,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
             return LIBTEC_OK;
         }
     }
-    // TODO: if non-current task gets deleted, then no need to
-    // change user's current directory.
+
     do {
         args.taskid = argv[i];
 
@@ -114,11 +146,17 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 
         if (opt_verbose == true)
             llog(0, "removed task '%s'", args.taskid);
+
+        if (strcmp(user_cwd, args.taskid) == 0) {
+            change_dir = true;
+        }
+
         retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 
-    // FIXME: when delete task ID from non-current env,
-    // it switches to current task in current env.
-    // BUT should not change user's CWD at all.
+    if (change_dir)
+        args.taskid = ""; /* switch to current desk */
+
+    // TODO: if a user somewhere eles then do not change CWD at all.
     return retcode == LIBTEC_OK ? tec_pwd_task(&args) : retcode;
 }
