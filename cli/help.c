@@ -287,7 +287,6 @@ struct help helptab[] = {
       cd      Switch to desk\n\
       ls      List desks\n\
       mv      Move (rename) desks\n\
-      prev    Switch to previous desks\n\
       rm      Remove desk with all tasks\n\
       set     Set desks vaules\n\
     \n\
@@ -511,7 +510,6 @@ struct help helptab[] = {
       cat     Concatenate environment info (under development)\n\
       cd      Switch to environment\n\
       ls      List environments\n\
-      prev    Switch to previous environment\n\
       rename  Rename environment\n\
       rm      Remove environment with all desks and tasks\n\
       set     Set environment vaules\n\
