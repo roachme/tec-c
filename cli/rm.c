@@ -1,27 +1,55 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+
 #include "tec.h"
 #include "aux/toggle.h"
 #include "aux/config.h"
 
+#ifdef __linux__
+#include <unistd.h>
+
+#define CWD_DELIM "/"
+#endif
+
+#ifdef __linux__
+char *TEC_GETCWD(char *buf, size_t bufsiz)
+{
+    return getcwd(buf, bufsiz);
+}
+#endif
+
+static bool do_change_user_cwd(tec_arg_t *args)
+{
+    char buf[FILENAME_MAX + 1] = { 0 };
+    char my_user_cwd[FILENAME_MAX + 1] = { 0 };
+
+    if (TEC_GETCWD(my_user_cwd, sizeof(my_user_cwd)) == NULL) {
+        return false;
+    }
+    sprintf(buf, "%s/%s/%s/%s", teccfg.base.task, args->env, args->desk,
+            args->taskid);
+
+    if (strcmp(buf, my_user_cwd) == 0)
+        return true;
+    return false;
+}
+
 /* TODO: Find a good error message in case option fails.
  *
- *+1. Add option `-v' - explain what is being done
- * 2. Add option `-f' - ignore nonexistent files and arguments, never prompt
  * 3. Add option `-d' - remove empty/done tasks (maybe???)...
- * 4. Find when GNU rm command uses interctive mode and copy it
  * */
 
-/* FIXME:
- * 1. When task gets deleted shell scripts tries to switch nonexistent directory
- * 2. If no task ID is passed then delete current task.
- * */
 int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     const char *errfmt;
-    int c, i, retcode, status;
+    int c, change_dir, i, retcode, status;
     int opt_quiet, opt_help, opt_verbose;
     int opt_ask_once, opt_ask_every;
 
+    change_dir = false;
     opt_ask_every = true;       /* prompt before every removal.  */
     opt_ask_once = false;       /* prompt before once for all task IDs.  */
     retcode = LIBTEC_OK;
@@ -79,8 +107,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
             return LIBTEC_OK;
         }
     }
-    // TODO: if non-current task gets deleted, then no need to
-    // change user's current directory.
+
     do {
         args.taskid = argv[i];
 
@@ -99,26 +126,38 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
         if ((status = hook_action(&args, "rm"))) {
             if (opt_quiet == false)
                 elog(1, errfmt, args.taskid, "failed to execute hooks");
-        } else if ((status = tec_task_del(teccfg.base.task, &args, ctx))) {
+            retcode = status == LIBTEC_OK ? retcode : status;
+            continue;
+        }
+        // Compare each removed task ID with user current working directory
+        if (do_change_user_cwd(&args) == true) {
+            change_dir = true;
+        }
+
+        /* Update current and previos toggles.  */
+        if (toggle_task_is_curr(teccfg.base.task, &args)) {
+            toggle_task_unset_curr(teccfg.base.task, &args);
+        } else if (toggle_task_is_prev(teccfg.base.task, &args)) {
+            toggle_task_unset_curr(teccfg.base.task, &args);
+        }
+
+        if ((status = tec_task_del(teccfg.base.task, &args, ctx))) {
             if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, tec_strerror(status));
         }
 
-        /* TODO: handle current and previos task IDs. */
-        // TODO: maybe use different function to clear curr and prev task IDs?
-        if (toggle_task_is_curr(teccfg.base.task, &args)) {
-            toggle_task_clear(teccfg.base.task, &args, args.taskid);
-        } else if (toggle_task_is_prev(teccfg.base.task, &args)) {
-            toggle_task_clear(teccfg.base.task, &args, args.taskid);
-        }
-
         if (opt_verbose == true)
             llog(0, "removed task '%s'", args.taskid);
+
         retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 
-    // FIXME: when delete task ID from non-current env,
-    // it switches to current task in current env.
-    // BUT should not change user's CWD at all.
-    return retcode == LIBTEC_OK ? tec_pwd_task(&args) : retcode;
+    if (change_dir) {
+        args.taskid = NULL;     // ducking hotfix to get current task ID from file
+        toggle_task_get_curr(teccfg.base.task, &args);
+        if (args.taskid == NULL)
+            args.taskid = "";
+        return retcode == LIBTEC_OK ? tec_pwd_task(&args) : retcode;
+    }
+    return retcode;
 }

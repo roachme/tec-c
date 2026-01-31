@@ -19,6 +19,8 @@ int toggle_task_get_prev(char *base, tec_arg_t * args);
 int toggle_task_set_curr(char *base, tec_arg_t * args);
 bool toggle_task_is_curr(char *base, tec_arg_t * args);
 bool toggle_task_is_prev(char *base, tec_arg_t * args);
+int toggle_task_unset_curr(char *base, tec_arg_t * args);
+int toggle_task_unset_prev(char *base, tec_arg_t * args);
 
 /* Update toggles after rename/move operations */
 int toggle_task_update(char *base, tec_arg_t * args,

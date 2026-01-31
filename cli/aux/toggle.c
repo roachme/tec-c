@@ -247,6 +247,41 @@ int toggle_task_set_curr(char *base, tec_arg_t *args)
     return 0;
 }
 
+int toggle_task_unset_curr(char *base, tec_arg_t *args)
+{
+    char *curr, *prev;
+    tec_unit_t *toggles;
+
+    toggles = NULL;
+    curr = task_get_curr(base, args);
+    prev = task_get_prev(base, args);
+
+    if (curr == NULL)
+        return 1;
+    else if (prev != NULL)
+        toggles = tec_unit_add(toggles, "curr", prev);
+
+    return tec_unit_save(path_task_toggle(base, args), toggles);
+}
+
+int toggle_task_unset_prev(char *base, tec_arg_t *args)
+{
+    char *curr, *prev;
+    tec_unit_t *toggles;
+
+    toggles = NULL;
+    curr = task_get_curr(base, args);
+    prev = task_get_prev(base, args);
+
+    if (prev == NULL)
+        return 1;               // do nothing
+    if (curr != NULL) {
+        // rewrite curr with the same value
+        toggles = tec_unit_add(toggles, "curr", curr);
+    }
+    return tec_unit_save(path_task_toggle(base, args), toggles);
+}
+
 int toggle_env_swap(char *base, tec_arg_t *args)
 {
     char *curr, *prev;
@@ -369,8 +404,10 @@ int toggle_task_clear(char *base, tec_arg_t *args, const char *taskid)
         changed = 1;
     }
 
-    if (!changed)
+    if (!changed) {
+        printf("^###-- clear: NOT HAPPENED\n");
         return 0;
+    }
 
     if (curr)
         toggles = tec_unit_add(toggles, "curr", curr);
