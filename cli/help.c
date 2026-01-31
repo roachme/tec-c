@@ -283,7 +283,7 @@ struct help helptab[] = {
     \n\
     Subcommands:\n\
       add     Add a new desk\n\
-      cat     Concatenate desks info (under development)\n\
+      cat     Concatenate desks info\n\
       cd      Switch to desk\n\
       ls      List desks\n\
       mv      Move (rename) desks\n\
@@ -507,7 +507,7 @@ struct help helptab[] = {
     \n\
     Subcommands:\n\
       add     Add a new environment\n\
-      cat     Concatenate environment info (under development)\n\
+      cat     Concatenate environment info\n\
       cd      Switch to environment\n\
       ls      List environments\n\
       rename  Rename environment\n\
