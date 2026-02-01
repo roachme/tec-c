@@ -13,6 +13,7 @@
 - `cli`: Fix error format messages
 - `cli/rm`: Refactor code
 - `cli/aux/toggle`: Fix memory leaks
+- `cli/add`: Fix overlapping memory regions
 
 ### Deleted
 

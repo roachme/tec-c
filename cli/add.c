@@ -15,7 +15,7 @@ static int generate_task(tec_arg_t *args, char **argv, int argv_idx)
     for (register unsigned int i = 1; i < IDLIMIT; ++i) {
         sprintf(gentask, IDFMT, i);
         if (tec_task_exist(teccfg.base.task, args) != LIBTEC_OK) {
-            argv[argv_idx] = strcpy(gentask, args->taskid);
+            argv[argv_idx] = gentask;
             return 0;
         }
     }
