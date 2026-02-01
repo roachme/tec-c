@@ -153,7 +153,7 @@ static int _env_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     int i, c, retcode, status;
-    const char *errfmt = "cannot delete env: %s";
+    const char *errfmt = "cannot delete env '%s': %s";
     int opt_ask_once, opt_ask_every, opt_quiet, opt_help, opt_verbose;
 
     retcode = LIBTEC_OK;
@@ -284,7 +284,7 @@ static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
     int c, opt_quiet, opt_help;
 
     opt_quiet = opt_help = false;
-    errfmt = "could not rename env: %s";
+    errfmt = "could not rename env '%s': %s";
     src.env = src.desk = src.taskid = NULL;
     dst.env = dst.desk = dst.taskid = NULL;
     while ((c = getopt(argc, argv, ":hq")) != -1) {
@@ -317,13 +317,13 @@ static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
         return status;
     else if (!tec_env_exist(teccfg.base.task, &dst)) {
         if (opt_quiet == false)
-            elog(1, "'%s': destination env exists\n", dst.env);
+            elog(1, errfmt, src.env, "such destination env exists");
         return status;
     }
 
     if ((status = tec_env_rename(teccfg.base.task, &src, &dst, NULL))) {
         if (opt_quiet == false)
-            elog(status, errfmt, tec_strerror(status));
+            elog(status, errfmt, "ENV", tec_strerror(status));
         return status;
     }
     return tec_pwd_env(&dst);

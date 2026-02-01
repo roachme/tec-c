@@ -10,6 +10,7 @@
 - `cli/aux/toggle`: Fix buffer boundary
 - `cli/rm`: Fix toggle removal
 - `cli/env`: Fix env renaming function
+- `cli`: Fix error format messages
 
 ### Deleted
 

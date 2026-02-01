@@ -114,7 +114,7 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
     tec_arg_t args;
     int c, i, retcode, status;
     int opt_quiet, opt_help;
-    const char *errfmt = "cannot remove: %s";
+    const char *errfmt = "cannot remove desk '%s': %s";
     int opt_ask_once, opt_ask_every, opt_verbose;
 
     retcode = LIBTEC_OK;
