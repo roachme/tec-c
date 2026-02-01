@@ -1,6 +1,10 @@
+/* TODO: Find a good error message in case option fails.
+ *
+ * 1. Add option `-d' - remove empty/done tasks (maybe???)...
+ * */
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
 
 #include "tec.h"
@@ -13,46 +17,60 @@
 #define CWD_DELIM "/"
 #endif
 
+static char *user_cwd_ptr;
+static int change_dir = false;
+static char user_cwd[FILENAME_MAX + 1];
+
 #ifdef __linux__
-char *TEC_GETCWD(char *buf, size_t bufsiz)
+char *OS_GETCWD(char *buf, size_t bufsiz)
 {
     return getcwd(buf, bufsiz);
 }
 #endif
 
-static bool do_change_user_cwd(tec_arg_t *args)
+static char *get_user_cwd()
 {
-    char buf[FILENAME_MAX + 1] = { 0 };
-    char my_user_cwd[FILENAME_MAX + 1] = { 0 };
-
-    if (TEC_GETCWD(my_user_cwd, sizeof(my_user_cwd)) == NULL) {
-        return false;
-    }
-    sprintf(buf, "%s/%s/%s/%s", teccfg.base.task, args->env, args->desk,
-            args->taskid);
-
-    if (strcmp(buf, my_user_cwd) == 0)
-        return true;
-    return false;
+    return OS_GETCWD(user_cwd, sizeof(user_cwd));
 }
 
-/* TODO: Find a good error message in case option fails.
- *
- * 3. Add option `-d' - remove empty/done tasks (maybe???)...
- * */
+static bool do_change_user_cwd(tec_arg_t *args)
+{
+    char *base = teccfg.base.task;
+    char buf[FILENAME_MAX + 1] = { 0 };
+
+    sprintf(buf, "%s/%s/%s/%s", base, args->env, args->desk, args->taskid);
+    return strcmp(buf, user_cwd) == 0;
+}
+
+static int update_toggles_and_cwd(tec_arg_t *args)
+{
+    int status;
+
+    status = LIBTEC_OK;
+    if (do_change_user_cwd(args) == true)
+        change_dir = true;
+
+    /* Update current and previos toggles.  */
+    if (toggle_task_is_curr(teccfg.base.task, args)) {
+        toggle_task_unset_curr(teccfg.base.task, args);
+    } else if (toggle_task_is_prev(teccfg.base.task, args)) {
+        toggle_task_unset_curr(teccfg.base.task, args);
+    }
+    return status;
+}
 
 int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     const char *errfmt;
-    int c, change_dir, i, retcode, status;
+    int c, i, retcode, status;
     int opt_quiet, opt_help, opt_verbose;
     int opt_ask_once, opt_ask_every;
 
-    change_dir = false;
     opt_ask_every = true;       /* prompt before every removal.  */
     opt_ask_once = false;       /* prompt before once for all task IDs.  */
     retcode = LIBTEC_OK;
+    user_cwd_ptr = get_user_cwd();
     errfmt = "cannot remove task '%s': %s";
     args.env = args.desk = args.taskid = NULL;
     opt_quiet = opt_help = opt_verbose = false;
@@ -95,6 +113,8 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
 
     if (opt_help == true)
         return help_usage("rm");
+    else if (user_cwd_ptr == NULL)
+        return elog(1, errfmt, "TASK", "could not get CWD");
 
     if ((status = check_arg_env(&args, errfmt, opt_quiet)))
         return status;
@@ -111,44 +131,28 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
     do {
         args.taskid = argv[i];
 
-        /* Get and check input values explicitly because it's one of the rare
-         * cases when hooks get exectude before the main action.  */
         if ((status = check_arg_task(&args, errfmt, opt_quiet))) {
             retcode = status == LIBTEC_OK ? retcode : status;
             continue;
         } else if (opt_ask_every == true) {
             printf("Are you sure to remove task '%s'? [y/N] ", args.taskid);
-            if (tec_cli_get_user_choice() == false) {
+            if (tec_cli_get_user_choice() == false)
                 continue;
-            }
         }
 
         if ((status = hook_action(&args, "rm"))) {
             if (opt_quiet == false)
                 elog(1, errfmt, args.taskid, "failed to execute hooks");
-            retcode = status == LIBTEC_OK ? retcode : status;
-            continue;
-        }
-        // Compare each removed task ID with user current working directory
-        if (do_change_user_cwd(&args) == true) {
-            change_dir = true;
-        }
-
-        /* Update current and previos toggles.  */
-        if (toggle_task_is_curr(teccfg.base.task, &args)) {
-            toggle_task_unset_curr(teccfg.base.task, &args);
-        } else if (toggle_task_is_prev(teccfg.base.task, &args)) {
-            toggle_task_unset_curr(teccfg.base.task, &args);
-        }
-
-        if ((status = tec_task_del(teccfg.base.task, &args, ctx))) {
+        } else if ((status = update_toggles_and_cwd(&args))) {
+            if (opt_quiet == false)
+                elog(1, errfmt, args.taskid, "could not update toggles");
+        } else if ((status = tec_task_del(teccfg.base.task, &args, ctx))) {
             if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, tec_strerror(status));
         }
 
         if (opt_verbose == true)
             llog(0, "removed task '%s'", args.taskid);
-
         retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argc);
 

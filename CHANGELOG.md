@@ -11,6 +11,7 @@
 - `cli/rm`: Fix toggle removal
 - `cli/env`: Fix env renaming function
 - `cli`: Fix error format messages
+- `cli/rm`: Refactor code
 
 ### Deleted
 
