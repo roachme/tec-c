@@ -1,12 +1,50 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include "tec.h"
-#include "aux/toggle.h"
 #include "aux/config.h"
 
-// TODO: add support to show multiple key values
+typedef struct keyvec {
+    char **keys;
+    size_t count;
+    size_t capac;
+} keyvec_t;
 
 static const char *errfmt = "cannot show units '%s': %s";
+
+static void argument_keys_init(keyvec_t *vec)
+{
+    int capac = 2;
+
+    if ((vec->keys = malloc(capac * sizeof(char *))) == NULL) {
+        elog(1, "malloc failed");
+        exit(1);
+    }
+
+    vec->count = 0;
+    vec->capac = capac;
+}
+
+static int argument_keys_add(keyvec_t *vec, char *key)
+{
+    if (vec->count >= vec->capac) {
+        vec->capac *= 2;
+        if ((vec->keys =
+             realloc(vec->keys, vec->capac * sizeof(char *))) == NULL) {
+            elog(1, "realloc failed");
+            exit(1);
+        }
+    }
+    vec->keys[vec->count++] = strdup(key);
+    return 0;
+}
+
+static void argument_keys_free(keyvec_t *vec)
+{
+    for (size_t i = 0; i < vec->count; ++i)
+        free(vec->keys[i]);
+    free(vec->keys);
+}
 
 static int valid_unitkeys(tec_unit_t *units)
 {
@@ -28,19 +66,37 @@ static int show_key(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn,
         return 0;
     }
 
-    for (units = unitbin; units; units = units->next)
+    for (units = unitbin; units; units = units->next) {
         if (strcmp(key, units->key) == 0) {
             printf("%s\n", units->val);
             return 0;
         }
+    }
 
-    for (; unitpgn; unitpgn = unitpgn->next)
-        if (strcmp(key, unitpgn->key) == 0) {
-            printf("%s\n", unitpgn->val);
+    for (units = unitpgn; units; units = units->next) {
+        if (strcmp(key, units->key) == 0) {
+            printf("%s\n", units->val);
             return 0;
         }
+    }
 
     return 1;
+}
+
+static int show_specific_keys(char *task, tec_unit_t *unitbin,
+                              tec_unit_t *unitpgn, keyvec_t *vec, int quiet)
+{
+    int status;
+    int retcode = LIBTEC_OK;
+
+    for (int i = 0; i < vec->count; i++) {
+        if ((status = show_key(task, unitbin, unitpgn, vec->keys[i]))) {
+            if (quiet == false)
+                elog(1, "key not found '%s'", vec->keys[i]);
+            retcode = status == LIBTEC_OK ? retcode : status;
+        }
+    }
+    return retcode;
 }
 
 static int show_keys(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn)
@@ -60,17 +116,20 @@ static int show_keys(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn)
 
 int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
 {
-    char *key;
+    keyvec_t vec;
     tec_arg_t args;
     tec_unit_t *unitpgn;
     int opt_quiet, opt_help;
     int c, i, retcode, status;
+    int opt_show_specific_key;
 
-    key = NULL;
     unitpgn = NULL;
     retcode = LIBTEC_OK;
     opt_quiet = opt_help = false;
+    opt_show_specific_key = false;
     args.env = args.desk = args.taskid = NULL;
+
+    argument_keys_init(&vec);
     while ((c = getopt(argc, argv, ":d:e:hk:q")) != -1) {
         switch (c) {
         case 'd':
@@ -83,7 +142,8 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
             opt_help = true;
             break;
         case 'k':
-            key = optarg;
+            opt_show_specific_key = true;
+            argument_keys_add(&vec, optarg);
             break;
         case 'q':
             opt_quiet = true;
@@ -118,10 +178,12 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
         } else if ((status = hook_show(&unitpgn, &args, "cat"))) {
             if (opt_quiet == false)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
-        } else if (key != NULL) {
-            if ((status = show_key(args.taskid, ctx->units, unitpgn, key)))
-                if (opt_quiet == false)
-                    elog(1, "cannot show key '%s': no such key", key);
+        } else if (opt_show_specific_key == true) {
+            if ((status =
+                 show_specific_keys(args.taskid, ctx->units, unitpgn, &vec,
+                                    opt_quiet))) {
+                ;
+            }
         } else if ((status = show_keys(args.taskid, ctx->units, unitpgn))) {
             if (opt_quiet == false)
                 elog(1, errfmt, args.taskid, "internal error");
@@ -130,7 +192,8 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
         unitpgn = tec_unit_free(unitpgn);
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
-    }
-    while (++i < argc);
+    } while (++i < argc);
+
+    argument_keys_free(&vec);
     return retcode;
 }

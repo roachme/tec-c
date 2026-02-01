@@ -124,6 +124,9 @@ struct help helptab[] = {
       KEY     unit key to show\n\
       ENV     environment name (default is current)\n\
     \n\
+    Option `-k' can be passed many times in case multiple keys\n\
+    need to be shown.\n\
+    \n\
     Exit status:\n\
     Under development\n"},
     {
