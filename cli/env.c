@@ -315,7 +315,7 @@ static int _env_rename(int argc, char **argv, tec_ctx_t *ctx)
         return status;
     else if ((status = check_arg_env(&src, errfmt, opt_quiet)))
         return status;
-    else if (tec_env_exist(teccfg.base.task, &dst)) {
+    else if (!tec_env_exist(teccfg.base.task, &dst)) {
         if (opt_quiet == false)
             elog(1, "'%s': destination env exists\n", dst.env);
         return status;
