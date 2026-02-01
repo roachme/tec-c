@@ -12,6 +12,7 @@
 - `cli/env`: Fix env renaming function
 - `cli`: Fix error format messages
 - `cli/rm`: Refactor code
+- `cli/aux/toggle`: Fix memory leaks
 
 ### Deleted
 

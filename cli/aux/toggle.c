@@ -249,6 +249,7 @@ int toggle_task_set_curr(char *base, tec_arg_t *args)
 
 int toggle_task_unset_curr(char *base, tec_arg_t *args)
 {
+    int status;
     char *curr, *prev;
     tec_unit_t *toggles;
 
@@ -261,11 +262,14 @@ int toggle_task_unset_curr(char *base, tec_arg_t *args)
     else if (prev != NULL)
         toggles = tec_unit_add(toggles, "curr", prev);
 
-    return tec_unit_save(path_task_toggle(base, args), toggles);
+    status = tec_unit_save(path_task_toggle(base, args), toggles);
+    tec_unit_free(toggles);
+    return status;
 }
 
 int toggle_task_unset_prev(char *base, tec_arg_t *args)
 {
+    int status;
     char *curr, *prev;
     tec_unit_t *toggles;
 
@@ -279,7 +283,9 @@ int toggle_task_unset_prev(char *base, tec_arg_t *args)
         // rewrite curr with the same value
         toggles = tec_unit_add(toggles, "curr", curr);
     }
-    return tec_unit_save(path_task_toggle(base, args), toggles);
+    status = tec_unit_save(path_task_toggle(base, args), toggles);
+    tec_unit_free(toggles);
+    return status;
 }
 
 int toggle_env_swap(char *base, tec_arg_t *args)
