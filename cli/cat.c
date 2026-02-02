@@ -16,7 +16,7 @@ static void argument_keys_init(keyvec_t *vec)
 {
     int capac = 2;
 
-    if ((vec->keys = malloc(capac * sizeof(char *))) == NULL) {
+    if ((vec->keys = malloc(capac * sizeof(vec->keys))) == NULL) {
         elog(1, "malloc failed");
         exit(1);
     }
