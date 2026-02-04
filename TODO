@@ -1,5 +1,5 @@
 Milestones:
-  1. Need to refactor task column switch. There're many questions: should I
++ 1. Need to refactor task column switch. There're many questions: should I
      add builtin columns, can it be moved to plugin, etc.
   2. Command to list task needs brainstorming as well.
   3. How to implement workflow engine. Yeah, there is such thing.
@@ -38,7 +38,7 @@ Ideas:
   7. Add plugin workflow to move task from columns to column
   8. Add libtec NOT as submodule but dependency
   9. Use command `gh` to generate releases
- 10. Unify environment/desk/task's unit and column modules.
++10. Unify environment/desk/task's unit and column modules.
  11. Add config option to enable/disable desk support in environment.
  12. Add commands export/import to move tasks in and out of desks.
  13. Add short list of exit statuses, other than libtec provides.
@@ -50,7 +50,7 @@ Ideas:
  18. Add errstr along with errno. It'l be used to specify invalid input argument or something
  19. Rename module 'unit' to linked list in lib part.
  20. Add support to unit module not to change file content if new data is the same as old ones.
- 21. Prevent column update when new column name is the same as old. Same about units
++21. Prevent column update when new column name is the same as old. Same about units
  22. Add pager like in git.
  23. Add option --no-pager to turn pager feature off. like in git.
  24. Maybe let command `set' let not to take any values to change? In that case change nothing.
@@ -62,7 +62,7 @@ Prio: high
   2. Find a good way to invoke hooks
   3. Find good structures for commands like list and cat.
 + 4. Use dynamic memory allocation so there'd be no limit on number of tasks in enviroment.
-  5. Add a support for a user to add custom task columns.
++ 5. Add a support for a user to add custom task columns.
 + 6. Add a good manual system.
   7. Plugin gun (for git repos) depends on system unit date. Outta create its own one.
 + 8. tec_check_env() does not fail if env == NULL, tho it should.

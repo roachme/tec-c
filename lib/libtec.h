@@ -28,7 +28,6 @@ struct tec_list {
 
 struct tec_context {
     struct tec_unit *units;
-    struct tec_unit *column;
     struct tec_list *list;
 };
 
@@ -100,8 +99,6 @@ int tec_task_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_task_move(const char *taskdir, tec_arg_t * src, tec_arg_t * dst,
                   tec_ctx_t * ctx);
 int tec_task_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_task_column_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_task_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 
 /* Desk functions.  */
 int tec_desk_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
@@ -110,8 +107,6 @@ int tec_desk_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_desk_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_desk_move(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_desk_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_desk_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_desk_column_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 
 /* Environment functions.  */
 int tec_env_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
@@ -121,7 +116,5 @@ int tec_env_list(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 int tec_env_rename(const char *taskdir, tec_arg_t * src, tec_arg_t * dst,
                    tec_ctx_t * ctx);
 int tec_env_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_env_column_set(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
-int tec_env_column_get(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);
 
 #endif

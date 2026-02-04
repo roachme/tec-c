@@ -30,7 +30,6 @@ _subcommands() {
         'mv:Move (rename) tasks'
         'rm:Remove task from env'
         'set:Set task unit values'
-        'column:Manage and show columns'
         'env:Manage and show environments'
     )
 }
@@ -44,7 +43,7 @@ _tec_help() {
     case $state in
         command)
             local -a help_topics
-            help_topics=(${(k)_tec_subcommands} ${(k)_tec_desk_subcommands} ${(k)_tec_column_subcommands} ${(k)_tec_env_subcommands})
+            help_topics=(${(k)_tec_subcommands} ${(k)_tec_desk_subcommands} ${(k)_tec_env_subcommands})
             _describe 'help topic' help_topics
             ;;
     esac
@@ -225,49 +224,6 @@ _tec_desk_cd() {
         '*:desk name:_tec_desks'
 }
 
-# Column subcommands
-_tec_column() {
-    local curcontext="$curcontext" state line
-    typeset -A opt_args
-
-    _arguments -C \
-        '(-h)'{-h,--help}'[show help and exit]' \
-        ':subcommand:->subcmd' \
-        '*:: :->args'
-
-    case $state in
-        subcmd)
-            local -a column_subcommands
-            column_subcommands=(
-                'ls:List columns'
-                'mv:Move task to column'
-            )
-            _describe -t commands 'column subcommand' column_subcommands
-            ;;
-        args)
-            case $line[1] in
-                ls) _tec_column_ls ;;
-                move) _tec_column_mv ;;
-            esac
-            ;;
-    esac
-}
-
-_tec_column_ls() {
-    _arguments \
-        '(-h)'{-h,--help}'[show help and exit]'
-}
-
-_tec_column_mv() {
-    _arguments \
-        '(-b)'{-b,--desk}'[desk name]:desk:_tec_desks' \
-        '(-c)'{-c,--column}'[column to move to]:column:_tec_columns' \
-        '(-h)'{-h,--help}'[show help and exit]' \
-        '(-q)'{-q,--quiet}'[do not write to stderr]' \
-        '(-p)'{-p,--env}'[env name]:env:_tec_envs' \
-        '*:task ID:_tec_tasks'
-}
-
 # Environments subcommands
 _tec_env() {
     local curcontext="$curcontext" state line
@@ -376,12 +332,6 @@ _tec_desks() {
     _describe 'desk' desks
 }
 
-_tec_columns() {
-    local -a columns
-    columns=('todo' 'in-progress' 'done' 'review')
-    _describe 'column' columns
-}
-
 _tec_tasks() {
     local -a tasks
     # This would query the actual tasks
@@ -417,7 +367,6 @@ _tec() {
                 mv) _tec_mv ;;
                 rm) _tec_rm ;;
                 set) _tec_set ;;
-                column) _tec_column ;;
             esac
             ;;
     esac

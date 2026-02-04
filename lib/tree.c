@@ -13,7 +13,6 @@ struct tree *tree_alloc(char *id, int colprio, char *desc)
     // NOTE: the fix for somehow sets off uninited values
     memset(node, 0, sizeof(struct tree));
 
-    // TODO: fucking wrappare. Add full support for user defined columns as well
     if (colprio == 1)
         node->mark = '*';
     else if (colprio == 2)

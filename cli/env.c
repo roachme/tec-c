@@ -75,11 +75,6 @@ static int _env_add(int argc, const char **argv, tec_ctx_t *ctx)
 
     if (optind == argc)
         return elog(1, "env name required");
-    else if ((ctx->column = generate_column("todo")) == NULL) {
-        if (quiet == false)
-            elog(1, "could not generate column");
-        return 1;
-    }
 
     /* Set default desk name to create.  */
     if (args.desk == NULL)
@@ -135,8 +130,6 @@ static int _env_add(int argc, const char **argv, tec_ctx_t *ctx)
         }
         ctx->units = tec_unit_free(ctx->units);
     }
-
-    ctx->column = tec_unit_free(ctx->column);
 
     if ((switch_env && status == LIBTEC_OK)
         && toggle_env_set_curr(teccfg.base.task, &args)) {
@@ -291,7 +284,7 @@ static int _env_ls(int argc, const char **argv, tec_ctx_t *ctx)
     }
 
     for (tec_list_t * obj = ctx->list; obj != NULL; obj = obj->next) {
-        LIST_OBJ_UNITS("mark", obj->name, "", "some env description");
+        LIST_OBJ_UNITS(obj->name, "", "some env description");
     }
 
     argvec_free(&argvec);

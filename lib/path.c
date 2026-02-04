@@ -64,25 +64,3 @@ char *path_task_unit(const char *taskdir, const tec_arg_t *args)
     return path_generic(pathname, fmt, taskdir, args->env, args->desk,
                         args->taskid);
 }
-
-char *path_env_column(const char *taskdir, const tec_arg_t *args)
-{
-    const char *fmt = "%s/%s/.tec/column";
-    static char pathname[PATH_MAX + 1];
-    return path_generic(pathname, fmt, taskdir, args->env);
-}
-
-char *path_desk_column(const char *taskdir, const tec_arg_t *args)
-{
-    const char *fmt = "%s/%s/%s/.tec/column";
-    static char pathname[PATH_MAX + 1];
-    return path_generic(pathname, fmt, taskdir, args->env, args->desk);
-}
-
-char *path_task_column(const char *taskdir, const tec_arg_t *args)
-{
-    const char *fmt = "%s/%s/%s/%s/.tec/column";
-    static char pathname[PATH_MAX + 1];
-    return path_generic(pathname, fmt, taskdir, args->env, args->desk,
-                        args->taskid);
-}

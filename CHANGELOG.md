@@ -6,6 +6,7 @@
 - `cli`: Use const argv for cli arguments
 
 ### Changed
+- `cli`: Remove column support
 
 ### Fixed
 

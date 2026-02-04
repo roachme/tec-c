@@ -12,8 +12,4 @@ char *path_env_unit(const char *taskdir, const tec_arg_t * args);
 char *path_desk_unit(const char *taskdir, const tec_arg_t * args);
 char *path_task_unit(const char *taskdir, const tec_arg_t * args);
 
-char *path_env_column(const char *taskdir, const tec_arg_t * args);
-char *path_desk_column(const char *taskdir, const tec_arg_t * args);
-char *path_task_column(const char *taskdir, const tec_arg_t * args);
-
 #endif

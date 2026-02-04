@@ -97,10 +97,6 @@ int tec_cli_add(int argc, const char **argv, tec_ctx_t *ctx)
         if (opt_quiet == false)
             elog(1, "could not generate task ID: limit is %d", IDLIMIT);
         return 1;
-    } else if ((ctx->column = generate_column("todo")) == NULL) {
-        if (opt_quiet == false)
-            elog(1, "could not generate column");
-        return 1;
     }
 
     do {
@@ -140,7 +136,6 @@ int tec_cli_add(int argc, const char **argv, tec_ctx_t *ctx)
                     elog(status, "could not update toggles");
             }
         }
-        ctx->column = tec_unit_free(ctx->column);
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argvec.count);
