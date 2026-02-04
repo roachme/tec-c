@@ -7,6 +7,8 @@
 
 ### Changed
 
+- `cli`: Remove column support
+
 ### Fixed
 
 - `lib/errmod`: Fix array boundary check

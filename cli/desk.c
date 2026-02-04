@@ -74,11 +74,6 @@ static int _desk_add(int argc, const char **argv, tec_ctx_t *ctx)
 
     if (optind == argc)
         return elog(1, "desk name required");
-    else if ((ctx->column = generate_column("todo")) == NULL) {
-        if (opt_quiet == false)
-            elog(1, "could not generate column");
-        return 1;
-    }
 
     if ((status = check_arg_env(&args, errfmt, opt_quiet)))
         return status;
@@ -107,7 +102,6 @@ static int _desk_add(int argc, const char **argv, tec_ctx_t *ctx)
             }
         }
         ctx->units = tec_unit_free(ctx->units);
-        ctx->column = tec_unit_free(ctx->column);
         retcode = status == LIBTEC_OK ? retcode : status;
     } while (++i < argvec.count);
 
@@ -259,7 +253,7 @@ static int _desk_ls(int argc, const char **argv, tec_ctx_t *ctx)
         }
 
         for (tec_list_t * obj = ctx->list; obj != NULL; obj = obj->next) {
-            LIST_OBJ_UNITS("mark", obj->name, "", "some desk description");
+            LIST_OBJ_UNITS(obj->name, "", "some desk description");
         }
         ctx->list = tec_list_free(ctx->list);
     } while (++i < argvec.count);

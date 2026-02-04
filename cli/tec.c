@@ -21,22 +21,11 @@ char *unitkeys[] = { "prio", "type", "date", "desc", };
 
 unsigned int nunitkey = sizeof(unitkeys) / sizeof(unitkeys[0]);
 
-// TODO: add support to rename default column names in config file
-column_t builtin_columns[] = {
-    {.prio = FIRST_COLUMN,.mark = "+",.name = "todo",},
-    {.prio = FIRST_COLUMN + 1,.mark = ">",.name = "test",},
-    {.prio = LAST_COLUMN,.mark = "-",.name = "done",},
-};
-
-unsigned int nbuiltin_column =
-    sizeof(builtin_columns) / sizeof(builtin_columns[0]);
-
 static builtin_t builtins[] = {
     {.name = "add",.func = &tec_cli_add,.option = TEC_SETUP_HARD},
     {.name = "cat",.func = &tec_cli_cat,.option = TEC_SETUP_HARD},
     {.name = "cd",.func = &tec_cli_cd,.option = TEC_SETUP_HARD},
     {.name = "cfg",.func = &tec_cli_cfg,.option = TEC_SETUP_HARD},
-    {.name = "column",.func = &tec_cli_column,.option = TEC_SETUP_HARD},
     {.name = "env",.func = &tec_cli_env,.option = TEC_SETUP_HARD},
     {.name = "desk",.func = &tec_cli_desk,.option = TEC_SETUP_HARD},
     {.name = "help",.func = &tec_cli_help,.option = TEC_SETUP_SOFT},
@@ -152,7 +141,7 @@ void argvec_parse(tec_argvec_t *vec, int argc, const char **argv)
 
 void argvec_replace(tec_argvec_t *vec, int vec_idx, char *arg, int argsiz)
 {
-    free(vec->argv[vec_idx]); /* free previous key value.  */
+    free(vec->argv[vec_idx]);   /* free previous key value.  */
     if ((vec->argv[vec_idx] = strndup(arg, argsiz)) == NULL) {
         elog(1, "strndup failed");
         exit(1);
@@ -249,37 +238,6 @@ int check_arg_task(tec_arg_t *args, const char *errfmt, int quiet)
         return status;
     }
     return 0;
-}
-
-int get_column_index(char *colname)
-{
-    for (int i = 0; i < nbuiltin_column; ++i)
-        if (strcmp(colname, builtin_columns[i].name) == 0)
-            return i;
-    return -1;
-}
-
-bool column_exist(const char *colname)
-{
-    for (int i = 0; i < nbuiltin_column; ++i)
-        if (strcmp(colname, builtin_columns[i].name) == 0)
-            return true;
-    // TODO: check user defined columns as well
-
-    return false;
-}
-
-tec_unit_t *generate_column(char *colname)
-{
-    unsigned int index;
-    tec_unit_t *column;
-
-    if ((index = get_column_index(colname)) == -1)
-        return NULL;
-
-    column = NULL;
-    column = tec_unit_add(column, "name", builtin_columns[index].name);
-    return column;
 }
 
 int tec_pwd_env(tec_arg_t *args)

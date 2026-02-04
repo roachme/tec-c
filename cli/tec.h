@@ -23,10 +23,6 @@
 #define DESKSIZ         10
 #define ENVSIZ          10
 #define CMDSIZ          10
-#define COLSIZ          7
-
-#define FIRST_COLUMN     0
-#define LAST_COLUMN      100
 
 #define xstr(s)     str(s)
 #define str(s)      #s
@@ -35,14 +31,13 @@
 #define IDFMT       "%0" xstr(IDSIZ) "u"
 #define PADDING_UNIT     6
 
-#define LIST_OBJ_UNITS(_mark, _obj, _pgnout, _desc) do {\
-    color_print_str("%-" xstr(COLSIZ) "s ", (_mark), YEL); \
+#define LIST_OBJ_UNITS(_obj, _pgnout, _desc) do {\
     color_print_str("%-" xstr(IDSIZ) "s ", (_obj), BBLU); \
     color_print_str("%s ", (_pgnout), WHT); \
     color_print_str("%s\n", (_desc), WHT); \
 } while (0)
 
-#define CTX_INIT { .column = NULL, .units = NULL, .list = NULL }
+#define CTX_INIT { .units = NULL, .list = NULL }
 
 enum tec_setup_level {
     TEC_PAGER,
@@ -62,17 +57,8 @@ typedef struct builtin {
     unsigned int option;
 } builtin_t;
 
-typedef struct column {
-    int prio;
-    char *mark;
-    char *name;
-} column_t;
-
 extern char *unitkeys[];
 extern unsigned int nunitkey;
-
-extern column_t builtin_columns[];
-extern unsigned int nbuiltin_column;
 
 void argvec_init(tec_argvec_t * vec);
 void argvec_add(tec_argvec_t * vec, const char *arg);
@@ -84,9 +70,6 @@ int is_valid_length(const char *obj, int len);
 int check_arg_env(tec_arg_t * args, const char *errfmt, int quiet);
 int check_arg_desk(tec_arg_t * args, const char *errfmt, int quiet);
 int check_arg_task(tec_arg_t * args, const char *errfmt, int quiet);
-
-bool column_exist(const char *colname);
-tec_unit_t *generate_column(char *colname);
 
 int help_list_pretty_commands(void);
 int help_usage(const char *cmd);
@@ -109,7 +92,6 @@ int tec_cli_add(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_cat(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_cd(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_cfg(int argc, const char **argv, tec_ctx_t * ctx);
-int tec_cli_column(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_env(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_desk(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_help(int argc, const char **argv, tec_ctx_t * ctx);
