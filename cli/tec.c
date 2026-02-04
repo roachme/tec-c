@@ -65,7 +65,7 @@ static int tec_setup(int setuplvl)
     return status;
 }
 
-static builtin_t *is_builtin(char *cmd)
+static builtin_t *is_builtin(const char *cmd)
 {
     for (int idx = 0; idx < ARRAY_SIZE(builtins); ++idx)
         if (strcmp(cmd, builtins[idx].name) == 0)
@@ -86,32 +86,24 @@ static int is_plugin(char *pgndir, const char *pgname)
     return true;
 }
 
-static int run_builtin(int argc, char **argv, builtin_t *cmd)
+static int run_builtin(int argc, const char **argv, builtin_t *cmd)
 {
     int status;
     tec_ctx_t ctx = CTX_INIT;
 
     if ((status = tec_setup(cmd->option)) != LIBTEC_OK)
-        elog(status, "setup failed: %s", tec_strerror(status));
-    else
-        status = cmd->func(argc, argv, &ctx);
-
-    tec_config_destroy(&teccfg);
-    return status;
+        return elog(status, "setup failed: %s", tec_strerror(status));
+    return cmd->func(argc, argv, &ctx);
 }
 
-static int run_plugin(int argc, char **argv)
+static int run_plugin(int argc, const char **argv)
 {
     int status;
     tec_ctx_t ctx = CTX_INIT;
 
     if ((status = tec_setup(TEC_SETUP_HARD)) != LIBTEC_OK)
-        elog(status, "setup failed: %s", tec_strerror(status));
-    else
-        status = tec_cli_plugin(argc, argv, &ctx);
-
-    tec_config_destroy(&teccfg);
-    return status;
+        return elog(status, "setup failed: %s", tec_strerror(status));
+    return tec_cli_plugin(argc, argv, &ctx);
 }
 
 static int valid_toggle(char *tog)
@@ -121,6 +113,57 @@ static int valid_toggle(char *tog)
     else if (strcmp(tog, "off") == 0)
         return false;
     return -1;
+}
+
+void argvec_init(tec_argvec_t *vec)
+{
+    int capac = 2;
+
+    if ((vec->argv = malloc(capac * sizeof(vec->argv))) == NULL) {
+        elog(1, "malloc failed");
+        exit(1);
+    }
+
+    for (int i = 0; i < capac; ++i)
+        vec->argv[i] = NULL;
+
+    vec->count = 0;
+    vec->capac = capac;
+}
+
+void argvec_add(tec_argvec_t *vec, const char *arg)
+{
+    if (vec->count >= vec->capac) {
+        vec->capac *= 2;
+        if ((vec->argv =
+             realloc(vec->argv, vec->capac * sizeof(char *))) == NULL) {
+            elog(1, "realloc failed");
+            exit(1);
+        }
+    }
+    vec->argv[vec->count++] = strdup(arg);
+}
+
+void argvec_parse(tec_argvec_t *vec, int argc, const char **argv)
+{
+    for (int i = 0; i < argc; i++)
+        argvec_add(vec, argv[i]);
+}
+
+void argvec_replace(tec_argvec_t *vec, int vec_idx, char *arg, int argsiz)
+{
+    free(vec->argv[vec_idx]); /* free previous key value.  */
+    if ((vec->argv[vec_idx] = strndup(arg, argsiz)) == NULL) {
+        elog(1, "strndup failed");
+        exit(1);
+    }
+}
+
+void argvec_free(tec_argvec_t *vec)
+{
+    for (int i = 0; i < vec->count; ++i)
+        free(vec->argv[i]);
+    free(vec->argv);
 }
 
 bool tec_cli_get_user_choice(void)
@@ -333,21 +376,23 @@ int llog(int status, const char *fmt, ...)
     return 0;
 }
 
-int main(int argc, char **argv)
+int main(int argc, const char **argv)
 {
     tec_opt_t opts;
     tec_base_t base;
     builtin_t *builtin;
-    int c, i, showhelp, showversion;
-    char *cmd, *option, *togfmt;
+    int c, i, status, showhelp, showversion;
+    const char *cmd;
+    char *option, *togfmt;
 
+    cmd = NULL;
     showhelp = showversion = false;
     opts.color = opts.debug = opts.hook = NONEBOOL;
-    base.pgn = base.task = cmd = option = NULL;
+    base.pgn = base.task = option = NULL;
     togfmt = "option `-%c' accepts either 'on' or 'off'";
 
     /* Parse util itself options.  */
-    while ((c = getopt(argc, argv, "+:hC:D:F:H:P:T:V")) != -1) {
+    while ((c = getopt(argc, (char **)argv, "+:hC:D:F:H:P:T:V")) != -1) {
         switch (c) {
         case 'h':
             showhelp = true;
@@ -408,10 +453,12 @@ int main(int argc, char **argv)
         return elog(1, "could set config options");
 
     if (is_plugin(teccfg.base.pgn, cmd) == true)
-        return run_plugin(argc - i, argv + i);
+        status = run_plugin(argc - i, argv + i);
     else if ((builtin = is_builtin(cmd)) != NULL)
-        return run_builtin(argc - i, argv + i, builtin);
+        status = run_builtin(argc - i, argv + i, builtin);
+    else
+        status = elog(1, "'%s': no such command or plugin", cmd);
 
     tec_config_destroy(&teccfg);
-    return elog(1, "'%s': no such command or plugin", cmd);
+    return status;
 }

@@ -114,10 +114,11 @@ static int show_keys(char *task, tec_unit_t *unitbin, tec_unit_t *unitpgn)
     return 0;
 }
 
-int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_cat(int argc, const char **argv, tec_ctx_t *ctx)
 {
     keyvec_t vec;
     tec_arg_t args;
+    tec_argvec_t argvec;
     tec_unit_t *unitpgn;
     int opt_quiet, opt_help;
     int c, i, retcode, status;
@@ -129,8 +130,10 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
     opt_show_specific_key = false;
     args.env = args.desk = args.taskid = NULL;
 
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
     argument_keys_init(&vec);
-    while ((c = getopt(argc, argv, ":d:e:hk:q")) != -1) {
+    while ((c = getopt(argvec.count, argvec.argv, ":d:e:hk:q")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -165,7 +168,7 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
         return status;
 
     do {
-        args.taskid = argv[i];
+        args.taskid = argvec.argv[i];
 
         if ((status = check_arg_task(&args, errfmt, opt_quiet))) {
             ;
@@ -192,8 +195,9 @@ int tec_cli_cat(int argc, char **argv, tec_ctx_t *ctx)
         unitpgn = tec_unit_free(unitpgn);
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argc);
+    } while (++i < argvec.count);
 
+    argvec_free(&argvec);
     argument_keys_free(&vec);
     return retcode;
 }

@@ -59,10 +59,11 @@ static int update_toggles_and_cwd(tec_arg_t *args)
     return status;
 }
 
-int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_rm(int argc, const char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     const char *errfmt;
+    tec_argvec_t argvec;
     int c, i, retcode, status;
     int opt_quiet, opt_help, opt_verbose;
     int opt_ask_once, opt_ask_every;
@@ -74,7 +75,10 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
     errfmt = "cannot remove task '%s': %s";
     args.env = args.desk = args.taskid = NULL;
     opt_quiet = opt_help = opt_verbose = false;
-    while ((c = getopt(argc, argv, ":d:e:fihqvI")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":d:e:fihqvI")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -129,7 +133,7 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     do {
-        args.taskid = argv[i];
+        args.taskid = argvec.argv[i];
 
         if ((status = check_arg_task(&args, errfmt, opt_quiet))) {
             retcode = status == LIBTEC_OK ? retcode : status;
@@ -154,14 +158,18 @@ int tec_cli_rm(int argc, char **argv, tec_ctx_t *ctx)
         if (opt_verbose == true)
             llog(0, "removed task '%s'", args.taskid);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argc);
+    } while (++i < argvec.count);
 
     if (change_dir) {
-        args.taskid = NULL;     // ducking hotfix to get current task ID from file
+        args.taskid = NULL;     // FIXME: ducking hotfix to get current task ID from file
         toggle_task_get_curr(teccfg.base.task, &args);
         if (args.taskid == NULL)
             args.taskid = "";
-        return retcode == LIBTEC_OK ? tec_pwd_task(&args) : retcode;
+
+        if (retcode == LIBTEC_OK)
+            retcode = tec_pwd_task(&args) == LIBTEC_OK ? retcode : status;
     }
+
+    argvec_free(&argvec);
     return retcode;
 }

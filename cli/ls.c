@@ -139,15 +139,19 @@ static void show_columns(tec_ctx_t *ctx, tec_arg_t *args,
 }
 
 // TODO: Find a good error message in case option fails.  */
-int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_ls(int argc, const char **argv, tec_ctx_t *ctx)
 {
     char c;
     tec_arg_t args;
+    tec_argvec_t argvec;
     int i, quiet, show_headers, status;
 
     quiet = show_headers = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":ad:c:hqvtH")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":ad:c:hqvtH")) != -1) {
         switch (c) {
         case 'a':
             filter.all = true;
@@ -183,7 +187,7 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        args.env = argv[i];
+        args.env = argvec.argv[i];
 
         if ((status = check_arg_env(&args, errfmt, quiet)))
             continue;
@@ -214,6 +218,8 @@ int tec_cli_ls(int argc, char **argv, tec_ctx_t *ctx)
 
         // HOTFIX: cuz I've no clue how to sync desk feature into envs.
         args.desk = NULL;
-    } while (++i < argc);
+    } while (++i < argvec.count);
+
+    argvec_free(&argvec);
     return status;
 }

@@ -50,9 +50,15 @@ enum tec_setup_level {
     TEC_SETUP_HARD,
 };
 
+typedef struct argvec {
+    char **argv;
+    int count;
+    int capac;
+} tec_argvec_t;
+
 typedef struct builtin {
     const char *name;
-    int (*func)(int argc, char **argv, tec_ctx_t * ctx);
+    int (*func)(int argc, const char **argv, tec_ctx_t * ctx);
     unsigned int option;
 } builtin_t;
 
@@ -67,6 +73,12 @@ extern unsigned int nunitkey;
 
 extern column_t builtin_columns[];
 extern unsigned int nbuiltin_column;
+
+void argvec_init(tec_argvec_t * vec);
+void argvec_add(tec_argvec_t * vec, const char *arg);
+void argvec_parse(tec_argvec_t * vec, int argc, const char **argv);
+void argvec_replace(tec_argvec_t * vec, int vec_idx, char *arg, int argsiz);
+void argvec_free(tec_argvec_t * vec);
 
 int is_valid_length(const char *obj, int len);
 int check_arg_env(tec_arg_t * args, const char *errfmt, int quiet);
@@ -93,20 +105,19 @@ int llog(int status, const char *fmt, ...);
 // NOTE: maybe use 'prefix' like in git?
 // int cmd_add(int argc, const char **argv, const char *prefix, struct repository *repo);
 
-// TODO: make argv const
-int tec_cli_add(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_cat(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_cd(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_cfg(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_column(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_env(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_desk(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_help(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_init(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_ls(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_mv(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_plugin(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_rm(int argc, char **argv, tec_ctx_t * ctx);
-int tec_cli_set(int argc, char **argv, tec_ctx_t * ctx);
+int tec_cli_add(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_cat(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_cd(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_cfg(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_column(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_env(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_desk(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_help(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_init(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_ls(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_mv(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_plugin(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_rm(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_set(int argc, const char **argv, tec_ctx_t * ctx);
 
 #endif

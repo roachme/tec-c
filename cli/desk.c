@@ -28,10 +28,11 @@ static int generate_units(tec_ctx_t *ctx, char *desk)
 }
 
 // TODO: add support to generate desk name
-static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_add(int argc, const char **argv, tec_ctx_t *ctx)
 {
     char c;
     tec_arg_t args;
+    tec_argvec_t argvec;
     int i, retcode, status;
     const char *errfmt = "cannot add desk '%s': %s";
     int opt_quiet, opt_help, opt_cd_dir, opt_cd_toggle;
@@ -40,7 +41,10 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
     opt_help = opt_quiet = false;
     opt_cd_dir = opt_cd_toggle = true;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":e:hnqN")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":e:hnqN")) != -1) {
         switch (c) {
         case 'e':
             args.env = optarg;
@@ -80,7 +84,7 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
         return status;
 
     do {
-        args.desk = argv[i];
+        args.desk = argvec.argv[i];
 
         if (generate_units(ctx, args.desk)) {
             if (opt_quiet == false)
@@ -105,13 +109,19 @@ static int _desk_add(int argc, char **argv, tec_ctx_t *ctx)
         ctx->units = tec_unit_free(ctx->units);
         ctx->column = tec_unit_free(ctx->column);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argc);
-    return retcode == LIBTEC_OK && opt_cd_dir ? tec_pwd_desk(&args) : retcode;
+    } while (++i < argvec.count);
+
+    if (retcode == LIBTEC_OK && opt_cd_dir)
+        retcode = tec_pwd_desk(&args) == LIBTEC_OK ? retcode : status;
+
+    argvec_free(&argvec);
+    return retcode;
 }
 
-static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_rm(int argc, const char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
+    tec_argvec_t argvec;
     int c, i, retcode, status;
     int opt_quiet, opt_help;
     const char *errfmt = "cannot remove desk '%s': %s";
@@ -122,7 +132,10 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
     opt_ask_once = false;       /* prompt before once for all desks.  */
     args.env = args.desk = args.taskid = NULL;
     opt_quiet = opt_help = opt_verbose = false;
-    while ((c = getopt(argc, argv, ":fhiqvI")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":fhiqvI")) != -1) {
         switch (c) {
         case 'f':
             opt_ask_every = false;
@@ -167,7 +180,7 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     do {
-        args.desk = argv[i];
+        args.desk = argvec.argv[i];
 
         if ((status = check_arg_desk(&args, errfmt, opt_quiet))) {
             retcode = status == LIBTEC_OK ? retcode : status;
@@ -192,22 +205,27 @@ static int _desk_rm(int argc, char **argv, tec_ctx_t *ctx)
         if (opt_verbose == true)
             llog(0, "removed desk '%s'", args.taskid);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argc);
+    } while (++i < argvec.count);
 
+    argvec_free(&argvec);
     // TODO: update current directory if current env got deleted.
     return retcode == LIBTEC_OK ? tec_pwd_desk(&args) : retcode;
 }
 
 // TODO: show tasks in desk
-static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_ls(int argc, const char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
     int c, i, status;
+    tec_argvec_t argvec;
     int opt_help, opt_quiet;
     const char *errfmt = "cannot list desk(s) '%s': %s";
 
     opt_help = opt_quiet = false;
-    while ((c = getopt(argc, argv, ":hq")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":hq")) != -1) {
         switch (c) {
         case 'q':
             opt_quiet = true;
@@ -230,7 +248,7 @@ static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        args.desk = argv[i];
+        args.desk = argvec.argv[i];
 
         if (check_arg_desk(&args, errfmt, opt_quiet))
             continue;
@@ -244,18 +262,21 @@ static int _desk_ls(int argc, char **argv, tec_ctx_t *ctx)
             LIST_OBJ_UNITS("mark", obj->name, "", "some desk description");
         }
         ctx->list = tec_list_free(ctx->list);
-    } while (++i < argc);
+    } while (++i < argvec.count);
+
+    argvec_free(&argvec);
     return status;
 }
 
-static int _desk_mv(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_mv(int argc, const char **argv, tec_ctx_t *ctx)
 {
     return elog(1, "%s: under development", __FUNCTION__);
 }
 
-static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_set(int argc, const char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
+    tec_argvec_t argvec;
     int atleast_one_key_set;
     int opt_quiet, opt_help;
     int c, i, retcode, status;
@@ -265,7 +286,10 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
     opt_quiet = opt_help = false;
     atleast_one_key_set = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":hqD:")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":hqD:")) != -1) {
         switch (c) {
         case 'h':
             opt_help = true;
@@ -302,7 +326,7 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        args.desk = argv[i];
+        args.desk = argvec.argv[i];
 
         if ((status = check_arg_desk(&args, errfmt, opt_quiet))) {
             ;
@@ -316,13 +340,16 @@ static int _desk_set(int argc, char **argv, tec_ctx_t *ctx)
 
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argc);
+    } while (++i < argvec.count);
+
+    argvec_free(&argvec);
     return retcode;
 }
 
-static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_cat(int argc, const char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
+    tec_argvec_t argvec;
     int opt_quiet, opt_help;
     int c, i, retcode, status;
     struct tec_unit *units, *unitpgn;
@@ -332,7 +359,10 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
     units = unitpgn = NULL;
     opt_quiet = opt_help = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":hq")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":hq")) != -1) {
         switch (c) {
         case 'h':
             opt_help = true;
@@ -355,7 +385,7 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
         return status;
 
     do {
-        args.desk = argv[i];
+        args.desk = argvec.argv[i];
         if ((status = check_arg_desk(&args, errfmt, opt_quiet))) {
             ;
         } else if ((status = tec_desk_get(teccfg.base.task, &args, ctx))) {
@@ -373,15 +403,17 @@ static int _desk_cat(int argc, char **argv, tec_ctx_t *ctx)
         unitpgn = tec_unit_free(unitpgn);
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argc);
+    } while (++i < argvec.count);
+
+    argvec_free(&argvec);
     return retcode;
 }
 
-static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
+static int _desk_cd(int argc, const char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
+    tec_argvec_t argvec;
     int c, i, retcode, status;
-    char alias[DESKSIZ + 1] = { 0 };
     const char *errfmt = "cannot switch to '%s': %s";
     int opt_cd_dir, opt_cd_toggle, opt_help, opt_quiet;
 
@@ -389,7 +421,10 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
     opt_quiet = opt_help = false;
     opt_cd_toggle = opt_cd_dir = true;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":e:hnqN")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":e:hnqN")) != -1) {
         switch (c) {
         case 'h':
             opt_help = true;
@@ -432,11 +467,11 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
     if (argv[i] && strcmp("-", argv[i]) == 0) {
         if ((status = toggle_desk_get_prev(teccfg.base.task, &args)))
             return elog(1, errfmt, "PREV", "no previous desk");
-        argv[i] = strncpy(alias, args.desk, DESKSIZ);
+        argvec_replace(&argvec, i, args.desk, DESKSIZ);
     }
 
     do {
-        args.desk = argv[i];
+        args.desk = argvec.argv[i];
 
         if ((status = check_arg_desk(&args, errfmt, opt_quiet))) {
             ;
@@ -450,9 +485,13 @@ static int _desk_cd(int argc, char **argv, tec_ctx_t *ctx)
             }
         }
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argc);
+    } while (++i < argvec.count);
 
-    return retcode == LIBTEC_OK && opt_cd_dir ? tec_pwd_desk(&args) : retcode;
+    if (retcode == LIBTEC_OK && opt_cd_dir)
+        retcode = tec_pwd_desk(&args) == LIBTEC_OK ? retcode : status;
+
+    argvec_free(&argvec);
+    return retcode;
 }
 
 static const builtin_t desk_commands[] = {
@@ -465,9 +504,9 @@ static const builtin_t desk_commands[] = {
     {.name = "set",.func = &_desk_set},
 };
 
-int tec_cli_desk(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_desk(int argc, const char **argv, tec_ctx_t *ctx)
 {
-    char *cmd = argv[1] != NULL ? argv[1] : "ls";
+    const char *cmd = argv[1] != NULL ? argv[1] : "ls";
 
     for (int i = 0; i < ARRAY_SIZE(desk_commands); ++i)
         if (strcmp(cmd, desk_commands[i].name) == 0)

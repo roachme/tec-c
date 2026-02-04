@@ -4,7 +4,7 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
-static int _column_ls(int argc, char **argv, tec_ctx_t *ctx)
+static int _column_ls(int argc, const char **argv, tec_ctx_t *ctx)
 {
     for (int i = 0; i < nbuiltin_column; ++i) {
         column_t columns = builtin_columns[i];
@@ -15,9 +15,10 @@ static int _column_ls(int argc, char **argv, tec_ctx_t *ctx)
     return 0;
 }
 
-static int _column_mv(int argc, char **argv, tec_ctx_t *ctx)
+static int _column_mv(int argc, const char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
+    tec_argvec_t argvec;
     char c, *errfmt, *colname;
     int i, quiet, showhelp, status;
 
@@ -25,7 +26,10 @@ static int _column_mv(int argc, char **argv, tec_ctx_t *ctx)
     quiet = showhelp = false;
     errfmt = "cannot move task to column '%s': %s";
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":d:e:c:hq")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":d:e:c:hq")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -71,7 +75,7 @@ static int _column_mv(int argc, char **argv, tec_ctx_t *ctx)
 
     i = optind;
     do {
-        args.taskid = argv[i];
+        args.taskid = argvec.argv[i];
 
         if ((status = toggle_task_get_curr(teccfg.base.task, &args))) {
             if (quiet == false)
@@ -88,11 +92,11 @@ static int _column_mv(int argc, char **argv, tec_ctx_t *ctx)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
             continue;
         }
-    } while (++i < argc);
+    } while (++i < argvec.count);
     return status;
 }
 
-static int _column_ren(int argc, char **argv, tec_ctx_t *ctx)
+static int _column_ren(int argc, const char **argv, tec_ctx_t *ctx)
 {
     return elog(1, "under development: rename column in file .tec/column");
 }
@@ -103,9 +107,9 @@ static const builtin_t column_commands[] = {
     {.name = "rename",.func = &_column_ren},
 };
 
-int tec_cli_column(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_column(int argc, const char **argv, tec_ctx_t *ctx)
 {
-    char *cmd = argv[1] != NULL ? argv[1] : "ls";
+    const char *cmd = argv[1] != NULL ? argv[1] : "ls";
 
     for (int i = 0; i < ARRAY_SIZE(column_commands); ++i)
         if (strcmp(cmd, column_commands[i].name) == 0)

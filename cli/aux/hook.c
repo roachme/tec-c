@@ -117,14 +117,18 @@ char *hook_list(struct tec_hook *hooks, char *pgnout, char *env, char *task)
     4. Or maybe it's better to let the plugin to handle plugin options and the rest.
     5. Add a better parser to include all the other tec options like -C, -H, -F, etc.
 */
-int tec_cli_plugin(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_plugin(int argc, const char **argv, tec_ctx_t *ctx)
 {
     int i;
     char *pgn;
+    tec_argvec_t argvec;
     char pgnexec[BUFSIZ + 1] = { 0 };
 
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+
     i = 0;
-    pgn = argv[i++];
+    pgn = argvec.argv[i++];
 
     sprintf(pgnexec, "%s/%s/%s -T %s -P %s ", teccfg.base.pgn, pgn, pgn,
             teccfg.base.task, teccfg.base.pgn);

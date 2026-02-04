@@ -270,9 +270,10 @@ static int parse_dest(const char *path, tec_arg_t *args, int *is_dir,
     return parse_path(path, args, errfmt);
 }
 
-int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_mv(int argc, const char **argv, tec_ctx_t *ctx)
 {
     char c;
+    tec_argvec_t argvec;
     int i, showhelp, status, nargs, is_dir;
     tec_arg_t dst, src;
     char *errfmt;
@@ -283,7 +284,9 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
     src.env = src.desk = src.taskid = NULL;
     dst.env = dst.desk = dst.taskid = NULL;
 
-    while ((c = getopt(argc, argv, ":ft:h")) != -1) {
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":ft:h")) != -1) {
         switch (c) {
         case 'f':
             return elog(1, "option `-f' under development");
@@ -387,5 +390,6 @@ int tec_cli_mv(int argc, char **argv, tec_ctx_t *ctx)
         return last_status;
     }
 
+    argvec_free(&argvec);
     return 0;
 }

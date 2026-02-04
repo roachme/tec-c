@@ -41,9 +41,10 @@ static int generate_units(tec_ctx_t *ctx, char *env, char *task)
     return 0;
 }
 
-int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_add(int argc, const char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
+    tec_argvec_t argvec;
     const char *errfmt;
     int c, i, retcode, status;
     int opt_quiet, opt_help, opt_cd_dir, opt_cd_toggle;
@@ -53,7 +54,10 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
     opt_cd_dir = opt_cd_toggle = true;
     args.env = args.desk = args.taskid = NULL;
     errfmt = "cannot create task '%s': %s";
-    while ((c = getopt(argc, argv, ":d:e:hqnN")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":d:e:hqnN")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -89,7 +93,7 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
         return status;
     else if ((status = check_arg_desk(&args, errfmt, opt_quiet)))
         return status;
-    else if (optind == argc && generate_task(&args, argv, i)) {
+    else if (optind == argc && generate_task(&args, argvec.argv, i)) {
         if (opt_quiet == false)
             elog(1, "could not generate task ID: limit is %d", IDLIMIT);
         return 1;
@@ -100,7 +104,7 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
     }
 
     do {
-        args.taskid = argv[i];
+        args.taskid = argvec.argv[i];
 
         if ((status = tec_task_valid(teccfg.base.task, &args))) {
             if (opt_quiet == false)
@@ -139,7 +143,11 @@ int tec_cli_add(int argc, char **argv, tec_ctx_t *ctx)
         ctx->column = tec_unit_free(ctx->column);
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argc);
+    } while (++i < argvec.count);
 
-    return retcode == LIBTEC_OK && opt_cd_dir ? tec_pwd_task(&args) : retcode;
+    if (retcode == LIBTEC_OK && opt_cd_dir)
+        retcode = tec_pwd_task(&args) == LIBTEC_OK ? retcode : status;
+
+    argvec_free(&argvec);
+    return retcode;
 }

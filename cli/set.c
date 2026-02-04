@@ -2,7 +2,6 @@
 #include <string.h>
 
 #include "tec.h"
-#include "aux/toggle.h"
 #include "aux/config.h"
 
 // "prio",  /* task priority */
@@ -51,16 +50,20 @@ static int valid_desc(const char *val)
 }
 
 // TODO: Find a good error message in case option fails.  */
-int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
+int tec_cli_set(int argc, const char **argv, tec_ctx_t *ctx)
 {
     tec_arg_t args;
+    tec_argvec_t argvec;
     int c, i, retcode, status;
     int opt_help, opt_interactive, opt_quiet;
     const char *errfmt = "cannot set task units '%s': %s";
 
     opt_help = opt_interactive = opt_quiet = false;
     args.env = args.desk = args.taskid = NULL;
-    while ((c = getopt(argc, argv, ":d:e:hiqD:T:P:")) != -1) {
+
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    while ((c = getopt(argvec.count, argvec.argv, ":d:e:hiqD:T:P:")) != -1) {
         // TODO: add a protection for duplicates, use map data structure
         switch (c) {
         case 'd':
@@ -120,7 +123,7 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
         return status;
 
     do {
-        args.taskid = argv[i];
+        args.taskid = argvec.argv[i];
 
         if ((status = check_arg_task(&args, errfmt, opt_quiet))) {
             ;
@@ -135,6 +138,8 @@ int tec_cli_set(int argc, char **argv, tec_ctx_t *ctx)
 
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argc);
+    } while (++i < argvec.count);
+
+    argvec_free(&argvec);
     return retcode;
 }

@@ -3,6 +3,7 @@
 ### Added
 
 - `cli/cat`: Add support for multiple keys
+- `cli`: Use const argv for cli arguments
 
 ### Changed
 
