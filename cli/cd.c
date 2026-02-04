@@ -62,7 +62,7 @@ int tec_cli_cd(int argc, char **argv, tec_ctx_t *ctx)
 
     /* Check that alias '-' is not passed with other task IDs nor duplicated.  */
     for (int idx = i; idx < argc; ++idx) {
-        if (strcmp(argv[idx], "-") == 0 && argc > 2)
+        if (strcmp(argv[idx], "-") == 0 && argc - i > 1)
             return elog(1, "alias '-' is used alone");
     }
 

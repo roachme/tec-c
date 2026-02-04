@@ -16,6 +16,7 @@
 - `cli/rm`: Refactor code
 - `cli/aux/toggle`: Fix memory leaks
 - `cli/add`: Fix overlapping memory regions
+- `cli`: Fix alias check for `cd` commands
 
 ### Deleted
 
