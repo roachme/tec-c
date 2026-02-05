@@ -10,7 +10,7 @@
 
 static char pathname[PATH_MAX + 1];
 
-static char *path_pgn(tec_arg_t *args, char *name, char *cmd)
+static char *_hook_cmd(tec_arg_t *args, char *name, char *cmd)
 {
     const char *fmt = "%s/%s/%s -T %s %s -e %s -d %s -i %s";
     sprintf(pathname, fmt, teccfg.base.pgn, name, name, teccfg.base.task,
@@ -31,7 +31,7 @@ int hook_action(tec_arg_t *args, char *cmd)
 
     for (; hooks; hooks = hooks->next) {
         if (strcmp(cmd, hooks->cmd) == 0) {
-            char *cmd = path_pgn(args, hooks->pgname, hooks->pgncmd);
+            char *cmd = _hook_cmd(args, hooks->pgname, hooks->pgncmd);
             dlog(1, cmd);
             status = system(cmd) == EXIT_SUCCESS ? EXIT_SUCCESS : EXIT_FAILURE;
             retcode = status == LIBTEC_OK ? retcode : status;
@@ -58,7 +58,7 @@ int hook_show(tec_unit_t **units, tec_arg_t *args, char *cmd)
         if (strcmp(hooks->cmd, cmd) != 0)
             continue;
 
-        if (!(pipe = popen(path_pgn(args, hooks->pgname, hooks->pgncmd), "r"))) {
+        if (!(pipe = popen(_hook_cmd(args, hooks->pgname, hooks->pgncmd), "r"))) {
             // TODO: add quiet option and show error message
             continue;
         }
@@ -107,37 +107,3 @@ char *hook_list(struct tec_hook *hooks, char *pgnout, char *env, char *task)
     return pgnout;
 }
 */
-
-/* TODO:
-    Structure: tec PGN -i -b -p COMMAND [OPTION]... [APRS]
-    1. Can't use getopt cuz there might be different options for plugins and
-       their commads.
-    2. Use for/while loop to circle through options and their arguments.
-    3. Separate plugin options from plugin command options.
-    4. Or maybe it's better to let the plugin to handle plugin options and the rest.
-    5. Add a better parser to include all the other tec options like -C, -H, -F, etc.
-*/
-int tec_cli_plugin(int argc, const char **argv, tec_ctx_t *ctx)
-{
-    int i;
-    char *pgn;
-    tec_argvec_t argvec;
-    char pgnexec[BUFSIZ + 1] = { 0 };
-
-    argvec_init(&argvec);
-    argvec_parse(&argvec, argc, argv);
-
-    i = 0;
-    pgn = argvec.argv[i++];
-
-    sprintf(pgnexec, "%s/%s/%s -T %s -P %s ", teccfg.base.pgn, pgn, pgn,
-            teccfg.base.task, teccfg.base.pgn);
-
-    for (; i < argc; ++i) {
-        strcat(pgnexec, argv[i]);
-        strcat(pgnexec, " ");
-    }
-
-    dlog(1, "pgnexec: %s", pgnexec);
-    return system(pgnexec);
-}
