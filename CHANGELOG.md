@@ -1,3 +1,16 @@
+## [Unreleased]
+
+### Added
+
+### Changed
+
+- `_tec`: Rename binary program name to `_tec`
+
+### Fixed
+
+### Deleted
+
+
 ## [0.3.0] - (2026-02-09)
 
 ### Added

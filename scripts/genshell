@@ -7,7 +7,7 @@ function tec()
     local tecstatus;
     local pwdfile="PWDFILE"
 
-    teccli "$@"
+    _tec "$@"
     tecstatus="$?"
 
     test -s "$pwdfile" && cd "$(cat "$pwdfile")" || return "$tecstatus"

@@ -45,7 +45,7 @@ make
 ```
 
 ## ⇁  Installation
-1. Once you compiled successfully, put executable ` teccli ` into one of directories defined in env variable ` PATH ` . I put it in ` ~/.local/bin ` .
+1. Once you compiled successfully, put executable ` _tec ` into one of directories defined in env variable ` PATH ` . I put it in ` ~/.local/bin ` .
 2. Copy the content of tec.sh into your shell rc file. It's ` ~/.bashrc ` , ` .zshrc ` , etc.
 
 ``` bash
@@ -56,7 +56,7 @@ function tec()
     local tecstatus;
     local pwdfile="/tmp/tecpwd"
 
-    teccli "$@"
+    _tec "$@"
     tecstatus="$?"
 
     test -s "$pwdfile" && cd "$(cat "$pwdfile")" || return "$tecstatus"
