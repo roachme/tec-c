@@ -11,29 +11,29 @@
     2. Use for/while loop to circle through options and their arguments.
     3. Separate plugin options from plugin command options.
     4. Or maybe it's better to let the plugin to handle plugin options and the rest.
-    5. Add a better parser to include all the other tec options like -C, -H, -F, etc.
 */
-int tec_cli_plugin(int argc, const char **argv, tec_ctx_t *ctx)
+int tec_cli_pgn(int argc, const char **argv, tec_ctx_t *ctx)
 {
     int i;
-    char *pgn;
+    char *name;
     tec_argvec_t argvec;
-    char pgnexec[BUFSIZ + 1] = { 0 };
-
-    argvec_init(&argvec);
-    argvec_parse(&argvec, argc, argv);
+    char cmd[BUFSIZ + 1] = { 0 };
+    const char *fmt = "%s/%s/%s -T %s -P %s";
 
     i = 0;
-    pgn = argvec.argv[i++];
+    argvec_init(&argvec);
+    argvec_parse(&argvec, argc, argv);
+    name = argvec.argv[i++];
 
-    sprintf(pgnexec, "%s/%s/%s -T %s -P %s ", teccfg.base.pgn, pgn, pgn,
-            teccfg.base.task, teccfg.base.pgn);
+    sprintf(cmd, fmt, teccfg.base.pgn, name, name, teccfg.base.task,
+            teccfg.base.pgn);
 
-    for (; i < argc; ++i) {
-        strcat(pgnexec, argv[i]);
-        strcat(pgnexec, " ");
+    for (; i < argvec.count; ++i) {
+        strcat(cmd, " ");
+        strcat(cmd, argvec.argv[i]);
     }
 
-    dlog(1, "pgnexec: %s", pgnexec);
-    return system(pgnexec);
+    dlog(1, "pgn: %s", cmd);
+    argvec_free(&argvec);
+    return system(cmd);
 }

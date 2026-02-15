@@ -92,7 +92,7 @@ static int run_plugin(int argc, const char **argv)
 
     if ((status = tec_setup(TEC_SETUP_HARD)) != LIBTEC_OK)
         return elog(status, "setup failed: %s", tec_strerror(status));
-    return tec_cli_plugin(argc, argv, &ctx);
+    return tec_cli_pgn(argc, argv, &ctx);
 }
 
 static int valid_toggle(char *tog)

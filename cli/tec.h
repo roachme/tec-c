@@ -98,7 +98,7 @@ int tec_cli_help(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_init(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_ls(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_mv(int argc, const char **argv, tec_ctx_t * ctx);
-int tec_cli_plugin(int argc, const char **argv, tec_ctx_t * ctx);
+int tec_cli_pgn(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_rm(int argc, const char **argv, tec_ctx_t * ctx);
 int tec_cli_set(int argc, const char **argv, tec_ctx_t * ctx);
 

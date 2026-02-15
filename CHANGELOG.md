@@ -8,6 +8,8 @@
 
 ### Fixed
 
+- `cli/pgn`: Style code
+
 ### Deleted
 
 
