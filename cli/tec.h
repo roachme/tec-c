@@ -46,9 +46,10 @@ enum tec_setup_level {
 };
 
 typedef struct argvec {
-    char **argv;
-    int count;
-    int capac;
+    int idx;                    /* index of current argument */
+    int count;                  /* argument count */
+    int capac;                  /* argument capacity */
+    char **argv;                /* argument vector */
 } tec_argvec_t;
 
 typedef struct builtin {
