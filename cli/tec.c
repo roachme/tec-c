@@ -129,6 +129,8 @@ void argvec_add(tec_argvec_t *vec, const char *arg)
             elog(1, "realloc failed");
             exit(1);
         }
+        for (int i = vec->count; i < vec->capac; ++i)
+            vec->argv[i] = NULL;
     }
     vec->argv[vec->count++] = strdup(arg);
 }

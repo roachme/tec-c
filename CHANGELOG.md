@@ -9,6 +9,7 @@
 ### Fixed
 
 - `cli/pgn`: Style code
+- `cli/tec`: Fix segmentation fault for argvec
 
 ### Deleted
 
