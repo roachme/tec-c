@@ -113,6 +113,8 @@ void argvec_init(tec_argvec_t *vec)
         exit(1);
     }
 
+    /* Prevent invalid pointer dereference. Used in case when default
+     * env name, desk name, task ID used.  */
     for (int i = 0; i < size; ++i)
         vec->argv[i] = NULL;
 
@@ -129,6 +131,9 @@ void argvec_add(tec_argvec_t *vec, const char *arg)
             elog(1, "realloc failed");
             exit(1);
         }
+
+        /* Prevent invalid pointer dereference. Used in case when default
+         * env name, desk name, task ID used.  */
         for (int i = vec->used; i < vec->size; ++i)
             vec->argv[i] = NULL;
     }
