@@ -28,7 +28,7 @@ int tec_cli_pgn(int argc, const char **argv, tec_ctx_t *ctx)
     sprintf(cmd, fmt, teccfg.base.pgn, name, name, teccfg.base.task,
             teccfg.base.pgn);
 
-    for (; i < argvec.count; ++i) {
+    for (; i < argvec.used; ++i) {
         strcat(cmd, " ");
         strcat(cmd, argvec.argv[i]);
     }

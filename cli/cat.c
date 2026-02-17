@@ -6,42 +6,42 @@
 
 typedef struct keyvec {
     char **keys;
-    size_t count;
-    size_t capac;
+    size_t used;
+    size_t size;
 } keyvec_t;
 
 static const char *errfmt = "cannot show units '%s': %s";
 
 static void argument_keys_init(keyvec_t *vec)
 {
-    int capac = 2;
+    int size = 2;
 
-    if ((vec->keys = malloc(capac * sizeof(vec->keys))) == NULL) {
+    if ((vec->keys = malloc(size * sizeof(vec->keys))) == NULL) {
         elog(1, "malloc failed");
         exit(1);
     }
 
-    vec->count = 0;
-    vec->capac = capac;
+    vec->used = 0;
+    vec->size = size;
 }
 
 static int argument_keys_add(keyvec_t *vec, char *key)
 {
-    if (vec->count >= vec->capac) {
-        vec->capac *= 2;
+    if (vec->used >= vec->size) {
+        vec->size *= 2;
         if ((vec->keys =
-             realloc(vec->keys, vec->capac * sizeof(char *))) == NULL) {
+             realloc(vec->keys, vec->size * sizeof(char *))) == NULL) {
             elog(1, "realloc failed");
             exit(1);
         }
     }
-    vec->keys[vec->count++] = strdup(key);
+    vec->keys[vec->used++] = strdup(key);
     return 0;
 }
 
 static void argument_keys_free(keyvec_t *vec)
 {
-    for (size_t i = 0; i < vec->count; ++i)
+    for (size_t i = 0; i < vec->used; ++i)
         free(vec->keys[i]);
     free(vec->keys);
 }
@@ -89,7 +89,7 @@ static int show_specific_keys(char *task, tec_unit_t *unitbin,
     int status;
     int retcode = LIBTEC_OK;
 
-    for (int i = 0; i < vec->count; i++) {
+    for (int i = 0; i < vec->used; i++) {
         if ((status = show_key(task, unitbin, unitpgn, vec->keys[i]))) {
             if (quiet == false)
                 elog(1, "key not found '%s'", vec->keys[i]);
@@ -133,7 +133,7 @@ int tec_cli_cat(int argc, const char **argv, tec_ctx_t *ctx)
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
     argument_keys_init(&vec);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:e:hk:q")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:e:hk:q")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -195,7 +195,7 @@ int tec_cli_cat(int argc, const char **argv, tec_ctx_t *ctx)
         unitpgn = tec_unit_free(unitpgn);
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     argvec_free(&argvec);
     argument_keys_free(&vec);

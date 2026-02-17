@@ -45,7 +45,7 @@ static int _env_add(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:hnqN")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:hnqN")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -166,7 +166,7 @@ static int _env_rm(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:fhiqvI")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:fhiqvI")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -233,7 +233,7 @@ static int _env_rm(int argc, const char **argv, tec_ctx_t *ctx)
         if (opt_verbose == true)
             llog(0, "removed environment '%s'", args.env);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     // TODO: update current directory if current env got deleted.
 
@@ -257,7 +257,7 @@ static int _env_ls(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":hq")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":hq")) != -1) {
         switch (c) {
         case 'q':
             opt_quiet = true;
@@ -307,7 +307,7 @@ static int _env_rename(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":hq")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":hq")) != -1) {
         switch (c) {
         case 'h':
             opt_help = true;
@@ -366,7 +366,7 @@ static int _env_set(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:hqD:")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:hqD:")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -415,7 +415,7 @@ static int _env_set(int argc, const char **argv, tec_ctx_t *ctx)
                 elog(status, errfmt, args.taskid, "failed to execute hooks");
         }
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     argvec_free(&argvec);
     ctx->units = tec_unit_free(ctx->units);
@@ -436,7 +436,7 @@ static int _env_cat(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:hq")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:hq")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -474,7 +474,7 @@ static int _env_cat(int argc, const char **argv, tec_ctx_t *ctx)
 
         // TODO: add plugin output
         // FIXME: free unit structure
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     argvec_free(&argvec);
     return status;
@@ -495,7 +495,7 @@ static int _env_cd(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:hnqN")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:hnqN")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -552,7 +552,7 @@ static int _env_cd(int argc, const char **argv, tec_ctx_t *ctx)
             }
         }
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     if (retcode == LIBTEC_OK && opt_cd_dir)
         retcode = tec_pwd_env(&args) == LIBTEC_OK ? retcode : status;

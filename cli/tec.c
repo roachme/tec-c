@@ -106,33 +106,33 @@ static int valid_toggle(char *tog)
 
 void argvec_init(tec_argvec_t *vec)
 {
-    int capac = 2;
+    int size = 2;
 
-    if ((vec->argv = malloc(capac * sizeof(vec->argv))) == NULL) {
+    if ((vec->argv = malloc(size * sizeof(vec->argv))) == NULL) {
         elog(1, "malloc failed");
         exit(1);
     }
 
-    for (int i = 0; i < capac; ++i)
+    for (int i = 0; i < size; ++i)
         vec->argv[i] = NULL;
 
-    vec->count = 0;
-    vec->capac = capac;
+    vec->used = 0;
+    vec->size = size;
 }
 
 void argvec_add(tec_argvec_t *vec, const char *arg)
 {
-    if (vec->count >= vec->capac) {
-        vec->capac *= 2;
+    if (vec->used >= vec->size) {
+        vec->size *= 2;
         if ((vec->argv =
-             realloc(vec->argv, vec->capac * sizeof(char *))) == NULL) {
+             realloc(vec->argv, vec->size * sizeof(char *))) == NULL) {
             elog(1, "realloc failed");
             exit(1);
         }
-        for (int i = vec->count; i < vec->capac; ++i)
+        for (int i = vec->used; i < vec->size; ++i)
             vec->argv[i] = NULL;
     }
-    vec->argv[vec->count++] = strdup(arg);
+    vec->argv[vec->used++] = strdup(arg);
 }
 
 void argvec_parse(tec_argvec_t *vec, int argc, const char **argv)
@@ -152,7 +152,7 @@ void argvec_replace(tec_argvec_t *vec, int vec_idx, char *arg, int argsiz)
 
 void argvec_free(tec_argvec_t *vec)
 {
-    for (int i = 0; i < vec->count; ++i)
+    for (int i = 0; i < vec->used; ++i)
         free(vec->argv[i]);
     free(vec->argv);
 }

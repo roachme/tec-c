@@ -63,7 +63,7 @@ int tec_cli_set(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:e:hiqD:T:P:")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:e:hiqD:T:P:")) != -1) {
         // TODO: add a protection for duplicates, use map data structure
         switch (c) {
         case 'd':
@@ -138,7 +138,7 @@ int tec_cli_set(int argc, const char **argv, tec_ctx_t *ctx)
 
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     argvec_free(&argvec);
     return retcode;

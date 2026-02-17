@@ -286,7 +286,7 @@ int tec_cli_mv(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":ft:h")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":ft:h")) != -1) {
         switch (c) {
         case 'f':
             return elog(1, "option `-f' under development");

@@ -20,7 +20,7 @@ int tec_cli_cd(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:e:hnqN")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:e:hnqN")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -59,8 +59,8 @@ int tec_cli_cd(int argc, const char **argv, tec_ctx_t *ctx)
         return status;
 
     /* Check that alias '-' is not passed with other task IDs nor duplicated.  */
-    for (int idx = i; idx < argvec.count; ++idx) {
-        if (strcmp(argvec.argv[idx], "-") == 0 && argvec.count - i > 1)
+    for (int idx = i; idx < argvec.used; ++idx) {
+        if (strcmp(argvec.argv[idx], "-") == 0 && argvec.used - i > 1)
             return elog(1, "alias '-' is used alone");
     }
 
@@ -85,7 +85,7 @@ int tec_cli_cd(int argc, const char **argv, tec_ctx_t *ctx)
             }
         }
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     if (retcode == LIBTEC_OK && opt_cd_dir)
         retcode = tec_pwd_task(&args) == LIBTEC_OK ? retcode : status;

@@ -78,7 +78,7 @@ int tec_cli_rm(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:e:fihqvI")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:e:fihqvI")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -158,7 +158,7 @@ int tec_cli_rm(int argc, const char **argv, tec_ctx_t *ctx)
         if (opt_verbose == true)
             llog(0, "removed task '%s'", args.taskid);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     if (change_dir) {
         args.taskid = NULL;     // FIXME: ducking hotfix to get current task ID from file

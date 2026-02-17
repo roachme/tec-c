@@ -108,7 +108,7 @@ int tec_cli_ls(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":ad:hqvtH")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":ad:hqvtH")) != -1) {
         switch (c) {
         case 'a':
             filter.all = true;
@@ -170,7 +170,7 @@ int tec_cli_ls(int argc, const char **argv, tec_ctx_t *ctx)
 
         // HOTFIX: cuz I've no clue how to sync desk feature into envs.
         args.desk = NULL;
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     argvec_free(&argvec);
     return status;

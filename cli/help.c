@@ -664,7 +664,7 @@ int tec_cli_help(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":dls")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":dls")) != -1) {
         switch (c) {
         case 'd':
             helpctx.desc_short = true;

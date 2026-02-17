@@ -10,6 +10,7 @@
 
 - `cli/pgn`: Style code
 - `cli/tec`: Fix segmentation fault for argvec
+- `cli`: Rename structure members
 
 ### Deleted
 

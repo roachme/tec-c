@@ -57,7 +57,7 @@ int tec_cli_add(int argc, const char **argv, tec_ctx_t *ctx)
 
     argvec_init(&argvec);
     argvec_parse(&argvec, argc, argv);
-    while ((c = getopt(argvec.count, argvec.argv, ":d:e:hqnN")) != -1) {
+    while ((c = getopt(argvec.used, argvec.argv, ":d:e:hqnN")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -138,7 +138,7 @@ int tec_cli_add(int argc, const char **argv, tec_ctx_t *ctx)
         }
         ctx->units = tec_unit_free(ctx->units);
         retcode = status == LIBTEC_OK ? retcode : status;
-    } while (++i < argvec.count);
+    } while (++i < argvec.used);
 
     if (retcode == LIBTEC_OK && opt_cd_dir)
         retcode = tec_pwd_task(&args) == LIBTEC_OK ? retcode : status;
