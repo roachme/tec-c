@@ -261,7 +261,7 @@ struct help helptab[] = {
     \n\
     Subcommands:\n\
       get     Get config values(under development)\n\
-      list    List config values (under development)\n\
+      ls      List config values (under development)\n\
       set     Set config values (under development)\n\
       revert  Revert config values (under development)\n\
       save    Save config values into file (under development)\n\
@@ -272,6 +272,25 @@ struct help helptab[] = {
     \n\
     Exit status:\n\
     The return status is return status of subcommand.\n"},
+    {
+     .tag = TAGOBJCMD,
+     .name = "cfg-get",
+     .synop = "Usage: " PROGRAM " cfg get VALUE...\n",
+     .desc_short = "Get config value(s).\n",
+     .desc_long = "\n\
+    Arguments:\n\
+      VALUE    config value\n\
+    \n\
+    Exit status:\n\
+    Under development.\n"},
+    {
+     .tag = TAGOBJCMD,
+     .name = "cfg-ls",
+     .synop = "Usage: " PROGRAM " cfg ls\n",
+     .desc_short = "List config value(s).\n",
+     .desc_long = "\n\
+    Exit status:\n\
+    Under development.\n"},
 
     {
      .tag = TAGOBJ,

@@ -3,6 +3,7 @@
 ### Added
 
 - `cfg`: Add `ls` subcommand for command `cfg`
+- `cfg`: Add `get` subcommand for command `cfg`
 
 ### Changed
 
