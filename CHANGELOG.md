@@ -2,6 +2,8 @@
 
 ### Added
 
+- `cfg`: Add `ls` subcommand for command `cfg`
+
 ### Changed
 
 - `_tec`: Rename binary program name to `_tec`
