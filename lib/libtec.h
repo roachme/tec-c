@@ -57,7 +57,7 @@ enum tec_errno {
     ETEC_UNIT_SAVE,
     ETEC_UNIT_SET,
 
-    E__TEC_STATUS_LAST
+    __ETEC_STATUS_LAST
 };
 
 /* Core functions.  */

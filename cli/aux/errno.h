@@ -43,7 +43,7 @@
 #define EFMT_ENV_SET        "cannot set environment unit value '%s': %s"
 
 enum tec_cli_errno {
-    ETEC_ALIAS = E__TEC_STATUS_LAST,
+    ETEC_ALIAS = __ETEC_STATUS_LAST,
     ETEC_HOOK_EXEC,
 
     ETEC_TOGG_UPDATE,
