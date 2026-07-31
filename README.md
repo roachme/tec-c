@@ -117,8 +117,12 @@ make
 
 ## Installation
 
-**1. Put the binary on your PATH.** Once the build finishes, move ` _tec ` into
-one of the directories listed in ` PATH ` — ` ~/.local/bin ` is a good spot.
+Steps 1 and 2 are what ` make install ` does for you, so run that instead if you
+like. Step 3 is on you either way.
+
+**1. Put the binary on your PATH.** The build leaves it at ` build/_tec ` ; move
+it into one of the directories listed in ` PATH ` — ` ~/.local/bin ` is a
+good spot.
 
 **2. Add the shell wrapper** to your shell rc file, whether that is
 ` ~/.bashrc ` , ` ~/.zshrc ` or another one. The wrapper is what allows
@@ -141,7 +145,8 @@ function tec()
 ```
 
 **3. Create a config file**, either at ` ~/.tec/tec.cfg ` or at
-` ~/.config/tec/tec.cfg ` , and fill it with the content below.
+` ~/.config/tec/tec.cfg ` , and fill it with the content below. Tec reads the
+first of the two it finds, or the one passed with ` tec -f PATH ` .
 
 ```
 base = {
@@ -155,15 +160,17 @@ options = {
     debug = false;  /* disable debug info */
 };
 
-/* List of hooks for all environments.  */
+/* Hooks run a plugin command on top of a builtin one, where 'bincmd' is
+ * the builtin command that fires the hook.  Two groups are supported:
+ *   cat    - plugin output is merged into the units 'tec cat' shows;
+ *   action - plugin command runs as a side effect of the builtin one.
+ * Both are left empty here.  Fill them in once the plugin is installed,
+ * otherwise the builtin command fails, e.g.
+ *   action = ( { bincmd = "add"; pgname = "gmux"; pgncmd = "cd" }, );
+ */
 hooks = {
-    show = (
-        { bincmd = "show"; pgname = "gmux"; pgncmd = "show" },
-    );
-    action = (
-        { bincmd = "add"; pgname = "gmux"; pgncmd = "cd" },
-    );
-    list = ();
+    cat = ();
+    action = ();
 };
 
 /* Aliases can be used for plugin commands as well.
@@ -222,6 +229,9 @@ Two things to keep in mind, here and for every other plugin:
 - the repo directory name carries **no** ` tec- ` prefix;
 - ` PGNDIR ` has to match ` base.pgn ` from the ` tec.cfg ` shown above.
 
+That is the whole mechanism: an executable at ` base.pgn/NAME/NAME ` is run by
+` tec NAME ` , and hooks can call it for you.
+
 A few worth a look:
 
 | Plugin | What it does |
@@ -230,7 +240,7 @@ A few worth a look:
 | [gmux](https://github.com/roachme/tec-gmux.git) | Manage a bunch of git repos |
 | [find](https://github.com/roachme/tec-find.git) | Find stuff in tasks |
 
-Run ` tec-pgn ` for the full list of Tec plugins.
+Each of them carries setup notes of its own, so read its README before use.
 
 <br />
 
@@ -238,11 +248,11 @@ Run ` tec-pgn ` for the full list of Tec plugins.
 
 - ` tec help ` lists every command; ` tec help COMMAND ` explains one of them.
 - A task ID is up to 8 characters long; environment and desk names up to 10.
-- ` tec add ` with no ID makes one up for you: 00000000, 00000001, and so on.
+- ` tec add ` with no ID makes one up for you: 00000001, 00000002, and so on.
 - Most commands fall back to the current environment, desk and task, so
   ` tec cat ` , ` tec set -P high ` and ` tec rm ` all work with no arguments.
-- Aliases and hooks live in ` tec.cfg ` — they let Tec run a plugin command
-  automatically whenever you add or switch a task.
+- Aliases and hooks live in ` tec.cfg ` . A hook only works once the plugin it
+  names is installed — until then the command that fires it reports a failure.
 
 <br />
 

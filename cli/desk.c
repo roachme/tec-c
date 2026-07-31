@@ -40,7 +40,7 @@ static char *get_unit_desc(tec_ctx_t *ctx, tec_arg_t *args, int quiet,
 static int generate_units(tec_ctx_t *ctx, char *desk, char *desc)
 {
     struct tec_unit *units = NULL;
-    char _desc[100] = "Generated desciption for ";
+    char _desc[100] = "Generated description for ";
 
     /* Set custom description if provided.  */
     if (desc == NULL) {         /* Generate description.  */

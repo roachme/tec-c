@@ -21,7 +21,7 @@ Feature: desk cat
     When I run "desk cat -k desc desktest4c"
     Then stdout should be
       """
-      Generated desciption for desktest4c
+      Generated description for desktest4c
       """
 
   Scenario: Show multiple keys of a desk
@@ -30,7 +30,7 @@ Feature: desk cat
     Then stdout should be
       """
       desktest4d
-      Generated desciption for desktest4d
+      Generated description for desktest4d
       """
 
   Scenario: -q suppresses the error for a nonexistent desk

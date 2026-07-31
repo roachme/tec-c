@@ -122,8 +122,12 @@ MACRO_CODE
 
 ## Installation
 
-**1. Put the binary on your PATH.** Once the build finishes, move MACRO_INLINE_CODE _tec MACRO_INLINE_CODE into
-one of the directories listed in MACRO_INLINE_CODE PATH MACRO_INLINE_CODE — MACRO_INLINE_CODE ~/.local/bin MACRO_INLINE_CODE is a good spot.
+Steps 1 and 2 are what MACRO_INLINE_CODE make install MACRO_INLINE_CODE does for you, so run that instead if you
+like. Step 3 is on you either way.
+
+**1. Put the binary on your PATH.** The build leaves it at MACRO_INLINE_CODE build/_tec MACRO_INLINE_CODE ; move
+it into one of the directories listed in MACRO_INLINE_CODE PATH MACRO_INLINE_CODE — MACRO_INLINE_CODE ~/.local/bin MACRO_INLINE_CODE is a
+good spot.
 
 **2. Add the shell wrapper** to your shell rc file, whether that is
 MACRO_INLINE_CODE ~/.bashrc MACRO_INLINE_CODE , MACRO_INLINE_CODE ~/.zshrc MACRO_INLINE_CODE or another one. The wrapper is what allows
@@ -134,7 +138,8 @@ include(shell/tec.sh)dnl
 MACRO_CODE
 
 **3. Create a config file**, either at MACRO_INLINE_CODE ~/.tec/tec.cfg MACRO_INLINE_CODE or at
-MACRO_INLINE_CODE ~/.config/tec/tec.cfg MACRO_INLINE_CODE , and fill it with the content below.
+MACRO_INLINE_CODE ~/.config/tec/tec.cfg MACRO_INLINE_CODE , and fill it with the content below. Tec reads the
+first of the two it finds, or the one passed with MACRO_INLINE_CODE tec -f PATH MACRO_INLINE_CODE .
 
 MACRO_CODE
 include(shell/tec.cfg)dnl
@@ -164,6 +169,9 @@ Two things to keep in mind, here and for every other plugin:
 - the repo directory name carries **no** MACRO_INLINE_CODE tec- MACRO_INLINE_CODE prefix;
 - MACRO_INLINE_CODE PGNDIR MACRO_INLINE_CODE has to match MACRO_INLINE_CODE base.pgn MACRO_INLINE_CODE from the MACRO_INLINE_CODE tec.cfg MACRO_INLINE_CODE shown above.
 
+That is the whole mechanism: an executable at MACRO_INLINE_CODE base.pgn/NAME/NAME MACRO_INLINE_CODE is run by
+MACRO_INLINE_CODE tec NAME MACRO_INLINE_CODE , and hooks can call it for you.
+
 A few worth a look:
 
 | Plugin | What it does |
@@ -172,7 +180,7 @@ A few worth a look:
 | [gmux](https://github.com/roachme/tec-gmux.git) | Manage a bunch of git repos |
 | [find](https://github.com/roachme/tec-find.git) | Find stuff in tasks |
 
-Run MACRO_INLINE_CODE tec-pgn MACRO_INLINE_CODE for the full list of Tec plugins.
+Each of them carries setup notes of its own, so read its README before use.
 
 <br />
 
@@ -180,11 +188,11 @@ Run MACRO_INLINE_CODE tec-pgn MACRO_INLINE_CODE for the full list of Tec plugins
 
 - MACRO_INLINE_CODE tec help MACRO_INLINE_CODE lists every command; MACRO_INLINE_CODE tec help COMMAND MACRO_INLINE_CODE explains one of them.
 - A task ID is up to 8 characters long; environment and desk names up to 10.
-- MACRO_INLINE_CODE tec add MACRO_INLINE_CODE with no ID makes one up for you: 00000000, 00000001, and so on.
+- MACRO_INLINE_CODE tec add MACRO_INLINE_CODE with no ID makes one up for you: 00000001, 00000002, and so on.
 - Most commands fall back to the current environment, desk and task, so
   MACRO_INLINE_CODE tec cat MACRO_INLINE_CODE , MACRO_INLINE_CODE tec set -P high MACRO_INLINE_CODE and MACRO_INLINE_CODE tec rm MACRO_INLINE_CODE all work with no arguments.
-- Aliases and hooks live in MACRO_INLINE_CODE tec.cfg MACRO_INLINE_CODE — they let Tec run a plugin command
-  automatically whenever you add or switch a task.
+- Aliases and hooks live in MACRO_INLINE_CODE tec.cfg MACRO_INLINE_CODE . A hook only works once the plugin it
+  names is installed — until then the command that fires it reports a failure.
 
 <br />
 

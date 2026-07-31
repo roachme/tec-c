@@ -20,7 +20,7 @@ Feature: env cat
     Given an env "envtest3d" exists
     When I run "env cat -k desc envtest3d"
     Then the exit code should be 0
-    And stdout should contain "Generated desciption for environment envtest3d"
+    And stdout should contain "Generated description for environment envtest3d"
 
   Scenario: Show multiple keys of an environment
     Given an env "envtest3e" exists
@@ -28,7 +28,7 @@ Feature: env cat
     Then stdout should be
       """
       envtest3e
-      Generated desciption for environment envtest3e
+      Generated description for environment envtest3e
       """
 
   Scenario: -q suppresses the error for a nonexistent environment

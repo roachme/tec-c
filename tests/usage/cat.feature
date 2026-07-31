@@ -17,7 +17,7 @@ Feature: cat
       prio   : mid
       type   : task
       date   : 20260403
-      desc   : Generated desciption for test1
+      desc   : Generated description for test1
       """
 
   Scenario: Show selected keys of a task
@@ -25,7 +25,7 @@ Feature: cat
     Then stdout should be
       """
       test1
-      Generated desciption for test1
+      Generated description for test1
       """
 
   Scenario: Show a non-existing task
@@ -44,12 +44,12 @@ Feature: cat
       prio   : mid
       type   : task
       date   : 20260403
-      desc   : Generated desciption for test1
+      desc   : Generated description for test1
       id     : test2
       prio   : mid
       type   : task
       date   : 20260403
-      desc   : Generated desciption for test2
+      desc   : Generated description for test2
       """
 
   Scenario: Show multiple tasks where one does not exist
@@ -65,12 +65,12 @@ Feature: cat
       prio   : mid
       type   : task
       date   : 20260403
-      desc   : Generated desciption for test1
+      desc   : Generated description for test1
       id     : test2
       prio   : mid
       type   : task
       date   : 20260403
-      desc   : Generated desciption for test2
+      desc   : Generated description for test2
       """
 
   Scenario: Show a non-existing key

@@ -26,7 +26,7 @@ static int valid_unitkeys(tec_unit_t *units)
 static int generate_units(tec_ctx_t *ctx, char *env)
 {
     struct tec_unit *units = NULL;
-    char desc[100] = "Generated desciption for environment ";
+    char desc[100] = "Generated description for environment ";
 
     strcat(desc, env);
     units = tec_unit_add(units, "desc", desc);

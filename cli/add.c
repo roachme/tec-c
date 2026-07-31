@@ -34,7 +34,7 @@ static int generate_units(tec_ctx_t *ctx, tec_arg_t *args, char *desc)
     time_t rawtime = time(NULL);
     const char timefmt[] = "%Y%m%d";
     const struct tm *timeinfo = localtime(&rawtime);
-    char _desc[100] = "Generated desciption for ";
+    char _desc[100] = "Generated description for ";
     char *unitvals[] = { "mid", "task", date, _desc, };
 
     /* Set custom description if provided.  */
