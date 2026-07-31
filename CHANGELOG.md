@@ -6,6 +6,8 @@
 
 ### Changed
 
+- `cli/aux/errno`: Change error messages for ls command
+
 ### Fixed
 
 - `tests/usage`: Refactor usage tests
