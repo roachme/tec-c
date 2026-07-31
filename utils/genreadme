@@ -9,7 +9,7 @@ define(MACRO_INLINE_CODE, changequote([,])[changequote([,])`changequote(`,')]cha
 
 **Terminal project and task manager**
 
-One workspace per task — notes, sketches, repos and git branches, always in sync.
+Every task gets a workspace of its own, and one command puts you back inside it.
 
 <img src="https://img.shields.io/badge/version-MACRO_VERSION-4c8eda?style=flat-square" alt="version" />
 <img src="https://img.shields.io/badge/written%20in-C-555555?style=flat-square" alt="written in C" />
@@ -26,23 +26,27 @@ One workspace per task — notes, sketches, repos and git branches, always in sy
 
 ## Why Tec
 
-Daily work is rarely a single task. It is usually a handful of them, each with its
-own repos, branches, notes and half-finished thoughts.
+Work is rarely a single task. It is a handful of them at once, and the cost is not
+the work itself — it is everything around it. Where were those notes. What was that
+scratch file called. Where did I leave off.
+
+Tec gives every task a place of its own and takes you there in one command.
 
 | The daily annoyance | What Tec does about it |
 | :-- | :-- |
-| Cloning repos and cutting a branch in each of them, over and over | Plugins drive a bunch of repos at once |
-| Logs, sketches and notes scattered all over the disk | Every task gets its own structured workspace |
-| Switching a task means switching context, notes and branches | MACRO_INLINE_CODE tec cd MACRO_INLINE_CODE takes you back to a task, MACRO_INLINE_CODE tec cd - MACRO_INLINE_CODE to the previous one |
+| Notes, sketches and scratch files pile up wherever you happened to be | Every task owns a directory, always laid out the same way |
+| Coming back to a task means reconstructing where everything was | MACRO_INLINE_CODE tec cd MACRO_INLINE_CODE drops your shell straight into it |
+| Switching back and forth costs more than the switch is worth | MACRO_INLINE_CODE tec cd - MACRO_INLINE_CODE returns you to the previous task, the way MACRO_INLINE_CODE cd - MACRO_INLINE_CODE does |
+| Task tools tend to arrive with a workflow and a toolchain attached | Tec brings neither. Add a plugin if you want one, or do not |
 
 Three ideas hold it together:
 
-1. **Structure** — a predictable workspace for every task.
-2. **Speed** — get exactly where you want with the fewest keystrokes.
-3. **Automation** — hand the boring parts over to plugins and hooks.
-
-Tec is meant to be bent to your workflow: tune it through a config file and extend
-it with ready-made or homemade plugins.
+1. **Structure** — one predictable workspace per task, made of ordinary directories
+   and files you can read, grep and back up with the tools you already have.
+2. **Speed** — the fewest keystrokes between you and the work. Tec remembers where
+   you are, so most commands need no arguments at all.
+3. **Restraint** — the core does not care how you work. It has no opinion about git,
+   about kanban, about any of it. What it lacks on purpose, plugins can add.
 
 <br />
 
@@ -74,6 +78,9 @@ $ tec set -P high                     # bump its priority
 $ tec cd -                            # back to what you were doing before
 MACRO_CODE
 
+From here on the task directory is yours. Keep notes in it, sketch in it, clone
+repos into it — Tec only cares that you can always get back.
+
 <br />
 
 ## How it fits together
@@ -94,9 +101,9 @@ MACRO_CODE
         └── pr-42/
 MACRO_CODE
 
-Tec always remembers the current environment, desk and task, which is why most
-commands need no arguments at all — and why MACRO_INLINE_CODE tec cd - MACRO_INLINE_CODE can drop you straight back
-into the previous one.
+Tec remembers a current and a previous entry at each of the three levels. That is
+what makes MACRO_INLINE_CODE tec cd - MACRO_INLINE_CODE work, and why MACRO_INLINE_CODE tec cat MACRO_INLINE_CODE or MACRO_INLINE_CODE tec rm MACRO_INLINE_CODE need nothing
+spelled out: they act on wherever you are.
 
 <br />
 
@@ -107,8 +114,6 @@ Tec itself needs a C toolchain and libconfig:
 MACRO_CODE bash
 sudo apt install -y libconfig-dev
 MACRO_CODE
-
-Plugins may pull in dependencies of their own — see the README of each plugin.
 
 <br />
 
@@ -145,6 +150,9 @@ MACRO_CODE
 include(shell/tec.cfg)dnl
 MACRO_CODE
 
+The two paths in MACRO_INLINE_CODE base MACRO_INLINE_CODE are the only settings you have to care about: where tasks
+are kept, and where plugins are looked for. Everything else has a working default.
+
 <br />
 
 ## Commands
@@ -155,9 +163,32 @@ MACRO_CODE
 
 <br />
 
-## Plugins
+## Extending it
 
-Plugins are installed by MACRO_INLINE_CODE nine MACRO_INLINE_CODE , the Tec plugin manager. To get it:
+Everything above works on its own. Nothing below is required.
+
+Tec deliberately stops at the workspace. It does not manage your repos, does not
+track a task through stages, does not search your notes. When you want one of
+those, you add a plugin — and when you do not, nothing is nagging you about it.
+
+A plugin is an executable sitting at MACRO_INLINE_CODE base.pgn/NAME/NAME MACRO_INLINE_CODE , which Tec runs as
+MACRO_INLINE_CODE tec NAME MACRO_INLINE_CODE . That is the whole contract, so a plugin can be written in
+anything: the ones below are shell, Python and Rust.
+
+Hooks then let a plugin ride along with a builtin command. MACRO_INLINE_CODE bincmd MACRO_INLINE_CODE is the
+builtin that fires the hook, and there are two groups of them:
+
+- **action** — the plugin command runs as a side effect. Adding a task can set up
+  whatever else that task needs.
+- **cat** — whatever the plugin prints as MACRO_INLINE_CODE key : value MACRO_INLINE_CODE lines is merged into the
+  output of MACRO_INLINE_CODE tec cat MACRO_INLINE_CODE , so a plugin can add units of its own to a task.
+
+A hook only works once the plugin it names is installed; until then the command
+that fires it reports a failure. Leave the groups empty until you have one.
+
+### Installing plugins
+
+MACRO_INLINE_CODE nine MACRO_INLINE_CODE is the plugin manager. To get it:
 
 MACRO_CODE bash
 PGNDIR="$HOME/.local/lib/tec/pgn"
@@ -168,9 +199,6 @@ Two things to keep in mind, here and for every other plugin:
 
 - the repo directory name carries **no** MACRO_INLINE_CODE tec- MACRO_INLINE_CODE prefix;
 - MACRO_INLINE_CODE PGNDIR MACRO_INLINE_CODE has to match MACRO_INLINE_CODE base.pgn MACRO_INLINE_CODE from the MACRO_INLINE_CODE tec.cfg MACRO_INLINE_CODE shown above.
-
-That is the whole mechanism: an executable at MACRO_INLINE_CODE base.pgn/NAME/NAME MACRO_INLINE_CODE is run by
-MACRO_INLINE_CODE tec NAME MACRO_INLINE_CODE , and hooks can call it for you.
 
 A few worth a look:
 
@@ -192,8 +220,9 @@ Each of them carries setup notes of its own, so read its README before use.
 - MACRO_INLINE_CODE tec add MACRO_INLINE_CODE with no ID makes one up for you: 00000001, 00000002, and so on.
 - Most commands fall back to the current environment, desk and task, so
   MACRO_INLINE_CODE tec cat MACRO_INLINE_CODE , MACRO_INLINE_CODE tec set -P high MACRO_INLINE_CODE and MACRO_INLINE_CODE tec rm MACRO_INLINE_CODE all work with no arguments.
-- Aliases and hooks live in MACRO_INLINE_CODE tec.cfg MACRO_INLINE_CODE . A hook only works once the plugin it
-  names is installed — until then the command that fires it reports a failure.
+- Aliases live in MACRO_INLINE_CODE tec.cfg MACRO_INLINE_CODE : MACRO_INLINE_CODE dir = "ls" MACRO_INLINE_CODE makes MACRO_INLINE_CODE tec dir MACRO_INLINE_CODE run MACRO_INLINE_CODE tec ls MACRO_INLINE_CODE .
+- Colors, hooks and debug output can be flipped per run with MACRO_INLINE_CODE -C MACRO_INLINE_CODE , MACRO_INLINE_CODE -H MACRO_INLINE_CODE
+  and MACRO_INLINE_CODE -D MACRO_INLINE_CODE , which is handy when a hook misbehaves.
 
 <br />
 
