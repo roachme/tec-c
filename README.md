@@ -21,8 +21,8 @@ One workspace per task — notes, sketches, repos and git branches, always in sy
 
 ## Why Tec
 
-Daily work is rarely one task at a time. It is a handful of them, each with its own
-repos, branches, notes and half finished thoughts.
+Daily work is rarely a single task. It is usually a handful of them, each with its
+own repos, branches, notes and half-finished thoughts.
 
 | The daily annoyance | What Tec does about it |
 | :-- | :-- |
@@ -36,15 +36,15 @@ Three ideas hold it together:
 2. **Speed** — get exactly where you want with the fewest keystrokes.
 3. **Automation** — hand the boring parts over to plugins and hooks.
 
-Tec is meant to be bent to your workflow: tune it through a config file, extend it
-with ready made or homemade plugins.
+Tec is meant to be bent to your workflow: tune it through a config file and extend
+it with ready-made or homemade plugins.
 
 <br />
 
 ## A quick look
 
 ``` console
-$ tec init                            # once: set the workspace up
+$ tec init                            # run once: sets the workspace up
 $ tec env add work                    # an environment to keep tasks in
 
 $ tec add parser -D "fix the header parser"
@@ -54,7 +54,7 @@ $ tec ls
 parser    fix the header parser
 pr-42     review PR 42
 
-$ tec cd parser                       # the shell you sit in moves along
+$ tec cd parser                       # your shell follows along
 $ pwd
 /home/you/tectask/work/desk/parser
 
@@ -117,12 +117,12 @@ make
 
 ## Installation
 
-**1. Put the binary on your PATH.** Once compiled, move ` _tec ` into one of the
-directories listed in ` PATH ` — ` ~/.local/bin ` is a good spot.
+**1. Put the binary on your PATH.** Once the build finishes, move ` _tec ` into
+one of the directories listed in ` PATH ` — ` ~/.local/bin ` is a good spot.
 
-**2. Add the shell wrapper** to your shell rc file, be it ` ~/.bashrc ` ,
-` ~/.zshrc ` or another one. It is what lets Tec change the directory of
-the shell you are sitting in.
+**2. Add the shell wrapper** to your shell rc file, whether that is
+` ~/.bashrc ` , ` ~/.zshrc ` or another one. The wrapper is what allows
+Tec to change the working directory of your current shell.
 
 ``` bash
 #!/usr/bin/env bash
@@ -155,7 +155,7 @@ options = {
     debug = false;  /* disable debug info */
 };
 
-/* list of hooks for all environments */
+/* List of hooks for all environments.  */
 hooks = {
     show = (
         { bincmd = "show"; pgname = "gmux"; pgncmd = "show" },
@@ -166,9 +166,9 @@ hooks = {
     list = ();
 };
 
-/* Alias can be used for plugin commands as well.
- * Tho for rn there is no support for nested aliases, i.e. alias
- * can be either builtin command or plugin.  */
+/* Aliases can be used for plugin commands as well.
+ * Nested aliases are not supported yet, i.e. an alias can be
+ * either a builtin command or a plugin.  */
 alias = {
     dir = "ls";
     els = "env ls";
@@ -183,7 +183,7 @@ alias = {
 ```
 Usage: tec [OPTION]... COMMAND|PLUGIN
     Run 'tec help tec' to get more info.
-    Run 'tec help help' to get more info on command.
+    Run 'tec help help' to get more info on a command.
 
     System:
       help       - Show help for commands.
@@ -236,13 +236,13 @@ Run ` tec-pgn ` for the full list of Tec plugins.
 
 ## Good to know
 
-- ` tec help ` lists every command, ` tec help COMMAND ` explains one of them.
+- ` tec help ` lists every command; ` tec help COMMAND ` explains one of them.
 - A task ID is up to 8 characters long; environment and desk names up to 10.
 - ` tec add ` with no ID makes one up for you: 00000000, 00000001, and so on.
 - Most commands fall back to the current environment, desk and task, so
   ` tec cat ` , ` tec set -P high ` and ` tec rm ` all work with no arguments.
-- Aliases and hooks live in ` tec.cfg ` — teach Tec to run a plugin command whenever
-  you add or switch a task.
+- Aliases and hooks live in ` tec.cfg ` — they let Tec run a plugin command
+  automatically whenever you add or switch a task.
 
 <br />
 

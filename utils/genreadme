@@ -26,8 +26,8 @@ One workspace per task — notes, sketches, repos and git branches, always in sy
 
 ## Why Tec
 
-Daily work is rarely one task at a time. It is a handful of them, each with its own
-repos, branches, notes and half finished thoughts.
+Daily work is rarely a single task. It is usually a handful of them, each with its
+own repos, branches, notes and half-finished thoughts.
 
 | The daily annoyance | What Tec does about it |
 | :-- | :-- |
@@ -41,15 +41,15 @@ Three ideas hold it together:
 2. **Speed** — get exactly where you want with the fewest keystrokes.
 3. **Automation** — hand the boring parts over to plugins and hooks.
 
-Tec is meant to be bent to your workflow: tune it through a config file, extend it
-with ready made or homemade plugins.
+Tec is meant to be bent to your workflow: tune it through a config file and extend
+it with ready-made or homemade plugins.
 
 <br />
 
 ## A quick look
 
 MACRO_CODE console
-$ tec init                            # once: set the workspace up
+$ tec init                            # run once: sets the workspace up
 $ tec env add work                    # an environment to keep tasks in
 
 $ tec add parser -D "fix the header parser"
@@ -59,7 +59,7 @@ $ tec ls
 parser    fix the header parser
 pr-42     review PR 42
 
-$ tec cd parser                       # the shell you sit in moves along
+$ tec cd parser                       # your shell follows along
 $ pwd
 /home/you/tectask/work/desk/parser
 
@@ -122,12 +122,12 @@ MACRO_CODE
 
 ## Installation
 
-**1. Put the binary on your PATH.** Once compiled, move MACRO_INLINE_CODE _tec MACRO_INLINE_CODE into one of the
-directories listed in MACRO_INLINE_CODE PATH MACRO_INLINE_CODE — MACRO_INLINE_CODE ~/.local/bin MACRO_INLINE_CODE is a good spot.
+**1. Put the binary on your PATH.** Once the build finishes, move MACRO_INLINE_CODE _tec MACRO_INLINE_CODE into
+one of the directories listed in MACRO_INLINE_CODE PATH MACRO_INLINE_CODE — MACRO_INLINE_CODE ~/.local/bin MACRO_INLINE_CODE is a good spot.
 
-**2. Add the shell wrapper** to your shell rc file, be it MACRO_INLINE_CODE ~/.bashrc MACRO_INLINE_CODE ,
-MACRO_INLINE_CODE ~/.zshrc MACRO_INLINE_CODE or another one. It is what lets Tec change the directory of
-the shell you are sitting in.
+**2. Add the shell wrapper** to your shell rc file, whether that is
+MACRO_INLINE_CODE ~/.bashrc MACRO_INLINE_CODE , MACRO_INLINE_CODE ~/.zshrc MACRO_INLINE_CODE or another one. The wrapper is what allows
+Tec to change the working directory of your current shell.
 
 MACRO_CODE bash
 include(shell/tec.sh)dnl
@@ -178,13 +178,13 @@ Run MACRO_INLINE_CODE tec-pgn MACRO_INLINE_CODE for the full list of Tec plugins
 
 ## Good to know
 
-- MACRO_INLINE_CODE tec help MACRO_INLINE_CODE lists every command, MACRO_INLINE_CODE tec help COMMAND MACRO_INLINE_CODE explains one of them.
+- MACRO_INLINE_CODE tec help MACRO_INLINE_CODE lists every command; MACRO_INLINE_CODE tec help COMMAND MACRO_INLINE_CODE explains one of them.
 - A task ID is up to 8 characters long; environment and desk names up to 10.
 - MACRO_INLINE_CODE tec add MACRO_INLINE_CODE with no ID makes one up for you: 00000000, 00000001, and so on.
 - Most commands fall back to the current environment, desk and task, so
   MACRO_INLINE_CODE tec cat MACRO_INLINE_CODE , MACRO_INLINE_CODE tec set -P high MACRO_INLINE_CODE and MACRO_INLINE_CODE tec rm MACRO_INLINE_CODE all work with no arguments.
-- Aliases and hooks live in MACRO_INLINE_CODE tec.cfg MACRO_INLINE_CODE — teach Tec to run a plugin command whenever
-  you add or switch a task.
+- Aliases and hooks live in MACRO_INLINE_CODE tec.cfg MACRO_INLINE_CODE — they let Tec run a plugin command
+  automatically whenever you add or switch a task.
 
 <br />
 

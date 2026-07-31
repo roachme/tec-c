@@ -714,7 +714,7 @@ int tec_cli_help_list(void)
     printf("Usage: " PROGRAM " [OPTION]... COMMAND|PLUGIN\n");
     printf(PADDING "Run '" PROGRAM " help " PROGRAM "' to get more info.\n");
     printf(PADDING "Run '" PROGRAM
-           " help help' to get more info on command.\n");
+           " help help' to get more info on a command.\n");
 
     show_cmd_section("System", TAGSYSTEM);
     show_cmd_section("Basic", TAGBASIC);
