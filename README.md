@@ -45,39 +45,6 @@ Three ideas hold it together:
 
 <br />
 
-## A quick look
-
-``` console
-$ tec init                            # run once: sets the workspace up
-$ tec env add work                    # an environment to keep tasks in
-
-$ tec add parser -D "fix the header parser"
-$ tec add pr-42 -D "review PR 42"
-
-$ tec ls
-parser    fix the header parser
-pr-42     review PR 42
-
-$ tec cd parser                       # your shell follows along
-$ pwd
-/home/you/tectask/work/desk/parser
-
-$ tec cat                             # what is the current task again?
-id     : parser
-prio   : mid
-type   : task
-date   : 20260731
-desc   : fix the header parser
-
-$ tec set -P high                     # bump its priority
-$ tec cd -                            # back to what you were doing before
-```
-
-From here on the task directory is yours. Keep notes in it, sketch in it, clone
-repos into it — Tec only cares that you can always get back.
-
-<br />
-
 ## How it fits together
 
 Tec keeps three levels, all of them plain directories on disk:
@@ -95,6 +62,9 @@ Tec keeps three levels, all of them plain directories on disk:
         ├── parser/      task — notes, sketches and repos live here
         └── pr-42/
 ```
+
+From there the task directory is yours. Keep notes in it, sketch in it, clone repos
+into it — Tec only cares that you can always get back.
 
 Tec remembers a current and a previous entry at each of the three levels. That is
 what makes ` tec cd - ` work, and why ` tec cat ` or ` tec rm ` need nothing
