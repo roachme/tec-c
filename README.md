@@ -1,52 +1,74 @@
 <div align="center">
-   <!--<img align="center" width="128px" src="crates/gitbutler-tauri/icons/128x128@2x.png" /> -->
-	<h1 align="center"><b>Tec</b></h1>
-	<p align="center">
-        Terminal project and task manager
-    <br />
-  </p>
+
+# Tec
+
+**Terminal project and task manager**
+
+One workspace per task — notes, sketches, repos and git branches, always in sync.
+
+<img src="https://img.shields.io/badge/version-v0.12.0-4c8eda?style=flat-square" alt="version" />
+<img src="https://img.shields.io/badge/written%20in-C-555555?style=flat-square" alt="written in C" />
+<img src="https://img.shields.io/badge/platform-Linux-555555?style=flat-square" alt="platform" />
+<img src="https://img.shields.io/badge/license-GPLv3-4c8eda?style=flat-square" alt="license" />
+
 </div>
 
-<br/>
-
+<br />
 
 ![command example](docs/tec.gif)
 
+<br />
 
-## ⇁  Problems
-During my work I encounter many subtaks I gotta do on the daily basis.
-Among them
-1. Clone Git repos to my machine and create branches in multiple repos (usually different for each task)
-2. Keep my task logs, sketches, notes and repos for each task somewhere. Structured and seperately
-3. Often switch between task, which involves context, notes, sketches, and especially Git branches
+## Why Tec
 
-## ⇁  Solution
-Tec comes with 3 basic ideas
-1. Structure your workspace for each task
-2. Get you exactly where you want with fewest keystrokes
-3. Automate stuff that you're tired of during the work. Here plugins are for
+Daily work is rarely one task at a time. It is a handful of them, each with its own
+repos, branches, notes and half finished thoughts.
 
-## ⇁  Structure
-- Customize: Adjust the util for your workflow via config file.
-- Extensible: Extend util with predefined or your own plugins. You can get full list of Tec plugins in ``` tec-pgn ```.
+| The daily annoyance | What Tec does about it |
+| :-- | :-- |
+| Cloning repos and cutting a branch in each of them, over and over | Plugins drive a bunch of repos at once |
+| Logs, sketches and notes scattered all over the disk | Every task gets its own structured workspace |
+| Switching a task means switching context, notes and branches | ` tec cd ` takes you back to a task, ` tec cd - ` to the previous one |
 
-## ⇁  Dependencies
-Plugins might have dependencies. Take a look at plugins README.md for more info.
-Main program uses the some dependencies. To install them run commands below:
-```
+Three ideas hold it together:
+
+1. **Structure** — a predictable workspace for every task.
+2. **Speed** — get exactly where you want with the fewest keystrokes.
+3. **Automation** — hand the boring parts over to plugins and hooks.
+
+Tec is meant to be bent to your workflow: tune it through a config file, extend it
+with ready made or homemade plugins.
+
+<br />
+
+## Requirements
+
+Tec itself needs a C toolchain and libconfig:
+
+``` bash
 sudo apt install -y libconfig-dev
 ```
 
+Plugins may pull in dependencies of their own — see the README of each plugin.
 
-## ⇁  Build
-Simply run the command below.
+<br />
+
+## Build
+
 ``` bash
 make
 ```
 
-## ⇁  Installation
-1. Once you compiled successfully, put executable ` _tec ` into one of directories defined in env variable ` PATH ` . I put it in ` ~/.local/bin ` .
-2. Copy the content of tec.sh into your shell rc file. It's ` ~/.bashrc ` , ` .zshrc ` , etc.
+<br />
+
+## Installation
+
+**1. Put the binary on your PATH.** Once compiled, move ` _tec ` into one of the
+directories listed in ` PATH ` — ` ~/.local/bin ` is a good spot.
+
+**2. Add the shell wrapper** to your shell rc file, be it ` ~/.bashrc ` ,
+` ~/.zshrc ` or another one. It is what lets Tec change the directory of
+the shell you are sitting in.
 
 ``` bash
 #!/usr/bin/env bash
@@ -64,7 +86,8 @@ function tec()
 }
 ```
 
-3. Create basic Tec config file. Either in ` ~/.tec/tec.cfg ` or ` ~/.config/tec/tec.cfg ` and fill it with content below
+**3. Create a config file**, either at ` ~/.tec/tec.cfg ` or at
+` ~/.config/tec/tec.cfg ` , and fill it with the content below.
 
 ```
 base = {
@@ -99,7 +122,10 @@ alias = {
 };
 ```
 
-## ⇁  Tec builtin commands
+<br />
+
+## Commands
+
 ```
 Usage: tec [OPTION]... COMMAND|PLUGIN
     Run 'tec help tec' to get more info.
@@ -126,41 +152,56 @@ Usage: tec [OPTION]... COMMAND|PLUGIN
 
 ```
 
+<br />
 
-## ⇁  Plugins
+## Basic workflow
 
-There is a ` nine ` plugin manager to install plugins.
-
-Here's some plugin to check out \
-[nine](https://github.com/roachme/tec-nine.git) - Tec plugin manager \
-[gmux](https://github.com/roachme/tec-gmux.git) - Manage bunch of git repos \
-[find](https://github.com/roachme/tec-find.git) - Find stuff in tasks
-
-
-## ⇁  Install plugin manager
-
-To install plugin manager run the code below
+``` bash
+tec init              # set the directory structure up
+tec env add test      # create an environment
+tec add test1         # fill it with tasks
+tec add test2
+tec ls                # list tasks of the current environment
+tec cat test1         # show what a task holds
+tec cd                # jump to the current task
+tec cd -              # jump back to the previous one
 ```
+
+<br />
+
+## Plugins
+
+Plugins are installed by ` nine ` , the Tec plugin manager. To get it:
+
+``` bash
 PGNDIR="$HOME/.local/lib/tec/pgn"
 git clone https://github.com/roachme/tec-nine.git "$PGNDIR/nine"
 ```
-Note: \
-1. Make sure repo dirname has NO prefix ` tec- `. The same goes about any plugin to install \
-2. ` "$PGNDIR" ` is the path set in ` tec.cfg `.
-   Make sure ` PGNDIR ` is the same as ` base.pgn ` in ` tec.cfg ` shown above.
 
+Two things to keep in mind, here and for every other plugin:
 
-## ⇁  Basic workflow
-1. To initalize util type in ` tec init `
-2. Now you're ready to create a environment: ` tec env add test `
-3. Once task environment is created you can fill it with tasks: ` tec add test1 `
-3. Add one more task: ` tec add test2 `
-4. List all your task in current environment: ` tec ls `
-5. Show the content of task: ` tec cat test1 `
-6. Sync with current task: ` tec cd `
-7. Or quickly switch to previous task: ` tec cd - `
+- the repo directory name carries **no** ` tec- ` prefix;
+- ` PGNDIR ` has to match ` base.pgn ` from the ` tec.cfg ` shown above.
 
+A few worth a look:
 
-## ⇁  Tips
-1. Use ` tec help ` to get list of commands.
-2. Or ` tec help COMMAND ` to get help on specified command.
+| Plugin | What it does |
+| :-- | :-- |
+| [nine](https://github.com/roachme/tec-nine.git) | Tec plugin manager |
+| [gmux](https://github.com/roachme/tec-gmux.git) | Manage a bunch of git repos |
+| [find](https://github.com/roachme/tec-find.git) | Find stuff in tasks |
+
+Run ` tec-pgn ` for the full list of Tec plugins.
+
+<br />
+
+## Tips
+
+- ` tec help ` lists every command.
+- ` tec help COMMAND ` explains one of them.
+
+<br />
+
+## License
+
+Released under the [GNU General Public License v3.0](LICENSE).
