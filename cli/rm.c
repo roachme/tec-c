@@ -95,7 +95,7 @@ int tec_cli_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
     } else if ((status = tec_cli_check_desk(&args))) {
         args.desk = args.desk ? args.desk : ETEC_NOCURR;
         if (opts.quiet == false)
-            TEC_LOG_E(EFMT_TASK_RM, args.env, tec_strerror(status));
+            TEC_LOG_E(EFMT_TASK_RM, args.desk, tec_strerror(status));
         return EXIT_FAILURE;
     }
 

@@ -10,6 +10,7 @@
 
 - `tests/usage`: Refactor usage tests
 - `.github`: Fix Github CI/CD
+- `cli/rm`: Fix object for error message
 
 ### Deleted
 
