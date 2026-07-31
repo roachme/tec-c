@@ -72,3 +72,20 @@ Feature: Remove
     And stderr should be
       """
       """
+
+  # Regression: the PWD used to be written before the current-task toggle was
+  # resolved, so the shell landed in the desk directory instead of the task
+  # the toggle had just switched to.
+  Scenario: Remove the task being stood in moves the shell to the previous task
+    Given a task "task2" exists
+    When I run "cd task1"
+    And I run "cd task2"
+    And standing inside task "task2" I run "rm -f task2"
+    Then the exit code should be 0
+    And the current task should be "task1"
+    And the PWD should be the task "task1"
+
+  Scenario: Remove the last task being stood in falls back to the desk
+    When standing inside task "task1" I run "rm -f task1"
+    Then the exit code should be 0
+    And the PWD should be the desk "desk" in env "test"

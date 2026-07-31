@@ -25,8 +25,8 @@ Every task gets a workspace of its own, and one command puts you back inside it.
 4. A plain ` cd ` wanders off home — and ` tec cd ` walks straight back into the
    current task. No path typed, none remembered.
 5. ` tec cd - ` flips to the task before it.
-6. ` tec rm -f ` deletes the task being stood in, and the shell is carried out of
-   the directory that no longer exists instead of being stranded there.
+6. ` tec rm -f ` deletes the task being stood in, and the shell is carried over
+   to the previous task rather than stranded in a directory that no longer exists.
 
 That is the loop the whole tool is built around. The script behind the recording
 is ` docs/cmdscript.txt ` if you want to replay it yourself.
@@ -230,8 +230,8 @@ different one.
 which? ` tec ls -t ` prints just the current and previous task.
 
 **Deleting what you are standing in is safe.** Remove the task you are inside and
-Tec carries your shell out first, so the session is never left in a directory that
-was deleted underneath it.
+Tec moves your shell to the previous task first, or to the desk if that was the
+last one. The session is never left in a directory deleted underneath it.
 
 **Tasks carry a little metadata.** A type — ` task ` , ` bugfix ` ,
 ` feature ` , ` hotfix ` — and a priority from ` lowest ` to

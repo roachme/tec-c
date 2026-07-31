@@ -142,9 +142,9 @@ int tec_cli_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (retcode == ETEC_OK && opts.change_dir) {
         args.task = NULL;       /* Force to get current task ID.  */
-        status = tec_cli_pwd_set(&args);
         if (toggle_task_get_curr(cfg->base.task, &args))
-            args.task = "";
+            args.task = "";     /* No tasks left: fall back to the desk.  */
+        status = tec_cli_pwd_set(&args);
         RETUPD(retcode, status);
     }
 

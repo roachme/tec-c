@@ -27,6 +27,21 @@ def step_run_no_args(context):
         text = True,
     )
 
+# rm only moves the user's shell when it is standing inside the task being
+# deleted, so for those scenarios the child's working directory is the whole
+# point and cannot be left at whatever behave happened to be started from.
+# The phrasing leads with the directory rather than the command so it cannot
+# be swallowed by the generic 'I run "{args}"' pattern above, which would
+# otherwise match this whole line and make the step ambiguous.
+@step('standing inside task "{taskid}" I run "{args}"')
+def step_run_from_task(context, taskid, args):
+    context.result = subprocess.run(
+        common.cmd + shlex.split(args),
+        cwd = common.get_expected_path(common.TEST_ENV, common.TEST_DESK, taskid),
+        capture_output = True,
+        text = True,
+    )
+
 # For commands with interactive [y/N] prompts (-i/-I on rm/env-rm/desk-rm):
 # feeds a line on stdin instead of leaving the child blocked waiting for input.
 @step('I answer "{stdin}" when running "{args}"')
