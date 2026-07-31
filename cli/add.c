@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "tec.h"
+#include "aux/aux.h"
 #include "aux/opts.h"
 #include "aux/errno.h"
 #include "aux/argvec.h"
@@ -164,7 +165,7 @@ int tec_cli_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
             TEC_LOG_I("added task '%s'", args.task);
 
         ctx.units = tec_unit_free(ctx.units);
-        retcode = status == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir)

@@ -7,6 +7,12 @@
 
 #define PROGRAM     "tec"
 
+/* Update return code with status code */
+#define RETUPD(retcode, status)                                 \
+    do {                                                        \
+        (retcode) = (status) == ETEC_OK ? (retcode) : (status); \
+    } while (0)
+
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define xstr(s) str(s)
 #define str(s) #s

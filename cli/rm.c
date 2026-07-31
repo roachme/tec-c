@@ -137,14 +137,15 @@ int tec_cli_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
         if (status == ETEC_OK && opts.verbose == true)
             TEC_LOG_I("removed task '%s'", args.task);
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir) {
         args.task = NULL;       /* Force to get current task ID.  */
+        status = tec_cli_pwd_set(&args);
         if (toggle_task_get_curr(cfg->base.task, &args))
             args.task = "";
-        retcode = tec_cli_pwd_set(&args) == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     }
 
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;

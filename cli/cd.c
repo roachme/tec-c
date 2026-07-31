@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "tec.h"
+#include "aux/aux.h"
 #include "aux/opts.h"
 #include "aux/errno.h"
 #include "aux/toggle.h"
@@ -91,7 +92,7 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
                     TEC_LOG_E(tec_strerror(status));
             }
         }
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir)

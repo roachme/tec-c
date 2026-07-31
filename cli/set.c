@@ -110,7 +110,7 @@ int tec_cli_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
                 TEC_LOG_E(EFMT_TASK_SET, args.task, tec_strerror(status));
         }
 
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
     ctx.units = tec_unit_free(ctx.units);

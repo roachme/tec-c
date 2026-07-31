@@ -160,8 +160,10 @@ static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
         return 1;
     }
 
-    if (retcode == ETEC_OK && opts.change_dir)
-        retcode = tec_cli_pwd_set(&args);
+    if (retcode == ETEC_OK && opts.change_dir) {
+        status = tec_cli_pwd_set(&args);
+        RETUPD(retcode, status);
+    }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
@@ -245,14 +247,15 @@ static int _env_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
         if (status == ETEC_OK && opts.verbose == true)
             TEC_LOG_I("removed environment '%s'", args.env);
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir) {
         args.env = NULL;        /* Force to get current environment.  */
+        status = tec_cli_pwd_set(&args);
         if (toggle_env_get_curr(cfg->base.task, &args))
             args.env = "";
-        retcode = tec_cli_pwd_set(&args) == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
@@ -320,7 +323,7 @@ static int _env_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
             LIST_OBJ_UNITS(obj->name, "", desc, ENVSIZ, teccfg.opts.color);
         }
 
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
         ctx.units = tec_unit_free(ctx.units);
     }
 
@@ -390,6 +393,7 @@ static int _env_rename(tec_argvec_t *argvec, tec_cfg_t *cfg)
             TEC_LOG_E(EFMT_ENV_REN, dst.env, tec_strerror(status));
         return status;
     }
+    // FIXME: unify return code logic with the rest of the commands
     return tec_cli_pwd_set(&dst);
 }
 
@@ -452,7 +456,7 @@ static int _env_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_SET, args.task, tec_strerror(status));
         }
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
     ctx.units = tec_unit_free(ctx.units);
@@ -547,7 +551,7 @@ static int _env_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
         }
 
         units = ctx.units = unitpgn = tec_unit_free(units);
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
  err:
@@ -624,11 +628,13 @@ static int _env_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
                     TEC_LOG_E(tec_strerror(status));
             }
         }
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
-    if (retcode == ETEC_OK && opts.change_dir)
-        retcode = tec_cli_pwd_set(&args);
+    if (retcode == ETEC_OK && opts.change_dir) {
+        status = tec_cli_pwd_set(&args);
+        RETUPD(retcode, status);
+    }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

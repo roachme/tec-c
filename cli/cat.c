@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "tec.h"
+#include "aux/aux.h"
 #include "aux/errno.h"
 #include "aux/opts.h"
 #include "aux/argvec.h"
@@ -119,12 +120,12 @@ int tec_cli_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
                 status = aux_show_key(keys.argv[i], units);
                 if (status && opts.quiet == false)
                     TEC_LOG_E(EFMT_TASK_CAT_UNIT, args.env, keys.argv[i]);
-                retcode = status == EXIT_SUCCESS ? retcode : EXIT_FAILURE;
+                RETUPD(retcode, status);
             }
         }
 
+        RETUPD(retcode, status);
         units = ctx.units = unitpgn = tec_unit_free(units);
-        retcode = status == ETEC_OK ? retcode : status;
     } while (++argvec->i < argvec->used);
 
  err:

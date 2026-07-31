@@ -12,6 +12,12 @@
 - `.github`: Fix Github CI/CD
 - `cli/rm`: Fix object for error message
 
+### Style
+
+- `cli`: Unify return code logic
+
+### Optimized
+
 ### Deleted
 
 

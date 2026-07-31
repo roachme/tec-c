@@ -153,9 +153,11 @@ static int _desk_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
         retcode = status == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
     } while (++argvec->i < argvec->used);
 
-    if (retcode == ETEC_OK && opts.change_dir)
-        retcode = tec_cli_pwd_set(&args) == ETEC_OK ? retcode : status;
-    return retcode;
+    if (retcode == ETEC_OK && opts.change_dir) {
+        status = tec_cli_pwd_set(&args);
+        RETUPD(retcode, status);
+    }
+    return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static int _desk_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
@@ -241,16 +243,17 @@ static int _desk_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
         if (status == ETEC_OK && opts.verbose == true)
             TEC_LOG_I("removed desk '%s'", args.task);
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir) {
         args.desk = NULL;       /* Force to get current task ID.  */
+        status = tec_cli_pwd_set(&args);
         if (toggle_desk_get_curr(cfg->base.task, &args))
             args.desk = "";
-        retcode = tec_cli_pwd_set(&args) == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     }
-    return retcode == ETEC_OK ? tec_cli_pwd_set(&args) : retcode;
+    return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
@@ -317,6 +320,7 @@ static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
         ctx.list = tec_list_free(ctx.list);
     } while (++i < argvec->used);
 
+    // FIXME: unify return code logic with the rest of the commands
     return status;
 }
 
@@ -390,7 +394,7 @@ static int _desk_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
                 TEC_LOG_E(EFMT_DESK_SET, args.task, tec_strerror(status));
         }
 
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
     ctx.units = tec_unit_free(ctx.units);
@@ -492,7 +496,7 @@ static int _desk_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
         }
 
         units = ctx.units = unitpgn = tec_unit_free(units);
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
  err:
@@ -574,11 +578,13 @@ static int _desk_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
                     TEC_LOG_E(tec_strerror(status));
             }
         }
-        retcode = status == ETEC_OK ? retcode : status;
+        RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
-    if (retcode == ETEC_OK && opts.change_dir)
-        retcode = tec_cli_pwd_set(&args);
+    if (retcode == ETEC_OK && opts.change_dir) {
+        status = tec_cli_pwd_set(&args);
+        RETUPD(retcode, status);
+    }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
