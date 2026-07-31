@@ -14,7 +14,7 @@
 
 #define EFMT_TASK_CAT_UNIT  "cannot show task units '%s': '%s' no such key"
 #define EFMT_DESK_CAT_UNIT  "cannot show desk units '%s': '%s' no such key"
-#define EFMT_ENV_CAT_UNIT   "cannot show environment units '%s': %s no such key"
+#define EFMT_ENV_CAT_UNIT   "cannot show environment units '%s': '%s' no such key"
 
 #define EFMT_INIT           "cannot make core filesystem: %s"
 
@@ -29,7 +29,7 @@
 #define EFMT_DESK_ADD       "cannot add desk '%s': %s"
 #define EFMT_DESK_CAT       "cannot show desk units '%s': %s"
 #define EFMT_DESK_CD        "cannot switch to desk '%s': %s"
-#define EFMT_DESK_LS        "cannot list desk '%s': %s"
+#define EFMT_DESK_LS        "cannot list desks '%s': %s"
 #define EFMT_DESK_MV        "cannot move (rename) desk '%s': %s"
 #define EFMT_DESK_RM        "cannot remove desk '%s': %s"
 #define EFMT_DESK_SET       "cannot set desk unit value '%s': %s"
@@ -37,7 +37,7 @@
 #define EFMT_ENV_ADD        "cannot add environment '%s': %s"
 #define EFMT_ENV_CAT        "cannot show environment units '%s': %s"
 #define EFMT_ENV_CD         "cannot switch to environment '%s': %s"
-#define EFMT_ENV_LS         "cannot list environment '%s': %s"
+#define EFMT_ENV_LS         "cannot list environments '%s': %s"
 #define EFMT_ENV_REN        "cannot rename environment '%s': %s"
 #define EFMT_ENV_RM         "cannot remove environment '%s': %s"
 #define EFMT_ENV_SET        "cannot set environment unit value '%s': %s"

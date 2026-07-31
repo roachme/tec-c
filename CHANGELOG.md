@@ -6,6 +6,8 @@
 
 ### Changed
 
+- `cli/aux/errno`: Update error messages
+
 ### Fixed
 
 - `tests/usage`: Refactor usage tests
