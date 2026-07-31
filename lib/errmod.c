@@ -5,7 +5,7 @@
 
 static int errcode = ETEC_OK;
 
-const char *errcodes[E__TEC_STATUS_LAST] = {
+const char *errcodes[__ETEC_STATUS_LAST] = {
     [ETEC_OK] = "OK",
 
     [ETEC_SYS_DB] = "database directory not found",
@@ -41,7 +41,7 @@ const char *errcodes[E__TEC_STATUS_LAST] = {
 int emod_set(int errnum)
 {
     errcode = errnum;
-    if (errcode < 0 || errcode > E__TEC_STATUS_LAST)
+    if (errcode < 0 || errcode > __ETEC_STATUS_LAST)
         errcode = -1;
     return errcode;
 }
@@ -50,7 +50,7 @@ char *emod_geterr(int errnum)
 {
     static char errmsg[ERRMOD_MSGSIZ + 1];
 
-    if (errnum < 0 || errnum >= E__TEC_STATUS_LAST)
+    if (errnum < 0 || errnum >= __ETEC_STATUS_LAST)
         return strncpy(errmsg, "internal unknown error", ERRMOD_MSGSIZ);
     return strncpy(errmsg, errcodes[errnum], ERRMOD_MSGSIZ);
 }

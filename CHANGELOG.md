@@ -7,6 +7,7 @@
 ### Changed
 
 - `cli/aux/errno`: Change error messages for ls command
+- `tec`: Change typo in error status code
 
 ### Fixed
 

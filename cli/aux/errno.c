@@ -1,7 +1,7 @@
 #include <string.h>
 #include "errno.h"
 
-#define ESHIFT  E__TEC_STATUS_LAST
+#define ESHIFT  __ETEC_STATUS_LAST
 
 static const char *errcodes[__TEC_CLI_STATUS_LAST] = {
     [ETEC_ALIAS - ESHIFT] = "alias '-' is used alone",
@@ -47,10 +47,10 @@ static const char *errcodes[__TEC_CLI_STATUS_LAST] = {
 char *tec_strerror(int errnum)
 {
     static char errmsg[TEC_CLI_EBUF + 1];
-    int cli_idx = errnum - E__TEC_STATUS_LAST;
+    int cli_idx = errnum - __ETEC_STATUS_LAST;
 
     /* Get LIB tec error code message */
-    if (errnum >= 0 && errnum < E__TEC_STATUS_LAST)
+    if (errnum >= 0 && errnum < __ETEC_STATUS_LAST)
         return tec_geterr(errnum);
 
     /* Get CLI tec error code message */
