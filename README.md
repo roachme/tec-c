@@ -239,6 +239,7 @@ A few worth a look:
 | [nine](https://github.com/roachme/tec-nine.git) | Tec plugin manager |
 | [gmux](https://github.com/roachme/tec-gmux.git) | Manage a bunch of git repos |
 | [find](https://github.com/roachme/tec-find.git) | Find stuff in tasks |
+| [conv](https://github.com/roachme/tec-conv.git) | Workflow engine: kanban and custom workflows |
 
 Each of them carries setup notes of its own, so read its README before use.
 
