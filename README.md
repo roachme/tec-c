@@ -41,6 +41,60 @@ with ready made or homemade plugins.
 
 <br />
 
+## A quick look
+
+``` console
+$ tec init                            # once: set the workspace up
+$ tec env add work                    # an environment to keep tasks in
+
+$ tec add parser -D "fix the header parser"
+$ tec add pr-42 -D "review PR 42"
+
+$ tec ls
+parser    fix the header parser
+pr-42     review PR 42
+
+$ tec cd parser                       # the shell you sit in moves along
+$ pwd
+/home/you/tectask/work/desk/parser
+
+$ tec cat                             # what is the current task again?
+id     : parser
+prio   : mid
+type   : task
+date   : 20260731
+desc   : fix the header parser
+
+$ tec set -P high                     # bump its priority
+$ tec cd -                            # back to what you were doing before
+```
+
+<br />
+
+## How it fits together
+
+Tec keeps three levels, all of them plain directories on disk:
+
+- **Environment** — a context you work in: a job, a side project, a client.
+- **Desk** — a board inside an environment where tasks sit. A fresh environment
+  comes with one named ` desk ` .
+- **Task** — the thing you actually work on. It owns a directory for your notes,
+  sketches and repos, plus units such as description, priority and type.
+
+```
+~/tectask/
+└── work/                environment
+    └── desk/            desk
+        ├── parser/      task — notes, sketches and repos live here
+        └── pr-42/
+```
+
+Tec always remembers the current environment, desk and task, which is why most
+commands need no arguments at all — and why ` tec cd - ` can drop you straight back
+into the previous one.
+
+<br />
+
 ## Requirements
 
 Tec itself needs a C toolchain and libconfig:
@@ -154,21 +208,6 @@ Usage: tec [OPTION]... COMMAND|PLUGIN
 
 <br />
 
-## Basic workflow
-
-``` bash
-tec init              # set the directory structure up
-tec env add test      # create an environment
-tec add test1         # fill it with tasks
-tec add test2
-tec ls                # list tasks of the current environment
-tec cat test1         # show what a task holds
-tec cd                # jump to the current task
-tec cd -              # jump back to the previous one
-```
-
-<br />
-
 ## Plugins
 
 Plugins are installed by ` nine ` , the Tec plugin manager. To get it:
@@ -195,10 +234,15 @@ Run ` tec-pgn ` for the full list of Tec plugins.
 
 <br />
 
-## Tips
+## Good to know
 
-- ` tec help ` lists every command.
-- ` tec help COMMAND ` explains one of them.
+- ` tec help ` lists every command, ` tec help COMMAND ` explains one of them.
+- A task ID is up to 8 characters long; environment and desk names up to 10.
+- ` tec add ` with no ID makes one up for you: 00000000, 00000001, and so on.
+- Most commands fall back to the current environment, desk and task, so
+  ` tec cat ` , ` tec set -P high ` and ` tec rm ` all work with no arguments.
+- Aliases and hooks live in ` tec.cfg ` — teach Tec to run a plugin command whenever
+  you add or switch a task.
 
 <br />
 

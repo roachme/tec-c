@@ -46,6 +46,60 @@ with ready made or homemade plugins.
 
 <br />
 
+## A quick look
+
+MACRO_CODE console
+$ tec init                            # once: set the workspace up
+$ tec env add work                    # an environment to keep tasks in
+
+$ tec add parser -D "fix the header parser"
+$ tec add pr-42 -D "review PR 42"
+
+$ tec ls
+parser    fix the header parser
+pr-42     review PR 42
+
+$ tec cd parser                       # the shell you sit in moves along
+$ pwd
+/home/you/tectask/work/desk/parser
+
+$ tec cat                             # what is the current task again?
+id     : parser
+prio   : mid
+type   : task
+date   : 20260731
+desc   : fix the header parser
+
+$ tec set -P high                     # bump its priority
+$ tec cd -                            # back to what you were doing before
+MACRO_CODE
+
+<br />
+
+## How it fits together
+
+Tec keeps three levels, all of them plain directories on disk:
+
+- **Environment** — a context you work in: a job, a side project, a client.
+- **Desk** — a board inside an environment where tasks sit. A fresh environment
+  comes with one named MACRO_INLINE_CODE desk MACRO_INLINE_CODE .
+- **Task** — the thing you actually work on. It owns a directory for your notes,
+  sketches and repos, plus units such as description, priority and type.
+
+MACRO_CODE
+~/tectask/
+└── work/                environment
+    └── desk/            desk
+        ├── parser/      task — notes, sketches and repos live here
+        └── pr-42/
+MACRO_CODE
+
+Tec always remembers the current environment, desk and task, which is why most
+commands need no arguments at all — and why MACRO_INLINE_CODE tec cd - MACRO_INLINE_CODE can drop you straight back
+into the previous one.
+
+<br />
+
 ## Requirements
 
 Tec itself needs a C toolchain and libconfig:
@@ -96,21 +150,6 @@ MACRO_CODE
 
 <br />
 
-## Basic workflow
-
-MACRO_CODE bash
-tec init              # set the directory structure up
-tec env add test      # create an environment
-tec add test1         # fill it with tasks
-tec add test2
-tec ls                # list tasks of the current environment
-tec cat test1         # show what a task holds
-tec cd                # jump to the current task
-tec cd -              # jump back to the previous one
-MACRO_CODE
-
-<br />
-
 ## Plugins
 
 Plugins are installed by MACRO_INLINE_CODE nine MACRO_INLINE_CODE , the Tec plugin manager. To get it:
@@ -137,10 +176,15 @@ Run MACRO_INLINE_CODE tec-pgn MACRO_INLINE_CODE for the full list of Tec plugins
 
 <br />
 
-## Tips
+## Good to know
 
-- MACRO_INLINE_CODE tec help MACRO_INLINE_CODE lists every command.
-- MACRO_INLINE_CODE tec help COMMAND MACRO_INLINE_CODE explains one of them.
+- MACRO_INLINE_CODE tec help MACRO_INLINE_CODE lists every command, MACRO_INLINE_CODE tec help COMMAND MACRO_INLINE_CODE explains one of them.
+- A task ID is up to 8 characters long; environment and desk names up to 10.
+- MACRO_INLINE_CODE tec add MACRO_INLINE_CODE with no ID makes one up for you: 00000000, 00000001, and so on.
+- Most commands fall back to the current environment, desk and task, so
+  MACRO_INLINE_CODE tec cat MACRO_INLINE_CODE , MACRO_INLINE_CODE tec set -P high MACRO_INLINE_CODE and MACRO_INLINE_CODE tec rm MACRO_INLINE_CODE all work with no arguments.
+- Aliases and hooks live in MACRO_INLINE_CODE tec.cfg MACRO_INLINE_CODE — teach Tec to run a plugin command whenever
+  you add or switch a task.
 
 <br />
 

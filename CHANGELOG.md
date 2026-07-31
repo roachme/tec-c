@@ -6,7 +6,11 @@
 
 ### Changed
 
+<<<<<<< HEAD
 - `cli/aux/errno`: Update error messages
+=======
+- `cli/aux/errno`: Change error messages for ls command
+>>>>>>> 98a8608359f03227c5dcb9356cc007958d7ec75c
 - `tec`: Change typo in error status code
 
 ### Fixed
