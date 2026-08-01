@@ -20,7 +20,7 @@ Feature: help
     When I run "help add"
     Then the exit code should be 0
     And stdout should contain "Usage: tec add [OPTION]... [ID]..."
-    And stdout should contain "Add a new task to environment."
+    And stdout should contain "Add a new task to the environment."
 
   Scenario: help for an object subcommand
     When I run "help env-add"
@@ -36,7 +36,7 @@ Feature: help
     When I run "help -l"
     Then the exit code should be 0
     And stdout should contain "add "
-    And stdout should contain "Add a new task to environment."
+    And stdout should contain "Add a new task to the environment."
 
   Scenario: help -s shows only the synopsis
     When I run "help -s add"
@@ -51,7 +51,7 @@ Feature: help
     Then the exit code should be 0
     And stdout should be
       """
-      add - Add a new task to environment.
+      add - Add a new task to the environment.
       """
 
   Scenario: help with multiple commands, one unknown

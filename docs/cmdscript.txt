@@ -10,22 +10,22 @@ tec add test3
 # Let's see those tasks
 tec ls
 
-# Switch to user home directory
+# Switch to the user's home directory
 cd
 
-# Switch back to current task directory
+# Switch back to the current task directory
 tec cd
 
 # Switch to previous task
 tec cd -
 
-# Delete current task
+# Delete the current task
 tec rm -f
 
-# User current directory is automatically switch to previous
+# The user's current directory is automatically switched to the previous one
 pwd
 
-# Current task directory is removed
+# The current task directory is removed
 tec ls
 
 # Use 'tec help tec' to get more info

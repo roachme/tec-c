@@ -283,7 +283,7 @@ static int _env_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
             opts.togg = true;
             break;
         case 'v':
-            return TEC_LOG_E("'-%c': is under development", c);
+            return TEC_LOG_E("'-%c' is under development", c);
         case ':':
             TEC_LOG_E(FMT_OPT_ARG_REQ, optopt);
             return tec_cli_help_usage("env-ls");

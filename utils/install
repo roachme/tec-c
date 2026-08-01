@@ -47,7 +47,7 @@ function install_shell()
         fi
         echo "Run: source ~/.bashrc"
     else
-        echo "uknown shell program"
+        echo "unknown shell program"
         exit 1
     fi
     echo 'Run if needed: export PATH=$HOME/.local/bin:$PATH'

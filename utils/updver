@@ -70,7 +70,7 @@ function check_version()
         echo "$PROGRAM: such version '$VERSION_NEW' already exists"
         return 1
     elif verlt "$VERSION_NEW" "$VERSION_CURR" ; then
-        echo "$PROGRAM: version '$VERSION_NEW' lower than current"
+        echo "$PROGRAM: version '$VERSION_NEW' is lower than current"
         echo "$PROGRAM: current version is '$VERSION_CURR'"
         return 1
     fi
@@ -89,7 +89,7 @@ function check_changelog_mark()
 function update_master()
 {
     if ! git checkout --quiet master; then
-        echo "Current branch has uncommited changes. Cannot switch to master"
+        echo "Current branch has uncommitted changes. Cannot switch to master"
         exit 1
     fi
     git rebase develop

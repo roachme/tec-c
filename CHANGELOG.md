@@ -14,6 +14,7 @@
 - `tests/usage`: Refactor usage tests
 - `.github`: Fix Github CI/CD
 - `cli/rm`: Fix object for error message
+- `tec`: Fix grammar errors in help messages and docs
 
 ### Style
 
