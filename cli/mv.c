@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "tec.h"
+#include "aux/opts.h"
 #include "aux/errno.h"
 #include "aux/config.h"
 #include "aux/toggle.h"
@@ -269,25 +270,27 @@ static int parse_dest(const char *path, tec_arg_t *args, int *is_dir,
 
 int tec_cli_mv(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
-    char c;
+    int c;
+    int i;
+    int nargs;
+    int is_dir = false;
+    int status = ETEC_OK;
     tec_ctx_t ctx = CTX_INIT();
-    int i, showhelp, status, nargs, is_dir;
-    tec_arg_t dst, src;
-    char *errfmt;
+    tec_arg_t dst = ARGS_INIT();
+    tec_arg_t src = ARGS_INIT();
+    struct tec_cli_rm_options opts;
 
-    showhelp = false;
-    is_dir = false;
-    errfmt = "cannot parse '%s': %s";
-    src.env = src.desk = src.task = NULL;
-    dst.env = dst.desk = dst.task = NULL;
-
-    while ((c = getopt(argvec->used, argvec->argv, ":ft:h")) != -1) {
+    tec_cli_rm_option_init(&opts);
+    while ((c = getopt(argvec->used, argvec->argv, ":ft:hq")) != -1) {
         switch (c) {
         case 'f':
             return TEC_LOG_E("option `-f' under development");
             break;
         case 'h':
-            showhelp = true;
+            opts.help = true;
+            break;
+        case 'q':
+            opts.quiet = true;
             break;
         case 't':
             return TEC_LOG_E("option `-t' under development");
@@ -300,30 +303,25 @@ int tec_cli_mv(tec_argvec_t *argvec, tec_cfg_t *cfg)
             return tec_cli_help_usage("mv");
         }
     }
-
-    if (showhelp)
-        return tec_cli_help_usage("mv");
-
     i = optind;
     nargs = argvec->used - i;
 
-    if (nargs < 1) {
+    if (opts.help == true)
+        return tec_cli_help_usage("mv");
+    else if (nargs < 1)
         return TEC_LOG_E("source task is missing");
-    }
-
-    if (nargs < 2) {
+    else if (nargs < 2)
         return TEC_LOG_E("destination is missing");
-    }
 
     /* Parse destination (last argument) */
     if ((status =
-         parse_dest(argvec->argv[argvec->used - 1], &dst, &is_dir, errfmt,
+         parse_dest(argvec->argv[argvec->used - 1], &dst, &is_dir, EFMT_TASK_MV,
                     cfg)))
         return status;
 
     if (nargs == 2 && !is_dir) {
         /* Single move: tec move src dst */
-        if ((status = parse_path(argvec->argv[i], &src, errfmt, cfg)))
+        if ((status = parse_path(argvec->argv[i], &src, EFMT_TASK_MV, cfg)))
             return status;
 
         /* If destination has no env/desk, inherit from source */
@@ -333,8 +331,8 @@ int tec_cli_mv(tec_argvec_t *argvec, tec_cfg_t *cfg)
             dst.desk = src.desk;
 
         if ((status = tec_task_move(cfg->base.task, &src, &dst, &ctx))) {
-            return TEC_LOG_E("cannot (re)move '%s': %s", src.task,
-                             tec_strerror(status));
+            if (opts.quiet == false)
+                return TEC_LOG_E(EFMT_TASK_MV, src.task, tec_strerror(status));
         }
 
         /* Update toggles after successful move */
@@ -355,7 +353,7 @@ int tec_cli_mv(tec_argvec_t *argvec, tec_cfg_t *cfg)
             /* Reset src for each iteration */
             src.env = src.desk = src.task = NULL;
 
-            if ((status = parse_path(argvec->argv[i], &src, errfmt, cfg))) {
+            if ((status = parse_path(argvec->argv[i], &src, EFMT_TASK_MV, cfg))) {
                 last_status = status;
                 continue;
             }
@@ -367,8 +365,8 @@ int tec_cli_mv(tec_argvec_t *argvec, tec_cfg_t *cfg)
             move_dst.task = src.task;   /* Keep same task ID */
 
             if ((status = tec_task_move(cfg->base.task, &src, &move_dst, &ctx))) {
-                TEC_LOG_E("cannot move '%s': %s", src.task,
-                          tec_strerror(status));
+                if (opts.quiet == false)
+                    TEC_LOG_E(EFMT_TASK_MV, src.task, tec_strerror(status));
                 last_status = status;
             } else {
                 /* Update toggles after successful move */

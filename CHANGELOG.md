@@ -19,6 +19,7 @@
 ### Style
 
 - `cli`: Unify return code logic
+- `cli/mv`: Unify code structure
 
 ### Optimized
 
