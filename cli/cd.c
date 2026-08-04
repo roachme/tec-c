@@ -87,10 +87,15 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_CD, args.task, tec_strerror(status));
         } else if (opts.change_tog == true) {
-            if ((status = toggle_task_set_curr(cfg->base.task, &args))) {
-                if (opts.quiet == false)
-                    TEC_LOG_E(tec_strerror(status));
-            }
+            /* Cascade so the task's env/desk become current too, not
+             * just the task itself - otherwise commands that resolve
+             * "current desk/env" from toggles (e.g. `tec mv`) keep
+             * pointing at the old desk after cd'ing into another one. */
+            status = toggle_env_set_curr(cfg->base.task, &args);
+            status = status ? status : toggle_desk_set_curr(cfg->base.task, &args);
+            status = status ? status : toggle_task_set_curr(cfg->base.task, &args);
+            if (status && opts.quiet == false)
+                TEC_LOG_E(tec_strerror(status));
         }
         RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);

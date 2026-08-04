@@ -25,7 +25,14 @@ Bugs:
      description than before.
 + 5. NULL-termination should follow `strncpy(dst, src, len)`. In case `src`
      is equal to `len` it'll end without '\0'. Checked it with valgrind.
-  6. Command `tec move` does not work after adding new feature to support desks.
++ 6. Command `tec move` does not work after adding new feature to support desks.
+     Root cause wasn't in `mv` itself: `cli/add.c` and `cli/cd.c` only called
+     `toggle_task_set_curr()`, never `toggle_desk_set_curr()` /
+     `toggle_env_set_curr()`. So adding/cd'ing into a task in a non-current
+     desk left the env's "current desk" toggle stale, and anything resolving
+     an implicit/current path (like bare `tec mv taskID`) walked the wrong
+     desk. Fixed by cascading env->desk->task on `add`/`cd`, matching how
+     `env add` already cascades env->desk (cli/env.c:151).
 + 7. `tec cd taskID1 taskID2` doesn't set previous toggle.
 + 8. If current or previous task is moved to done, update desk toggles.
   9. `tec env add <env>` causes desk description duplicated cuz they both use ctx->units.
