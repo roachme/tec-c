@@ -68,7 +68,8 @@ int hook_cat(tec_unit_t **units, tec_arg_t *args, char *cmd)
         }
         while (fgets(line, BUFSIZ, pipe))
             *units = tec_unit_parse(*units, line);
-        retcode = pclose(pipe) == EXIT_SUCCESS ? EXIT_SUCCESS : EXIT_FAILURE;
+        status = pclose(pipe) == EXIT_SUCCESS ? EXIT_SUCCESS : EXIT_FAILURE;
+        retcode = status == EXIT_SUCCESS ? retcode : status;
     }
     return retcode == ETEC_OK ? ETEC_OK : ETEC_HOOK_EXEC;
 }

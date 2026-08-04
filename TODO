@@ -29,7 +29,11 @@ Bugs:
 + 7. `tec cd taskID1 taskID2` doesn't set previous toggle.
 + 8. If current or previous task is moved to done, update desk toggles.
   9. `tec env add <env>` causes desk description duplicated cuz they both use ctx->units.
- 10. `hook_show` does not return proper return code. Mabye popen() is problem.
++10. `hook_show` (renamed `hook_cat`, cli/aux/hook.c) did not return proper
+     return code: on each loop iteration a successful hook unconditionally
+     overwrote `retcode`, silently discarding an earlier hook's failure
+     when multiple plugins are wired to the same command. Not a popen()
+     issue; fixed by making the assignment sticky like `hook_action`'s.
 +11. `unit_save()` (lib/unit.c) wrote directly to the unit file via
      `fopen(filename, "w")`. If the process died mid-write (crash, kill,
      power loss) the task's unit file was left truncated/corrupted with no
