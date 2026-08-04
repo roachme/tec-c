@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "unit.h"
 
@@ -47,13 +48,22 @@ static char *trim_whitespace(char *str)
 int unit_save(const char *filename, tec_unit_t *units)
 {
     FILE *fp;
+    char tmpname[PATH_MAX + 5];
 
-    if ((fp = fopen(filename, "w")) == NULL)
+    if (snprintf(tmpname, sizeof(tmpname), "%s.tmp", filename) >=
+        (int)sizeof(tmpname))
+        return 1;
+
+    if ((fp = fopen(tmpname, "w")) == NULL)
         return 1;
 
     for (tec_unit_t * unit = units; unit; unit = unit->next)
         fprintf(fp, UNIT_FMT, unit->key, unit->val);
-    return fclose(fp);
+
+    if (fclose(fp) != 0)
+        return 1;
+
+    return rename(tmpname, filename);
 }
 
 tec_unit_t *unit_parse(tec_unit_t *units, const char *str)

@@ -30,6 +30,11 @@ Bugs:
 + 8. If current or previous task is moved to done, update desk toggles.
   9. `tec env add <env>` causes desk description duplicated cuz they both use ctx->units.
  10. `hook_show` does not return proper return code. Mabye popen() is problem.
++11. `unit_save()` (lib/unit.c) wrote directly to the unit file via
+     `fopen(filename, "w")`. If the process died mid-write (crash, kill,
+     power loss) the task's unit file was left truncated/corrupted with no
+     recovery. Fixed: write to a tmp file in the same dir then `rename()`
+     over the original for atomicity.
 
 
 Ideas:
