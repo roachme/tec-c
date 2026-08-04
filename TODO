@@ -35,7 +35,18 @@ Bugs:
      `env add` already cascades env->desk (cli/env.c:151).
 + 7. `tec cd taskID1 taskID2` doesn't set previous toggle.
 + 8. If current or previous task is moved to done, update desk toggles.
-  9. `tec env add <env>` causes desk description duplicated cuz they both use ctx->units.
++ 9. `tec env add <env>` causes desk description duplicated cuz they both use ctx->units.
+     `_env_add()` (cli/env.c) generated units once for the env and reused the
+     same `ctx.units` for the immediately-following `tec_desk_add()` call, so
+     the default desk got the env's description verbatim instead of its own.
+     Fixed by having `_env_add()` delegate default-desk creation to `desk
+     add` itself (via `tec_cli_desk()`, new `env_add_default_desk()`)
+     instead of duplicating its unit-generation/validation logic - the desk
+     now gets its own generated description for free, and picks up
+     `desk-add` hooks too. Needed `optind = 0` before the nested call:
+     glibc's getopt() keeps static scan state across calls, and plain
+     `optind = 1` isn't enough to reset it for a brand new argv, which
+     corrupted option parsing on the 2nd+ desk in a batch `env add a b c`.
 +10. `hook_show` (renamed `hook_cat`, cli/aux/hook.c) did not return proper
      return code: on each loop iteration a successful hook unconditionally
      overwrote `retcode`, silently discarding an earlier hook's failure

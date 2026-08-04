@@ -36,6 +36,39 @@ static int generate_units(tec_ctx_t *ctx, char *env)
     return 0;
 }
 
+/*
+ * Create the env's default desk by delegating to `desk add` itself,
+ * instead of duplicating its unit-generation/validation logic here.
+ * This also gives the default desk its own generated description
+ * rather than reusing the env's.
+ */
+static int env_add_default_desk(tec_arg_t *args, tec_cfg_t *cfg, bool quiet)
+{
+    int status;
+    tec_argvec_t dargv;
+
+    argvec_init(&dargv);
+    argvec_add(&dargv, "desk");
+    argvec_add(&dargv, "add");
+    argvec_add(&dargv, "-e");
+    argvec_add(&dargv, args->env);
+    argvec_add(&dargv, "-N");    /* env add owns toggles/pwd, not desk add.  */
+    if (quiet)
+        argvec_add(&dargv, "-q");
+    argvec_add(&dargv, args->desk);
+
+    /* getopt() keeps global scan state (including glibc's internal
+     * nextchar pointer) across calls. optind=1 alone only resets the
+     * index, not that internal state, so a second call in this same
+     * loop would read stale data left by the previous argv. optind=0
+     * is glibc's documented way to force a full reinitialization for
+     * a brand new argv.  */
+    optind = 0;
+    status = tec_cli_desk(&dargv, cfg);
+    argvec_deinit(&dargv);
+    return status == EXIT_SUCCESS ? ETEC_OK : ETEC_UNIT_GEN_FAIL;
+}
+
 static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     char c;
@@ -107,25 +140,6 @@ static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
             continue;
         }
 
-        if ((status = tec_desk_valid(cfg->base.task, &args))) {
-            if (opts.quiet == false)
-                TEC_LOG_E(EFMT_DESK_ADD, args.desk, tec_strerror(status));
-            retcode = EXIT_FAILURE;
-            continue;
-        } else if (tec_cli_len_valid(args.desk, DESKSIZ) == false) {
-            status = ETEC_ARG_DESK_TOO_LONG;
-            if (opts.quiet == false)
-                TEC_LOG_E(EFMT_DESK_ADD, args.desk, tec_strerror(status));
-            retcode = EXIT_FAILURE;
-            continue;
-        } else if (!(status = tec_desk_exist(cfg->base.task, &args))) {
-            status = ETEC_ARG_DESK_EXIST;
-            if (opts.quiet == false)
-                TEC_LOG_E(EFMT_DESK_ADD, args.desk, tec_strerror(status));
-            retcode = EXIT_FAILURE;
-            continue;
-        }
-
         if (generate_units(&ctx, args.env)) {
             status = ETEC_UNIT_GEN_FAIL;
             if (opts.quiet == false)
@@ -139,13 +153,15 @@ static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
                 TEC_LOG_E(EFMT_ENV_ADD, argvec->argv[i], tec_strerror(status));
             retcode = EXIT_FAILURE;
             continue;
-        } else if ((status = tec_desk_add(cfg->base.task, &args, &ctx))) {
-            if (opts.quiet == false)
-                TEC_LOG_E(EFMT_ENV_ADD, argvec->argv[i], tec_strerror(status));
+        }
+        ctx.units = tec_unit_free(ctx.units);
+
+        /* `desk add` reports its own errors (desk validation, hooks,
+         * etc.) unless quiet, so don't duplicate a message here.  */
+        if ((status = env_add_default_desk(&args, cfg, opts.quiet))) {
             retcode = EXIT_FAILURE;
             continue;
         }
-        ctx.units = tec_unit_free(ctx.units);
     }
 
     if ((opts.change_tog && status == ETEC_OK)
