@@ -51,6 +51,9 @@ char *emod_geterr(int errnum)
     static char errmsg[ERRMOD_MSGSIZ + 1];
 
     if (errnum < 0 || errnum >= __ETEC_STATUS_LAST)
-        return strncpy(errmsg, "internal unknown error", ERRMOD_MSGSIZ);
-    return strncpy(errmsg, errcodes[errnum], ERRMOD_MSGSIZ);
+        strncpy(errmsg, "internal unknown error", ERRMOD_MSGSIZ);
+    else
+        strncpy(errmsg, errcodes[errnum], ERRMOD_MSGSIZ);
+    errmsg[ERRMOD_MSGSIZ] = '\0';
+    return errmsg;
 }

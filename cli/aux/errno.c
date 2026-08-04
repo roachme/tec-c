@@ -55,7 +55,9 @@ char *tec_strerror(int errnum)
 
     /* Get CLI tec error code message */
     if (cli_idx >= 0 && cli_idx < __TEC_CLI_STATUS_LAST)
-        return strncpy(errmsg, errcodes[cli_idx], TEC_CLI_EBUF);
-
-    return strncpy(errmsg, "cli internal unknown error", TEC_CLI_EBUF);
+        strncpy(errmsg, errcodes[cli_idx], TEC_CLI_EBUF);
+    else
+        strncpy(errmsg, "cli internal unknown error", TEC_CLI_EBUF);
+    errmsg[TEC_CLI_EBUF] = '\0';
+    return errmsg;
 }

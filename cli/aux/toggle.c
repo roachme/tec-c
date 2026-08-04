@@ -71,8 +71,10 @@ static char *_get_toggle(const char *fname, char *buf, int bufsiz, char *tog)
     while (fgets(buffer, BUFSIZ, fp) != NULL)
         units = tec_unit_parse(units, buffer);
 
-    if ((toggle = tec_unit_get(units, tog)))
+    if ((toggle = tec_unit_get(units, tog))) {
         strncpy(buf, toggle, bufsiz);
+        buf[bufsiz] = '\0';
+    }
 
     fclose(fp);
     tec_unit_free(units);
