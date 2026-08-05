@@ -160,8 +160,10 @@ int tec_cli_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
              * "current desk/env" from toggles (e.g. `tec mv`) keep
              * pointing at the old desk after adding into another one. */
             status = toggle_env_set_curr(cfg->base.task, &args);
-            status = status ? status : toggle_desk_set_curr(cfg->base.task, &args);
-            status = status ? status : toggle_task_set_curr(cfg->base.task, &args);
+            status =
+                status ? status : toggle_desk_set_curr(cfg->base.task, &args);
+            status =
+                status ? status : toggle_task_set_curr(cfg->base.task, &args);
             if (status && opts.quiet == false)
                 TEC_LOG_E(tec_strerror(ETEC_TOGG_UPDATE));
         }

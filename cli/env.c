@@ -52,7 +52,7 @@ static int env_add_default_desk(tec_arg_t *args, tec_cfg_t *cfg, bool quiet)
     argvec_add(&dargv, "add");
     argvec_add(&dargv, "-e");
     argvec_add(&dargv, args->env);
-    argvec_add(&dargv, "-N");    /* env add owns toggles/pwd, not desk add.  */
+    argvec_add(&dargv, "-N");   /* env add owns toggles/pwd, not desk add.  */
     if (quiet)
         argvec_add(&dargv, "-q");
     argvec_add(&dargv, args->desk);
