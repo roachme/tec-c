@@ -1,6 +1,8 @@
 #ifndef TEC_H
 #define TEC_H
 
+#include <stddef.h>
+
 typedef struct tec_arg {
     char *task;
     char *desk;
@@ -13,10 +15,15 @@ typedef struct tec_unit {
     struct tec_unit *next;
 } tec_unit_t;
 
-typedef struct tec_list {
+typedef struct tec_listobj {
     char *name;
     int status;                 /* Status code of the object */
-    struct tec_list *next;
+} tec_listobj_t;
+
+typedef struct tec_list {
+    tec_listobj_t *items;
+    size_t count;
+    size_t cap;
 } tec_list_t;
 
 typedef struct tec_context {

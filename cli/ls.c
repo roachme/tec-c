@@ -2,6 +2,7 @@
 #include "aux/errno.h"
 #include "aux/toggle.h"
 #include "aux/config.h"
+#include "../lib/list.h"
 
 struct list_filter {
     int all;
@@ -37,7 +38,7 @@ static char *get_unit_desc(tec_ctx_t *ctx, tec_arg_t *args, int quiet)
     return desc;
 }
 
-static void show_row(tec_ctx_t *ctx, tec_arg_t *args, tec_list_t *obj,
+static void show_row(tec_ctx_t *ctx, tec_arg_t *args, tec_listobj_t *obj,
                      int quiet)
 {
     if (obj != NULL) {
@@ -55,7 +56,7 @@ static void show_row(tec_ctx_t *ctx, tec_arg_t *args, tec_list_t *obj,
 static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args)
 {
     int status;
-    tec_list_t obj;
+    tec_listobj_t obj;
     int opt_quiet = 0;          /* TODO: sync it with option passed to CLI.  */
 
     args->task = NULL;
@@ -64,7 +65,6 @@ static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args)
             if (opt_quiet == false)
                 TEC_LOG_E(EFMT_TASK_LS, args->task, tec_strerror(status));
         } else {
-            obj.next = NULL;
             obj.status = ETEC_OK;
             obj.name = args->task;
             show_row(ctx, args, &obj, false);
@@ -77,7 +77,6 @@ static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args)
             if (opt_quiet == false)
                 TEC_LOG_E(EFMT_TASK_LS, args->task, tec_strerror(status));
         } else {
-            obj.next = NULL;
             obj.status = ETEC_OK;
             obj.name = args->task;
             show_row(ctx, args, &obj, false);
@@ -89,10 +88,10 @@ static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args)
 static void show_rows(tec_ctx_t *ctx, tec_arg_t *args,
                       tec_list_t *list, int quiet)
 {
-    tec_list_t *obj;
+    size_t i = list_size(list);
 
-    for (obj = list; obj != NULL; obj = obj->next) {
-        show_row(ctx, args, obj, quiet);
+    while (i-- > 0) {
+        show_row(ctx, args, &list->items[i], quiet);
     }
 }
 

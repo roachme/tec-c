@@ -4,6 +4,7 @@
 
 #include "tec.h"
 #include "aux/opts.h"
+#include "../lib/list.h"
 #include "aux/errno.h"
 #include "aux/toggle.h"
 #include "aux/config.h"
@@ -309,7 +310,9 @@ static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
             continue;
         }
 
-        for (tec_list_t * obj = ctx.list; obj != NULL; obj = obj->next) {
+        for (size_t idx = list_size(ctx.list); idx-- > 0; ) {
+            tec_listobj_t *obj = &ctx.list->items[idx];
+
             args.desk = obj->name;
             if ((desc = get_unit_desc(&ctx, &args, opt_quiet, cfg)) == NULL) {
                 continue;

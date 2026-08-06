@@ -4,6 +4,7 @@
 
 #include "tec.h"
 #include "aux/log.h"
+#include "../lib/list.h"
 #include "aux/aux.h"
 #include "aux/opts.h"
 #include "aux/errno.h"
@@ -317,7 +318,9 @@ static int _env_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
             return TEC_LOG_E(EFMT_ENV_LS, "ENV", tec_strerror(retcode));
     }
 
-    for (tec_list_t * obj = ctx.list; obj != NULL; obj = obj->next) {
+    for (size_t idx = list_size(ctx.list); idx-- > 0; ) {
+        tec_listobj_t *obj = &ctx.list->items[idx];
+
         args.env = obj->name;
 
         if ((status = tec_env_get(teccfg.base.task, &args, &ctx))) {
