@@ -128,6 +128,48 @@ Ideas:
  38. Add command `tec cfg check` to validate config file and that
      `base.pgn`/`base.task` directories actually exist, so bad config fails
      fast with a clear message instead of obscurely later.
+ 39. Add `tec doctor` (broader than idea #38's `cfg check`): detect orphaned
+     task dirs with no unit file, dangling desk/env toggles (see Bug #6, #9),
+     and plugins registered in config but missing from `pgn` dir.
+ 40. Add task templates: `tec add -t bugfix taskname` scaffolds pre-filled
+     units (type, prio, description skeleton) and optionally a starter
+     note/checklist, instead of a bare `add` + several `set` calls.
+ 41. Add `tec sync push/pull` (or document a pattern) to git-back
+     `$TASKDIR` itself, separate from the per-task repos `gmux` manages.
+     Right now task history only exists on one machine.
+ 42. Add an append-only operation log for `add`/`mv`/`set`/`rm` and a
+     generic `tec undo`, instead of one-off recovery per command. Would
+     subsume the trash/restore work in idea #31/#37.
+ 43. Add a `due` unit key (parallel to the existing `date` unit, see idea
+     #32) plus `tec ls --overdue`. Foundation for a future reminder plugin
+     without new storage.
+ 44. Add zsh/fish completions. `Prio: low #2` only covers bash.
+ 45. Add an interactive `tec` shell mode: bare `tec` (no args) drops into a
+     REPL scoped to current env/desk, to cut prefix repetition during
+     task-switching-heavy sessions.
+ 46. Investigate `pgm/` vs `nine/` - look byte-identical (same
+     plugin-manager code/README), possibly a leftover dupe from a rename.
+     Same for `arch/` vs `tar/` - both share `desc` "Tec archiver".
+
+
+Plugin ideas:
+ 1. `tec-tmux` - auto-create/attach a tmux session named after the current
+    task on `tec cd`, detach/kill on switch away. Same "automate the
+    switching ritual" spirit as `gmux`, for terminal state instead of git
+    branches.
+ 2. `tec-env`/`tec-secrets` - direnv-style: load a per-task `.env`
+    (secrets, API keys, ports) on `cd`, unload on switch out. Pairs with
+    `gmux` for multi-repo tasks needing different credentials.
+ 3. `tec-issue` - two-way sync between a task and a GitHub/GitLab issue:
+    pull title/description into task units on `add`, push column/status
+    changes back on `conv` transitions.
+ 4. `tec-standup` - generates a daily/weekly summary (tasks touched, git
+    commits via `gmux`, notes via `note`) for standup reporting. Pure
+    aggregation over existing data, no new storage.
+ 5. `tec-remind` - desktop notifications (`notify-send` or similar) for
+    tasks approaching their `due` unit (pairs with Ideas #43).
+ 6. `tec-track` - time tracking; already flagged as Ideas #36 but
+    unclaimed. Aggregates into `tec-standup` reports.
 
 
 Prio: high
