@@ -17,7 +17,7 @@ typedef struct tec_unit {
 
 typedef struct tec_listobj {
     char *name;
-    int status;                 /* Status code of the object */
+    unsigned char status;       /* Status code of the object */
 } tec_listobj_t;
 
 typedef struct tec_list {
