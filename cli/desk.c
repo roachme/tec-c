@@ -257,6 +257,14 @@ static int _desk_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static int cmp_desk_id(const void *a, const void *b)
+{
+    const tec_list_t *ea = a;
+    const tec_list_t *eb = b;
+
+    return strcmp(ea->name, eb->name);
+}
+
 static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     char *desc = NULL;
@@ -310,7 +318,11 @@ static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
             continue;
         }
 
-        for (size_t idx = list_size(ctx.list); idx-- > 0; ) {
+        if (list_size(ctx.list) > 0)
+            qsort(ctx.list->items, ctx.list->count, sizeof(*ctx.list->items),
+                  cmp_desk_id);
+
+        for (size_t idx = 0; idx < list_size(ctx.list); idx++) {
             tec_list_t *obj = &ctx.list->items[idx];
 
             args.desk = obj->name;
