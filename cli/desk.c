@@ -311,7 +311,7 @@ static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
         }
 
         for (size_t idx = list_size(ctx.list); idx-- > 0; ) {
-            tec_listobj_t *obj = &ctx.list->items[idx];
+            tec_list_t *obj = &ctx.list->items[idx];
 
             args.desk = obj->name;
             if ((desc = get_unit_desc(&ctx, &args, opt_quiet, cfg)) == NULL) {

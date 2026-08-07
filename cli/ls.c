@@ -38,7 +38,7 @@ static char *get_unit_desc(tec_ctx_t *ctx, tec_arg_t *args, int quiet)
     return desc;
 }
 
-static void show_row(tec_ctx_t *ctx, tec_arg_t *args, tec_listobj_t *obj,
+static void show_row(tec_ctx_t *ctx, tec_arg_t *args, tec_list_t *obj,
                      int quiet)
 {
     if (obj != NULL) {
@@ -56,7 +56,7 @@ static void show_row(tec_ctx_t *ctx, tec_arg_t *args, tec_listobj_t *obj,
 static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args)
 {
     int status;
-    tec_listobj_t obj;
+    tec_list_t obj;
     int opt_quiet = 0;          /* TODO: sync it with option passed to CLI.  */
 
     args->task = NULL;
@@ -86,7 +86,7 @@ static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args)
 }
 
 static void show_rows(tec_ctx_t *ctx, tec_arg_t *args,
-                      tec_list_t *list, int quiet)
+                      tec_listarr_t *list, int quiet)
 {
     size_t i = list_size(list);
 

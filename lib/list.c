@@ -5,7 +5,7 @@
 
 #define LIST_INIT_CAP 4
 
-void list_free(tec_list_t *list)
+void list_free(tec_listarr_t *list)
 {
     size_t i;
 
@@ -19,10 +19,10 @@ void list_free(tec_list_t *list)
 
 /* Appends to the array; callers walk it back-to-front to get the
    same most-recently-added-first order the old prepend-based list gave.  */
-tec_list_t *list_add(tec_list_t *list, char *id, int status)
+tec_listarr_t *list_add(tec_listarr_t *list, char *id, int status)
 {
     char *name;
-    tec_listobj_t *items;
+    tec_list_t *items;
 
     if ((name = strdup(id)) == NULL)
         return NULL;
@@ -54,7 +54,7 @@ tec_list_t *list_add(tec_list_t *list, char *id, int status)
     return list;
 }
 
-size_t list_size(tec_list_t *list)
+size_t list_size(tec_listarr_t *list)
 {
     return list ? list->count : 0;
 }

@@ -286,7 +286,7 @@ int tec_env_valid(const char *taskdir, tec_arg_t *args)
     return ETEC_OK;
 }
 
-void *tec_list_free(tec_list_t *list)
+void *tec_list_free(tec_listarr_t *list)
 {
     list_free(list);
     return NULL;

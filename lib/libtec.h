@@ -15,20 +15,20 @@ typedef struct tec_unit {
     struct tec_unit *next;
 } tec_unit_t;
 
-typedef struct tec_listobj {
+typedef struct tec_list {
     char *name;
     unsigned char status;       /* Status code of the object */
-} tec_listobj_t;
+} tec_list_t;
 
-typedef struct tec_list {
-    tec_listobj_t *items;
+typedef struct tec_listarr {
+    tec_list_t *items;
     size_t count;
     size_t cap;
-} tec_list_t;
+} tec_listarr_t;
 
 typedef struct tec_context {
     struct tec_unit *units;
-    struct tec_list *list;
+    struct tec_listarr *list;
 } tec_ctx_t;
 
 enum tec_errno {
@@ -82,7 +82,7 @@ int tec_unit_set(struct tec_unit *head, char *key, char *val);
 int tec_unit_save(const char *filename, tec_unit_t * units);
 
 /* Data structure for list of objects.  */
-void *tec_list_free(tec_list_t * list);
+void *tec_list_free(tec_listarr_t * list);
 
 /* Task functions.  */
 int tec_task_add(const char *taskdir, tec_arg_t * args, tec_ctx_t * ctx);

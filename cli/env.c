@@ -319,7 +319,7 @@ static int _env_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
     }
 
     for (size_t idx = list_size(ctx.list); idx-- > 0; ) {
-        tec_listobj_t *obj = &ctx.list->items[idx];
+        tec_list_t *obj = &ctx.list->items[idx];
 
         args.env = obj->name;
 
