@@ -73,6 +73,9 @@ tec_unit_t *unit_parse(tec_unit_t *units, const char *str)
     char val[BUFSIZ + 1] = { 0 };
     char buf[BUFSIZ + 1] = { 0 };
 
+    if (strlen(str) > BUFSIZ)
+        return units;
+
     strcpy(buf, str);
 
     if ((token = strtok(buf, UNIT_DELIM)) != NULL)
@@ -112,9 +115,12 @@ tec_unit_t *unit_add(tec_unit_t *head, const char *key, const char *val)
     if ((unit = make_node()) == NULL)
         return head;
 
-    if (!(unit->key = strdup(key)) || !(unit->val = strdup(val)))
+    if (!(unit->key = strdup(key)) || !(unit->val = strdup(val))) {
+        free(unit->key);
+        free(unit->val);
+        free(unit);
         return head;
-    else if ((tmp = head) == NULL)
+    } else if ((tmp = head) == NULL)
         return unit;
 
     while (tmp->next)
@@ -129,6 +135,9 @@ tec_unit_t *unit_add(tec_unit_t *head, const char *key, const char *val)
 tec_unit_t *unit_join(tec_unit_t *head, tec_unit_t *tail)
 {
     tec_unit_t *units, *tmp;
+
+    if (head == NULL)
+        return tail;
 
     units = head;
     tmp = units;
@@ -145,10 +154,14 @@ tec_unit_t *unit_join(tec_unit_t *head, tec_unit_t *tail)
 */
 tec_unit_t *unit_set(tec_unit_t *head, const char *key, const char *val)
 {
-    for (; head != NULL; head = head->next) {
-        if (strcmp(head->key, key) == 0) {
-            free(head->val);
-            head->val = strdup(val);
+    char *newval;
+
+    for (tec_unit_t * unit = head; unit != NULL; unit = unit->next) {
+        if (strcmp(unit->key, key) == 0) {
+            if ((newval = strdup(val)) == NULL)
+                return head;
+            free(unit->val);
+            unit->val = newval;
             return head;
         }
     }
