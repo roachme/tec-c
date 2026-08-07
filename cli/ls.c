@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "tec.h"
 #include "aux/errno.h"
 #include "aux/toggle.h"
@@ -85,12 +87,23 @@ static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args)
     return status;
 }
 
+static int cmp_task_id(const void *a, const void *b)
+{
+    const tec_list_t *ea = a;
+    const tec_list_t *eb = b;
+
+    return strcmp(ea->name, eb->name);
+}
+
 static void show_rows(tec_ctx_t *ctx, tec_arg_t *args,
                       tec_listarr_t *list, int quiet)
 {
-    size_t i = list_size(list);
+    size_t count = list_size(list);
 
-    while (i-- > 0) {
+    if (count > 0)
+        qsort(list->items, count, sizeof(*list->items), cmp_task_id);
+
+    for (size_t i = 0; i < count; i++) {
         show_row(ctx, args, &list->items[i], quiet);
     }
 }
