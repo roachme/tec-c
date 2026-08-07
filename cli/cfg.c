@@ -75,26 +75,49 @@ static int _cfg_get(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return 0;
 }
 
+#define CFG_KEYW        10      /* fits the widest field name + padding.  */
+
+static void _cfg_section(const char *title, int first, int enabled)
+{
+    if (!first)
+        printf("\n");
+    color_print_str("%s:\n", (char *)title, BCYN, enabled);
+}
+
+static void _cfg_kv(const char *key, const char *val, int enabled)
+{
+    color_print_str("  %-" xstr(CFG_KEYW) "s", (char *)key, BBLU, enabled);
+    color_print_str(": %s\n", (char *)val, WHT, enabled);
+}
+
 // TODO: show config values from config file. Not option set via CLI
 static int _cfg_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     (void)argvec;
     tec_alias_t *alias;
     struct tec_hook *hook;
+    int enabled = cfg->opts.color;
+    char pgnref[sizeof hook->pgname + sizeof hook->pgncmd] = { 0 };
 
-    printf("Paths:\n");
-    printf("  taskbase\t: %s\n", cfg->base.task);
-    printf("  pgnbase\t: %s\n", cfg->base.pgn);
-    printf("\nOptions:\n");
-    printf("  debug\t\t: %s\n", cfg->opts.debug ? "true" : "false");
-    printf("  color\t\t: %s\n", cfg->opts.color ? "true" : "false");
-    printf("  hook\t\t: %s\n", cfg->opts.hook ? "true" : "false");
-    printf("\nHooks:\n");
-    for (hook = cfg->hooks; hook; hook = hook->next)
-        printf("  %s\t\t: %s\t%s\n", hook->cmd, hook->pgname, hook->pgncmd);
-    printf("\nAliases:\n");
+    _cfg_section("Paths", 1, enabled);
+    _cfg_kv("taskbase", cfg->base.task, enabled);
+    _cfg_kv("pgnbase", cfg->base.pgn, enabled);
+
+    _cfg_section("Options", 0, enabled);
+    _cfg_kv("debug", cfg->opts.debug ? "true" : "false", enabled);
+    _cfg_kv("color", cfg->opts.color ? "true" : "false", enabled);
+    _cfg_kv("hook", cfg->opts.hook ? "true" : "false", enabled);
+
+    _cfg_section("Hooks", 0, enabled);
+    for (hook = cfg->hooks; hook; hook = hook->next) {
+        snprintf(pgnref, sizeof pgnref, "%s.%s", hook->pgname, hook->pgncmd);
+        _cfg_kv(hook->cmd, pgnref, enabled);
+    }
+
+    _cfg_section("Aliases", 0, enabled);
     for (alias = cfg->alias; alias; alias = alias->next)
-        printf("  %s\t\t: %s\n", alias->name, alias->cmd);
+        _cfg_kv(alias->name, alias->cmd, enabled);
+
     return 0;
 }
 
