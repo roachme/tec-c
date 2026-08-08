@@ -104,8 +104,7 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir)
-        retcode = opts.path
-            ? tec_cli_pwd_set_path(&args, opts.path)
+        retcode = opts.path ? tec_cli_pwd_set_path(&args, opts.path)
             : tec_cli_pwd_set(&args);
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
