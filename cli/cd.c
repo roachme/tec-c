@@ -17,7 +17,7 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
     struct tec_cli_cd_options opts;
 
     tec_cli_cd_option_init(&opts);
-    while ((c = getopt(argvec->used, argvec->argv, ":d:e:hnpqN")) != -1) {
+    while ((c = getopt(argvec->used, argvec->argv, ":d:e:hnp:qN")) != -1) {
         switch (c) {
         case 'd':
             args.desk = optarg;
@@ -32,7 +32,8 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
             opts.change_tog = false;
             break;
         case 'p':
-            return TEC_LOG_E(EFMT_DEV, c);
+            opts.path = optarg;
+            break;
         case 'q':
             opts.quiet = true;
             break;
@@ -103,6 +104,8 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir)
-        retcode = tec_cli_pwd_set(&args);
+        retcode = opts.path
+            ? tec_cli_pwd_set_path(&args, opts.path)
+            : tec_cli_pwd_set(&args);
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }

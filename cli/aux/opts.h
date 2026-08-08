@@ -20,6 +20,7 @@ struct tec_cli_cd_options {
     bool verbose;               /* Explain what is being done */
     bool change_dir;            /* Change working directory */
     bool change_tog;            /* Update toggles */
+    const char *path;           /* Subdirectory inside the task dir to cd into */
 };
 
 struct tec_cli_ls_options {
