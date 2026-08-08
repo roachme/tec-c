@@ -1,8 +1,7 @@
 #compdef tec
 
 # TODO:
-# 1. Add support to suggest objects (env, desk, task ID)
-# 2. Add support for toggles in options -C, -D, -H, etc
+# 1. Add support for toggles in options -C, -D, -H, etc
 
 local -a subcommands global_opts
 
@@ -409,25 +408,44 @@ _tec_env_cd() {
 }
 
 # Helper functions
+#
+# Query the real `_tec` binary (not the `tec` shell wrapper, which may
+# `cd` on commands like `add`/`cd`/`mv` - none of the lookups below use
+# those, but going straight to the binary keeps this side-effect free
+# and independent of whether the wrapper is sourced) and turn its
+# aligned "ID  description" listing into "ID:description" pairs that
+# _describe can render with annotations.
+_tec_list() {
+    _tec "$@" 2>/dev/null | awk '{
+        desc = ""
+        for (i = 2; i <= NF; i++) desc = desc (i > 2 ? " " : "") $i
+        print $1 ":" desc
+    }'
+}
+
 _tec_envs() {
     local -a envs
-    # This would ideally query the actual envs, but for completion we'll just provide a stub
-    envs=('default' 'development' 'staging' 'production')
+    envs=(${(f)"$(_tec_list env ls)"})
     _describe 'environment' envs
 }
 
 _tec_desks() {
     local -a desks
-    # Similarly, this would query the actual desks
-    desks=('main' 'work' 'personal' 'archive')
+    local env="${opt_args[-e]:-$opt_args[--env]}"
+    desks=(${(f)"$(_tec_list desk ls ${env:+$env})"})
     _describe 'desk' desks
 }
 
 _tec_tasks() {
-    local -a tasks
-    # This would query the actual tasks
-    tasks=('task1' 'task2' 'task3')
-    _describe 'task' tasks
+    local -a tasks lsargs
+    local desk="${opt_args[-d]:-$opt_args[--desk]}"
+    local env="${opt_args[-e]:-$opt_args[--env]}"
+
+    [[ -n $desk ]] && lsargs+=(-d $desk)
+    [[ -n $env ]] && lsargs+=($env)
+
+    tasks=(${(f)"$(_tec_list ls $lsargs)"})
+    _describe 'task ID' tasks
 }
 
 # Main completion function
