@@ -140,6 +140,7 @@ _tec_cd() {
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-update}'[do not update toggles]' \
         '(-N)'{-N,--no-switch-dir}'[neither update toggles nor switch to task directory]' \
+        '(-p)'{-p,--path}'[switch into PATH inside the task directory]:path:_files -/' \
         '(-q)'{-q,--quiet}'[do not write anything to standard error output]' \
         '*:task ID:_tec_tasks'
 }
