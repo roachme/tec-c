@@ -23,6 +23,7 @@
 - `cli/rm`: Fix object for error message
 - `tec`: Fix grammar errors in help messages and docs
 - `lib/unit`: Fix memory-safety bugs in `unit_add`/`unit_set`/`unit_join`/`unit_parse`
+- `shell/_tec.zsh`: Fix `cd`'s `-p` completion to look inside the task directory instead of `$PWD`
 
 ### Style
 

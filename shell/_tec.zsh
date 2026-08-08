@@ -140,7 +140,7 @@ _tec_cd() {
         '(-h)'{-h,--help}'[show help and exit]' \
         '(-n)'{-n,--no-update}'[do not update toggles]' \
         '(-N)'{-N,--no-switch-dir}'[neither update toggles nor switch to task directory]' \
-        '(-p)'{-p,--path}'[switch into PATH inside the task directory]:path:_files -/' \
+        '(-p)'{-p,--path}'[switch into PATH inside the task directory]:path:_tec_cd_path' \
         '(-q)'{-q,--quiet}'[do not write anything to standard error output]' \
         '*:task ID:_tec_tasks'
 }
@@ -447,6 +447,55 @@ _tec_tasks() {
 
     tasks=(${(f)"$(_tec_list ls $lsargs)"})
     _describe 'task ID' tasks
+}
+
+# Read the "curr" value out of a tec toggle file ($DIR/.tec/toggles,
+# "key : val" lines - see lib/unit.c's UNIT_FMT). Reading the file
+# directly instead of shelling out keeps this free of hook_action side
+# effects: `_tec cd` always runs the cd hook (e.g. gmux switching
+# branches) regardless of -n/-N, so it can't be used just to resolve
+# the current env/desk/task for completion purposes.
+_tec_toggle_curr() {
+    [[ -f $1 ]] && awk -F: '
+        { gsub(/^[ \t]+|[ \t]+$/, "", $1) }
+        $1 == "curr" { gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2; exit }
+    ' "$1"
+}
+
+# Resolve the on-disk directory of the target task, honoring any -e/-d
+# already typed and falling back to the current env/desk/task toggles
+# otherwise - the same defaulting `tec cd` itself applies at runtime.
+_tec_task_dir() {
+    local taskbase env desk task
+
+    taskbase=$(_tec cfg get taskbase 2>/dev/null)
+    [[ -n $taskbase ]] || return 1
+
+    env="${opt_args[-e]:-$opt_args[--env]}"
+    [[ -n $env ]] || env=$(_tec_toggle_curr "$taskbase/.tec/toggles")
+    [[ -n $env ]] || return 1
+
+    desk="${opt_args[-d]:-$opt_args[--desk]}"
+    [[ -n $desk ]] || desk=$(_tec_toggle_curr "$taskbase/$env/.tec/toggles")
+    [[ -n $desk ]] || return 1
+
+    task=$(_tec_toggle_curr "$taskbase/$env/$desk/.tec/toggles")
+    [[ -n $task ]] || return 1
+
+    print -r -- "$taskbase/$env/$desk/$task"
+}
+
+# Completion for cd's -p PATH: directories inside the resolved task
+# dir, falling back to plain directory completion if it can't be
+# resolved (e.g. no current task set yet).
+_tec_cd_path() {
+    local dir=$(_tec_task_dir)
+
+    if [[ -n $dir && -d $dir ]]; then
+        _path_files -W $dir -/
+    else
+        _files -/
+    fi
 }
 
 # Main completion function
