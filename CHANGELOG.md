@@ -3,11 +3,18 @@
 ### Added
 
 - `tests/usage`: Add missing usage tests
+- `cli/cd`: Add option `-p` to switch into a subdirectory of the task directory
+- `shell/_tec.zsh`: Add env/desk/task ID completion
+- `shell/_tec.zsh`: Add completion for `cd`'s `-p` option
+- `docs`: Add Jira-style PM feature gap analysis
 
 ### Changed
 
 - `cli/aux/errno`: Update error messages
 - `tec`: Change typo in error status code
+- `cli/cfg`: Align and colorize `cfg ls` output
+- `cli/ls`: Sort task listing by task ID
+- `cli/desk`, `cli/env`: Sort desk/env listings by ID
 
 ### Fixed
 
@@ -15,11 +22,13 @@
 - `.github`: Fix Github CI/CD
 - `cli/rm`: Fix object for error message
 - `tec`: Fix grammar errors in help messages and docs
+- `lib/unit`: Fix memory-safety bugs in `unit_add`/`unit_set`/`unit_join`/`unit_parse`
 
 ### Style
 
 - `cli`: Unify return code logic
 - `cli/mv`: Unify code structure
+- `cli/cd`: Style code
 
 ### Optimized
 
