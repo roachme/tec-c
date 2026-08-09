@@ -3,7 +3,7 @@
 # TODO:
 # 1. Add support for toggles in options -C, -D, -H, etc
 
-local -a subcommands global_opts
+local -a subcommands global_opts plugins
 
 global_opts=(
     '(-C)'{-C,--color}'[enable colors]:toggle:(on off)'
@@ -408,6 +408,149 @@ _tec_env_cd() {
         '*:environment name:_tec_envs'
 }
 
+# Plugin commands
+#
+# Discover installed plugins the same way tec itself resolves them
+# (tec_cli_is_plugin() in cli/tec.c): a plugin named NAME lives at
+# "<pgnbase>/NAME/NAME". Descriptions come from each plugin's own
+# one-line "desc" file (see gmux/find/link/conv's plugin directories),
+# falling back to a generic label if it's missing.
+_tec_plugins() {
+    local pgnbase name descfile desc
+
+    plugins=()
+    pgnbase=$(_tec cfg get pgnbase 2>/dev/null)
+    [[ -n $pgnbase && -d $pgnbase ]] || return
+
+    for name in $pgnbase/*(-/N:t); do
+        [[ -e $pgnbase/$name/$name ]] || continue
+        descfile=$pgnbase/$name/desc
+        desc="tec plugin"
+        [[ -f $descfile ]] && desc=$(<$descfile)
+        plugins+=("$name:$desc")
+    done
+}
+
+# gmux: tec's git-multiplexer plugin. Subcommands/options/descriptions
+# from gmux's own `helpmsg` dict and argparse setup (gmux/gmux).
+_tec_gmux() {
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+    local -a gmux_opts
+
+    gmux_opts=(
+        '(-e --env)'{-e,--env}'[environment name]:env:_tec_envs'
+        '(-d --desk)'{-d,--desk}'[desk name]:desk:_tec_desks'
+        '(-T --taskbase)'{-T,--taskbase}'[task directory base]:directory:_files -/'
+        '(-P --pgnbase)'{-P,--pgnbase}'[plugin directory base]:directory:_files -/'
+        '(-m --message)'{-m,--message}'[commit message]:message:'
+        '(-v --verbose)'{-v,--verbose}'[verbose mode]'
+        '(-h --help)'{-h,--help}'[show help and exit]'
+    )
+
+    _arguments -C -s \
+        $gmux_opts \
+        ':subcommand:->subcmd' \
+        '*:: :->args'
+
+    case $state in
+        subcmd)
+            local -a gmux_subcommands
+            gmux_subcommands=(
+                'commit:Commit changes on task branch'
+                'remove:Remove gmux unit values'
+                'rsync:Update task branch with remote'
+                'show:Show gmux unit values'
+                'sync:Update task branch'
+                'update:Merge task branch into default'
+                'help:Show help message'
+            )
+            _describe -t commands 'gmux subcommand' gmux_subcommands
+            ;;
+        args)
+            _arguments -s \
+                $gmux_opts \
+                '*:task ID:_tec_tasks'
+            ;;
+    esac
+}
+
+# conv: tec's workflow/kanban plugin (see tec/pgn/gmux/conv).
+_tec_conv() {
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+    local -a conv_opts
+
+    conv_opts=(
+        '(-T --taskbase)'{-T,--taskbase}'[tec taskbase directory]:directory:_files -/'
+        '(-P --pgnbase)'{-P,--pgnbase}'[tec plugin directory]:directory:_files -/'
+        '(-e --env)'{-e,--env}'[environment name]:env:_tec_envs'
+        '(-d --desk)'{-d,--desk}'[desk name]:desk:_tec_desks'
+        '--desk-path[desk directory, bypassing -T/-e/-d resolution]:directory:_files -/'
+        '(-h --help)'{-h,--help}'[show help and exit]'
+    )
+
+    _arguments -C -s \
+        $conv_opts \
+        ':subcommand:->subcmd' \
+        '*:: :->args'
+
+    case $state in
+        subcmd)
+            local -a conv_subcommands
+            conv_subcommands=(
+                'ls:List tasks in a desk, grouped by workflow stage'
+                'mv:Move a task to a workflow stage'
+                'next:Move a task to its next workflow stage'
+                'columns:Show the stages in the current workflow'
+                'help:Show help message'
+            )
+            _describe -t commands 'conv subcommand' conv_subcommands
+            ;;
+        args)
+            case $line[1] in
+                ls)
+                    _arguments -s \
+                        $conv_opts \
+                        '(-s --stage)'{-s,--stage}'[only list tasks in this stage]:stage:_conv_stages'
+                    ;;
+                mv)
+                    _arguments -s \
+                        $conv_opts \
+                        ':task ID:_tec_tasks' \
+                        ':stage:_conv_stages'
+                    ;;
+                next)
+                    _arguments -s \
+                        $conv_opts \
+                        ':task ID:_tec_tasks'
+                    ;;
+                columns|help) ;;
+            esac
+            ;;
+    esac
+}
+
+# List conv's configured workflow stages, in order, for `-s`/`mv`
+# completion. Goes through `_tec conv columns` (tec's own plugin
+# dispatch) rather than assuming a bare `conv` on $PATH, forwarding
+# whatever -T/-e/-d/--desk-path have already been typed so far.
+_conv_stages() {
+    local -a stages convargs
+    local taskbase="${opt_args[-T]:-$opt_args[--taskbase]}"
+    local env="${opt_args[-e]:-$opt_args[--env]}"
+    local desk="${opt_args[-d]:-$opt_args[--desk]}"
+    local deskpath="${opt_args[--desk-path]}"
+
+    [[ -n $taskbase ]] && convargs+=(-T $taskbase)
+    [[ -n $env ]] && convargs+=(-e $env)
+    [[ -n $desk ]] && convargs+=(-d $desk)
+    [[ -n $deskpath ]] && convargs+=(--desk-path $deskpath)
+
+    stages=(${(f)"$(_tec conv columns $convargs 2>/dev/null | sed -n 's/^[0-9]\+\. //p')"})
+    _describe 'workflow stage' stages
+}
+
 # Helper functions
 #
 # Query the real `_tec` binary (not the `tec` shell wrapper, which may
@@ -511,7 +654,9 @@ _tec_comp() {
     case $state in
         subcmd)
             _subcommands
+            _tec_plugins
             _describe -t commands 'tec command' subcommands
+            _describe -t plugins 'tec plugin' plugins
             ;;
         args)
             # If no subcommand was provided (just options), we're done
@@ -533,7 +678,19 @@ _tec_comp() {
                 rm) _tec_rm ;;
                 set) _tec_set ;;
                 version) ;;
-                *) _message "unknown subcommand: $line[1]" ;;
+                gmux) _tec_gmux ;;
+                conv) _tec_conv ;;
+                *)
+                    _tec_plugins
+                    if (( ${plugins[(I)$line[1]:*]} )); then
+                        # Known plugin with no dedicated completer: fall
+                        # back to plain file completion for its args
+                        # rather than erroring out.
+                        _files
+                    else
+                        _message "unknown subcommand: $line[1]"
+                    fi
+                    ;;
             esac
             ;;
     esac
