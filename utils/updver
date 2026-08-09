@@ -26,7 +26,8 @@ function usage()
     echo "  make      create a new version (requires VERSION)"
     echo "  help      show this help message and exit"
     echo "  revert    revert newly created version"
-    echo "  update    push new version to remote server"
+    echo "  update    push new version to remote server and publish the"
+    echo "            GitHub release (see utils/release)"
     echo
     echo "Options:"
     echo "  -h        show this help message and exit"
@@ -134,6 +135,7 @@ function update_remote()
     git push origin develop
     git push --force origin latest
     git push origin "$VERSION_CURR"
+    ./utils/release
     return 0
 }
 

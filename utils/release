@@ -1,53 +1,141 @@
 #!/bin/env bash
+#
+# Build a release tarball for the current VERSION and publish it as a
+# GitHub release via `gh release create`, using the matching section of
+# CHANGELOG.md as the release notes. Meant to run after `utils/updver
+# make` has bumped VERSION/CHANGELOG.md and tagged the release commit,
+# and after that tag has been pushed to origin (utils/updver's `update`
+# command does both, then calls this script).
+#
+# Usage: utils/release [-n] [-h]
 
-# TODO: use `gh release` to upload release to github
-# gh release create v0.0.18 --title "Version v0.0.18" --notes-file CHANGELOG.md artifacts/build/release/tec-linux-x86_64.tar
+set -e
 
 PROGNAME="tec"
 OSNAME="$(uname -s)"
 HWNAME="$(uname -m)"
 BASEDIR="artifacts/build/release"
-DIRNAME="${BASEDIR}/${PROGNAME}-${OSNAME,,}-${HWNAME}"
-RELEASE_NOTE="$BASEDIR/release_notes.md"
+DRYRUN=0
+
+# Run from the repo root regardless of the caller's CWD, since every
+# path below (VERSION, CHANGELOG.md, build/, shell/, ...) is relative.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+VERSION_FILE="VERSION"
 CHANGELOG="CHANGELOG.md"
 
 function usage()
 {
-    return 0;
+    echo "Usage: $(basename "$0") [-n] [-h]"
+    echo
+    echo "Build a release tarball for the current VERSION (see VERSION file)"
+    echo "and publish it as a GitHub release, using the matching CHANGELOG.md"
+    echo "section as release notes."
+    echo
+    echo "Options:"
+    echo "  -n    dry run: build the tarball and print the gh command"
+    echo "        instead of actually publishing anything"
+    echo "  -h    show this help message and exit"
 }
 
-function get_latelst_version()
+function die()
 {
-    awk '/^## \[[0-9]+\.[0-9]+\.[0-9]+]/ {print $2; exit}' CHANGELOG.md | tr -d '[]'
+    echo "$(basename "$0"): $*" >&2
+    exit 1
+}
+
+function get_version()
+{
+    # VERSION holds the tag as-is, e.g. "v0.13.0".
+    cat "$VERSION_FILE"
 }
 
 function make_version_changelog()
 {
-    local latest_version="$(get_latelst_version)"
+    # CHANGELOG.md section headers ("## [0.13.0] - (...)") have no
+    # leading 'v', unlike the VERSION file and git tags.
+    local version="${1#v}"
 
-    awk -v version="$latest_version" '
+    awk -v version="$version" '
     BEGIN { found = 0 }
     /^## \[/ {
         if (found) exit
         if ($0 ~ "## \\[" version "\\]") found = 1
     }
     found
-    ' "${1:-CHANGELOG.md}"
+    ' "$CHANGELOG"
 }
 
-echo "DIRNAME: $DIRNAME"
-echo "RELEASE_NOTE: $RELEASE_NOTE"
+function check_prereqs()
+{
+    command -v gh >/dev/null 2>&1 || die "'gh' CLI is required, see https://cli.github.com"
+    gh auth status >/dev/null 2>&1 || die "not logged in to gh, run 'gh auth login' first"
+    git rev-parse "$VERSION_TAG" >/dev/null 2>&1 || die "no git tag '$VERSION_TAG' found - run 'utils/updver make' first"
+}
 
-make
+function check_release_notes()
+{
+    [ -s "$RELEASE_NOTE" ] || die "no CHANGELOG.md section found for version '$VERSION_TAG' - has 'utils/updver make' run for it yet?"
+}
 
-mkdir -p "$DIRNAME"
-make_version_changelog > "$RELEASE_NOTE"
+function build_artifact()
+{
+    make user
 
-cp teccli "$DIRNAME"
-cp tec.sh "$DIRNAME"
-cp README.md "$DIRNAME"
-tar cf "$DIRNAME.tar" "$DIRNAME"
+    rm -rf "$DIRNAME"
+    mkdir -p "$DIRNAME"
+    cp build/_tec "$DIRNAME/"
+    cp shell/tec.sh "$DIRNAME/"
+    cp shell/tec.cfg "$DIRNAME/"
+    cp README.md "$DIRNAME/"
 
-# TODO: Upload it to github once script is ready
-# gh release create v0.0.19 --title "Version v0.0.19" --notes-file "$RELEASE_NOTE" artifacts/build/release/tec-linux-x86_64.tar
-rm -rf "$DIRNAME"
+    tar czf "$ARCHIVE" -C "$BASEDIR" "$(basename "$DIRNAME")"
+    rm -rf "$DIRNAME"
+}
+
+function publish_release()
+{
+    local cmd
+
+    if gh release view "$VERSION_TAG" >/dev/null 2>&1; then
+        cmd=(gh release upload "$VERSION_TAG" "$ARCHIVE" --clobber)
+    else
+        cmd=(gh release create "$VERSION_TAG" "$ARCHIVE"
+             --title "Version $VERSION_TAG" --notes-file "$RELEASE_NOTE")
+    fi
+
+    if [ "$DRYRUN" -eq 1 ]; then
+        echo "[dry-run] ${cmd[*]}"
+        return 0
+    fi
+    "${cmd[@]}"
+}
+
+while getopts ":nh" opt; do
+    case "$opt" in
+        n) DRYRUN=1 ;;
+        h) usage; exit 0 ;;
+        :) echo "option '-$OPTARG' requires an argument"; exit 1 ;;
+        *) echo "no such option '-$OPTARG'"; exit 1 ;;
+    esac
+done
+
+VERSION_TAG="$(get_version)"
+DIRNAME="${BASEDIR}/${PROGNAME}-${OSNAME,,}-${HWNAME}"
+ARCHIVE="${DIRNAME}.tar.gz"
+RELEASE_NOTE="$BASEDIR/release_notes.md"
+
+check_prereqs
+
+mkdir -p "$BASEDIR"
+make_version_changelog "$VERSION_TAG" > "$RELEASE_NOTE"
+check_release_notes
+
+echo "Building $VERSION_TAG..."
+build_artifact
+
+echo "Publishing $VERSION_TAG to GitHub..."
+publish_release
+
+echo "Done: $ARCHIVE"

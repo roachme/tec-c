@@ -4,12 +4,18 @@
 
 - `tests/memleak`: Rewrite `memcheck` as a data-driven Python script exercising every builtin and `env`/`desk` subcommand, option, and error path (including `-i`/`-I` prompts) under valgrind, plus the alias and plugin dispatch paths that had no coverage at all
 - `tests/memleak/tec.cfg`: Add an isolated fixture config so memcheck results don't depend on the developer's real `~/.config/tec/tec.cfg`
+- `utils/release`: Automate publishing GitHub releases - builds the release tarball, extracts the matching `CHANGELOG.md` section as notes, and calls `gh release create`/`gh release upload` (supports `-n` for a dry run)
+
+### Changed
+
+- `utils/updver`: `update` now also publishes the GitHub release via `utils/release` after pushing tags/branches, so it's the single command that fully publishes a version
 
 ### Fixed
 
 - `tec`: Fix memory leak when an invalid global option or toggle value (`-C`/`-D`/`-H`) is given
 - `cli/cat`, `cli/desk`, `cli/env`: Fix memory leak on an invalid option to `cat`/`desk cat`/`env cat`
 - `cli/mv`: Fix memory leaks in `parse_path`/`parse_dest` not freeing the `env`/`desk`/`task` strings they allocate
+- `utils/release`: Fix stale build paths (`teccli`, top-level `tec.sh`) that no longer matched the Makefile (`build/_tec`, `shell/tec.sh`), which meant the script couldn't actually run
 
 ### Style
 
