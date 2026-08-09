@@ -61,3 +61,17 @@ Feature: cd
     When I run "cd - -"
     Then the exit code should not be 0
     And stderr should contain "alias '-' is used alone"
+
+  Scenario: CD with -p into an existing subdirectory succeeds
+    Given a task "cdtest10" exists
+    And a subdirectory "sub" exists in task "cdtest10"
+    When I run "cd -p sub cdtest10"
+    Then the exit code should be 0
+    And the PWD should be subdirectory "sub" of task "cdtest10"
+
+  Scenario: CD with -p into a non-existent subdirectory fails
+    Given a task "cdtest11" exists
+    When I run "cd -p nosuchdir cdtest11"
+    Then the exit code should not be 0
+    And stderr should contain "no such directory"
+    And the PWD file should be empty

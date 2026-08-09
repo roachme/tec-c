@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- `cli/cd`: Fix `-p PATH` not checking that `PATH` exists inside the task directory
 - `tec`: Fix memory leak when an invalid global option or toggle value (`-C`/`-D`/`-H`) is given
 - `cli/cat`, `cli/desk`, `cli/env`: Fix memory leak on an invalid option to `cat`/`desk cat`/`env cat`
 - `cli/mv`: Fix memory leaks in `parse_path`/`parse_dest` not freeing the `env`/`desk`/`task` strings they allocate

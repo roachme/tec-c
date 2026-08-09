@@ -134,6 +134,16 @@ def step_pwd_is_task(context, taskid):
     expected = common.get_expected_path(common.TEST_ENV, common.TEST_DESK, taskid)
     common.verify_pwd(expected)
 
+@given('a subdirectory "{subdir}" exists in task "{taskid}"')
+def step_task_subdir_exists(context, taskid, subdir):
+    path = common.get_expected_path(common.TEST_ENV, common.TEST_DESK, taskid)
+    os.makedirs(os.path.join(path, subdir), exist_ok=True)
+
+@then('the PWD should be subdirectory "{subdir}" of task "{taskid}"')
+def step_pwd_is_task_path(context, taskid, subdir):
+    expected = common.get_expected_path(common.TEST_ENV, common.TEST_DESK, taskid) + '/' + subdir
+    common.verify_pwd(expected)
+
 @then('the PWD file should be empty')
 def step_pwd_is_empty(context):
     assert os.path.getsize(common.pwdfile) == 0, \

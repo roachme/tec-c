@@ -14,6 +14,7 @@ static const char *errcodes[__TEC_CLI_STATUS_LAST] = {
     [ETEC_ARG_ENV_TOO_LONG - ESHIFT] = "environment name is too long",
     [ETEC_ARG_DESK_TOO_LONG - ESHIFT] = "desk name is too long",
     [ETEC_ARG_TASK_TOO_LONG - ESHIFT] = "task ID is too long",
+    [ETEC_ARG_PATH_NOSUCH - ESHIFT] = "no such directory",
 
     [ETEC_UNIT_INV_KEY - ESHIFT] = "invalid unit key",
     [ETEC_UNIT_GEN_FAIL - ESHIFT] = "unit generation failed",

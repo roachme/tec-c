@@ -1,6 +1,7 @@
 // TODO:
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include "osdep.h"
 
@@ -74,15 +75,18 @@ bool ISFILE(char *fname)
  * ISDIR() - check whether a path names a directory
  * @fname: path to check
  *
- * Shells out to `test -d @fname`.
+ * Resolves via stat(2) rather than shelling out like the other helpers
+ * in this file, since callers may pass it caller-supplied path text
+ * (e.g. `cd -p PATH`) that was never validated against shell
+ * metacharacters - shelling out to `test -d @fname` would let such
+ * text reach a shell.
  *
  * Return: true if @fname is a directory, false otherwise.
  */
 bool ISDIR(char *fname)
 {
-    char cmd[BUFSIZ + 1];
-    sprintf(cmd, "test -d %s", fname);
-    return system(cmd) == EXIT_SUCCESS;
+    struct stat st;
+    return stat(fname, &st) == 0 && S_ISDIR(st.st_mode);
 }
 
 #elif __APPLE__

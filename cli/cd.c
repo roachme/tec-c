@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "tec.h"
 #include "aux/aux.h"
@@ -7,6 +8,29 @@
 #include "aux/errno.h"
 #include "aux/toggle.h"
 #include "aux/config.h"
+#include "../lib/osdep.h"
+
+/**
+ * check_cd_path() - Validate that PATH exists inside the target task
+ * @args: env/desk/task selection identifying the task directory to look inside
+ * @path: PATH given to `cd -p`, checked relative to the task directory
+ *
+ * Return: ETEC_OK if @path names an existing directory inside the task
+ * directory, otherwise ETEC_ARG_PATH_NOSUCH (including if the combined
+ * path would exceed PATH_MAX)
+ */
+static int check_cd_path(tec_arg_t *args, const char *path)
+{
+    int len;
+    char pathname[PATH_MAX + 1];
+
+    len = snprintf(pathname, sizeof(pathname), "%s/%s/%s/%s/%s",
+                   teccfg.base.task, args->env, args->desk, args->task, path);
+    if (len < 0 || (size_t)len >= sizeof(pathname))
+        return ETEC_ARG_PATH_NOSUCH;
+
+    return ISDIR(pathname) == true ? ETEC_OK : ETEC_ARG_PATH_NOSUCH;
+}
 
 /**
  * tec_cli_cd() - Switch the "current" task to one or more given tasks
@@ -16,13 +40,15 @@
  * @cfg: active configuration, used to resolve current/previous toggles
  *
  * Recognizes -d/-e (explicit desk/env), -h (help), -n (don't update the
- * current-task toggle), -p PATH (write the resolved pwd to PATH instead of
- * the default pwd file), -q (quiet errors), -N (neither change directory
- * nor update the toggle). For each task argument, validates env/desk/task
- * with tec_cli_check_env()/check_desk()/check_task(), runs the "cd" hook,
- * and (unless suppressed) cascades the current-env/desk/task toggles so
- * later toggle-relative commands see the new location. Finally updates the
- * pwd file to point at the last successfully resolved task.
+ * current-task toggle), -p PATH (switch into PATH inside the task directory
+ * instead of the task directory itself), -q (quiet errors), -N (neither
+ * change directory nor update the toggle). For each task argument, validates
+ * env/desk/task with tec_cli_check_env()/check_desk()/check_task(), runs the
+ * "cd" hook, and (unless suppressed) cascades the current-env/desk/task
+ * toggles so later toggle-relative commands see the new location. Finally,
+ * if -p was given, validates PATH exists inside the last successfully
+ * resolved task directory via check_cd_path(), then updates the pwd file
+ * to point at the resolved task (plus PATH, if given).
  *
  * Return: EXIT_SUCCESS if every task argument resolved cleanly, otherwise
  * EXIT_FAILURE (accumulated across all task arguments via RETUPD())
@@ -122,8 +148,14 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
         RETUPD(retcode, status);
     } while (++argvec->i < argvec->used);
 
-    if (retcode == ETEC_OK && opts.change_dir)
+    if (retcode == ETEC_OK && opts.change_dir && opts.path &&
+        (status = check_cd_path(&args, opts.path))) {
+        if (opts.quiet == false)
+            TEC_LOG_E(EFMT_TASK_CD, opts.path, tec_strerror(status));
+        retcode = status;
+    } else if (retcode == ETEC_OK && opts.change_dir) {
         retcode = opts.path ? tec_cli_pwd_set_path(&args, opts.path)
             : tec_cli_pwd_set(&args);
+    }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
