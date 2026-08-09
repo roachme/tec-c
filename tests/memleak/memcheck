@@ -1,47 +1,409 @@
-#!/bin/env bash
+#!/usr/bin/env python3
+"""Run every tec CLI code path once under valgrind to catch memory leaks.
 
-TASKBASE="/tmp/tec_memcheck"
-LOGDIR="build/reports/memleak"
-PROGRAM="./build/_tec -T $TASKBASE"
-VALGRIND_ERR=13
-VALGRIND="valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all -q --error-exitcode=$VALGRIND_ERR"
+One valgrind invocation per case, rather than one giant scripted session,
+so a leak points at the exact command that caused it instead of at a
+40-step sequence. Cases are grouped to mirror the command surface
+documented in cli/help.c and already pinned down by tests/usage/*.feature:
+global options, help/init/version/cfg, env-*, desk-*, and the basic
+task commands (add/cat/cd/ls/mv/rm/set), plus the alias and plugin
+dispatch paths (cli/alias.c, cli/pgn.c) that the BDD suite doesn't touch
+at all.
 
-failed=0
+Every case runs against an isolated task database and an isolated fixture
+config (tec.cfg next to this script), so results don't depend on the
+developer's real $HOME/tectask or $HOME/.config/tec/tec.cfg - only on
+tec's own code.
+"""
+import os
+import shutil
+import subprocess
+import sys
 
-function memcheck()
-{
-    local msg="$1"; shift
-    local cmd="$@"
-    local log="$LOGDIR/$(echo "$cmd" | tr ' /' '__').log"
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(HERE))
 
-    $VALGRIND --log-file="$log" $PROGRAM $@ > /dev/null 2>&1
-    local rc=$?
+TASKBASE = "/tmp/tec_memcheck"
+PGNDIR = os.path.join(ROOT, "pgn")
+CFGFILE = os.path.join(HERE, "tec.cfg")
+BINARY = os.path.join(ROOT, "build", "_tec")
+LOGDIR = os.path.join(ROOT, "build", "reports", "memleak")
 
-    if [ "$rc" -eq "$VALGRIND_ERR" ]; then
-        echo "[ERR] cmd '$cmd' leaked memory (see $log)"
-        failed=1
-    else
-        echo "[ OK] cmd '$cmd' passed"
-        rm -f "$log"
-    fi
-}
+PROGRAM = [BINARY, "-f", CFGFILE, "-H", "off", "-P", PGNDIR, "-T", TASKBASE]
 
-# Remove all task directory and stale logs
-rm -rf "$TASKBASE"
-mkdir -p "$LOGDIR"
+VALGRIND_ERR = 13
+VALGRIND = [
+    "valgrind",
+    "--track-origins=yes",
+    "--leak-check=full",
+    "--show-leak-kinds=all",
+    "-q",
+    "--error-exitcode=%d" % VALGRIND_ERR,
+]
 
-memcheck "msg" "init"
-memcheck "msg" "env add test"
-memcheck "msg" "desk add -N desk1"
-memcheck "msg" "add"
-memcheck "msg" "add task1"
-memcheck "msg" "add task2"
-memcheck "msg" "ls"
-memcheck "msg" "cat"
-memcheck "msg" "cd task1"
-memcheck "msg" "set -T task task1"
-memcheck "msg" "rm -f task1"
-memcheck "msg" "desk rm -f desk1"
-memcheck "msg" "env rm -f test"
+stats = {"ok": 0, "err": 0}
 
-exit $failed
+
+def run(*args, stdin=None):
+    """Run one tec invocation under valgrind and report OK/ERR."""
+    n = stats["ok"] + stats["err"] + 1
+    label = " ".join(args) if args else "(no args)"
+    safe = "".join(c if c.isalnum() else "_" for c in label).strip("_") or "cmd"
+    logpath = os.path.join(LOGDIR, "%03d_%s.log" % (n, safe[:80]))
+
+    cmd = VALGRIND + ["--log-file=%s" % logpath] + PROGRAM + list(args)
+    proc = subprocess.run(
+        cmd,
+        input=stdin,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        text=True,
+    )
+
+    if proc.returncode == VALGRIND_ERR:
+        stats["err"] += 1
+        print("[ERR] '%s' leaked memory (see %s)" % (label, logpath))
+    else:
+        stats["ok"] += 1
+        print("[ OK] '%s'" % label)
+        if os.path.exists(logpath):
+            os.remove(logpath)
+
+
+def y(*args):
+    run(*args, stdin="y\n")
+
+
+def n(*args):
+    run(*args, stdin="n\n")
+
+
+def section(title):
+    print("\n-- %s --" % title)
+
+
+def main():
+    if not os.path.isfile(BINARY):
+        print("error: %s not built, run 'make user' first" % BINARY, file=sys.stderr)
+        return 1
+
+    shutil.rmtree(TASKBASE, ignore_errors=True)
+    shutil.rmtree(LOGDIR, ignore_errors=True)
+    os.makedirs(LOGDIR, exist_ok=True)
+
+    # ---------------------------------------------------------------
+    section("global options / system commands")
+    # ---------------------------------------------------------------
+    run()  # bare invocation: no command given
+    run("-h")
+    run("-v")
+    run("-Z")  # invalid global option
+    run("-C", "maybe", "help")  # invalid toggle value
+    run("-D", "maybe", "help")
+    run("-H", "maybe", "help")
+    run("123bad")  # naughty command (doesn't start with a letter)
+    run("bogus")  # unknown command/alias/plugin
+    run("init")
+    run("init")  # init is idempotent on an existing database
+    run("version")
+
+    run("help")
+    run("help", "-l")
+    run("help", "-s", "add")
+    run("help", "-d", "add")
+    run("help", "add")
+    run("help", "env-add")
+    run("help", "desk-add")
+    run("help", "add", "bogus")
+    run("help", "bogus")
+
+    # ---------------------------------------------------------------
+    section("cfg")
+    # ---------------------------------------------------------------
+    run("cfg", "ls")
+    run("cfg")  # no subcommand defaults to ls
+    run("cfg", "get", "taskbase")
+    run("cfg", "get", "opts.color")
+    run("cfg", "get", "alias")
+    run("cfg", "get", "taskbase", "pgnbase")
+    run("cfg", "get", "bogusvalue")
+    run("cfg", "get", "taskbase", "bogusvalue")
+    run("cfg", "bogus")
+    run("cfg", "revert")  # documented but unimplemented
+    run("cfg", "save")  # documented but unimplemented
+
+    # ---------------------------------------------------------------
+    section("alias and plugin dispatch (cli/alias.c, cli/pgn.c)")
+    # ---------------------------------------------------------------
+    run("dir")  # alias -> builtin 'ls'
+    run("dtool")  # alias -> plugin 'dummy cat'
+    run("broken")  # alias -> neither builtin nor plugin
+    run("dummy", "cat")  # direct plugin dispatch
+    run("dummy", "add")
+    run("dummy")  # plugin invoked with no subcommand
+
+    # ---------------------------------------------------------------
+    section("env add/cat/cd/ls")
+    # ---------------------------------------------------------------
+    run("env", "add", "main1")
+    run("env", "add", "test me")  # illegal: contains a space
+    run("env", "add", "multi1", "multi2", "multi3")
+    run("env", "add", "batch1", "test me", "batch3")  # one bad name in a batch
+    run("env", "add", "main1")  # duplicate
+    run("env", "add")  # missing name
+    run("env", "add", "-d", "customdsk", "envwith")
+    run("env", "add", "envnbase")
+    run("env", "cd", "envnbase")
+    run("env", "add", "-n", "envnflag")
+    run("env", "add", "-N", "envntest")
+    run("env", "add", "-q", "main1")
+    run("env", "add", "-D", "some desc", "envdopt")  # -D: not implemented yet
+
+    run("env", "cat", "main1")
+    run("env", "cat", "nonexist")
+    run("env", "cat", "-q", "nonexist")
+    run("env", "cat", "-k", "id", "-k", "desc", "main1")
+    run("env", "cat", "-d", "desk", "main1")
+
+    run("env", "cd", "main1")
+    run("env", "cd", "-d", "desk", "main1")
+    run("env", "cd", "nonexist")
+    run("env", "cd", "-q", "nonexist")
+    run("env", "cd", "-n", "envwith")
+    run("env", "cd", "-N", "envntest")
+    run("env", "cd", "envwith")
+    run("env", "cd", "main1")
+    run("env", "cd", "-")  # alias for previous env
+    run("env", "cd", "main1", "-")  # alias combined with a name: rejected
+    run("env", "cd", "-", "-")  # double alias: rejected
+
+    run("env", "ls")
+    run("env", "ls", "-t")
+    run("env", "ls", "-v")  # under development
+
+    # ---------------------------------------------------------------
+    section("env rename/set/rm")
+    # ---------------------------------------------------------------
+    run("env", "add", "ren1")
+    run("env", "add", "ren2")
+    run("env", "rename", "ren1", "ren1new")
+    run("env", "rename", "nonexist", "newname")
+    run("env", "rename", "ren2", "ren1new")  # destination already exists
+    run("env", "rename", "-q", "nonexist", "newname")
+
+    run("env", "set", "-D", "Test environment", "main1")
+    run("env", "set", "-D", "Test", "nonexist")
+    run("env", "set", "-q", "-D", "Test", "nonexist")
+    run("env", "set", "-D", "!!!invalid!!!", "main1")
+    run("env", "set", "-D", "Shared desc", "-d", "desk", "main1")
+
+    run("env", "add", "rmforce")
+    run("env", "rm", "-f", "rmforce")
+    run("env", "add", "rmverb")
+    run("env", "rm", "-fv", "rmverb")
+    run("env", "rm", "-f", "nonexist")
+    run("env", "add", "rmdsk")
+    run("env", "rm", "-f", "-d", "desk", "rmdsk")
+    run("env", "rm", "-q", "nonexist")
+    run("env", "add", "rmi1")
+    y("env", "rm", "-i", "rmi1")
+    run("env", "add", "rmi2")
+    n("env", "rm", "-i", "rmi2")
+    run("env", "add", "rmI1", "rmI2", "rmI3", "rmI4")
+    y("env", "rm", "-I", "rmI1", "rmI2", "rmI3", "rmI4")
+    run("env", "add", "rmJ1", "rmJ2", "rmJ3", "rmJ4")
+    n("env", "rm", "-I", "rmJ1", "rmJ2", "rmJ3", "rmJ4")
+
+    # ---------------------------------------------------------------
+    section("desk add/cat/cd/ls/mv (inside env 'main1')")
+    # ---------------------------------------------------------------
+    run("env", "cd", "main1")  # pin the current env deterministically
+
+    run("desk", "add", "dA")
+    run("desk", "add", "-e", "main1", "dB")
+    run("desk", "add", "-e", "nonexist", "dC")
+    run("desk", "add", "-n", "dD")
+    run("desk", "add")  # missing name
+    run("desk", "add", "-q", "dA")  # duplicate
+    run("desk", "add", "-N", "dE")
+    run("desk", "add", "-D", "custom desk desc", "dF")
+
+    run("desk", "cat", "dF")
+    run("desk", "cat", "-k", "desc", "dF")
+    run("desk", "cat", "-k", "id", "-k", "desc", "dF")
+    run("desk", "cat", "nonexist")
+    run("desk", "cat", "-q", "nonexist")
+    run("desk", "cat", "-d", "somedesk")  # -d is not a valid desk-cat option
+
+    run("desk", "cd", "dA")
+    run("desk", "cd", "-e", "main1", "dB")
+    run("desk", "cd", "nonexist")
+    run("desk", "cd", "-n", "dD")
+    run("desk", "cd", "-N", "dE")
+    run("desk", "cd", "dA")
+    run("desk", "cd", "dB")
+    run("desk", "cd", "-")
+    run("desk", "cd", "dA", "-")
+    run("desk", "cd", "-", "-")
+    run("desk", "cd", "-q", "nonexist")
+
+    run("desk", "ls")
+    run("desk", "ls", "main1")
+    run("desk", "ls", "-q", "bogusenv")
+
+    run("desk", "mv", "dA", "dAnew")  # under development
+    run("desk", "mv")
+
+    # ---------------------------------------------------------------
+    section("desk rm/set")
+    # ---------------------------------------------------------------
+    run("desk", "add", "drmf")
+    run("desk", "rm", "-f", "drmf")
+    run("desk", "add", "drmv")
+    run("desk", "rm", "-fv", "drmv")
+    run("desk", "rm", "-f", "nonexist")
+    run("desk", "rm", "-q", "nonexist")
+    run("desk", "add", "dri1")
+    y("desk", "rm", "-i", "dri1")
+    run("desk", "add", "dri2")
+    n("desk", "rm", "-i", "dri2")
+    run("desk", "add", "drI1", "drI2", "drI3", "drI4")
+    y("desk", "rm", "-I", "drI1", "drI2", "drI3", "drI4")
+    run("desk", "add", "drJ1", "drJ2", "drJ3", "drJ4")
+    n("desk", "rm", "-I", "drJ1", "drJ2", "drJ3", "drJ4")
+
+    run("desk", "set", "-D", "Test desk description", "dA")
+    run("desk", "set", "-D", "Test", "nonexist")
+    run("desk", "set", "-q", "-D", "Test", "nonexist")
+    run("desk", "set", "-D", "!!!invalid!!!", "dA")
+    run("desk", "add", "dS1")
+    run("desk", "add", "dS2")
+    run("desk", "set", "-D", "Shared desc", "dS1", "dS2")
+
+    # ---------------------------------------------------------------
+    section("task add/cat (inside desk 'tdsk')")
+    # ---------------------------------------------------------------
+    run("desk", "add", "tdsk")  # dedicated desk, switches into it
+
+    run("add", "task1")
+    run("add", "task2", "task3")
+    run("add", "task1")  # duplicate
+    run("add", "toolongtaskid")  # exceeds IDSIZ
+    run("add", "@illegal")  # illegal leading character
+    run("add", "-N", "taskN")
+    run("add", "-n", "taskNF")
+    run("add", "-q", "task1")  # duplicate, quiet
+    run("add", "-d", "tdsk", "taskD1")
+    run("add", "-e", "main1", "taskE1")
+    run("add", "-D", "custom description", "taskDsc")
+    run("add")  # no ID: generated
+    run("add", "-v", "taskV1")
+
+    run("cat", "task1")
+    run("cat", "-k", "id", "-k", "desc", "task1")
+    run("cat", "task1", "task2")
+    run("cat", "task1", "deadtask", "task2")
+    run("cat", "-k", "bogus", "task1")
+    run("cat", "-q", "deadtask")
+    run("cat", "-d", "tdsk", "task1")
+
+    # ---------------------------------------------------------------
+    section("task cd/ls")
+    # ---------------------------------------------------------------
+    run("cd", "task1")
+    run("cd", "task2")
+    run("cd", "-")
+    run("cd", "task1", "-")
+    run("cd", "-", "-")
+    run("cd", "-d", "tdsk", "-e", "main1", "task2")
+    run("cd", "badtask")
+    run("cd", "-q", "badtask")
+    run("cd", "-N", "task1")
+    run("cd", "-n", "task2")
+    run("cd", "-p", "sub/dir", "task1")
+
+    run("ls")
+    run("ls", "-t")
+    run("ls", "-d", "tdsk")
+    run("ls", "-H")
+    run("ls", "-a")
+    run("ls", "-a", "-t")  # incompatible
+    run("ls", "-q", "bogusenv")
+    run("ls", "-v")  # under development
+
+    # ---------------------------------------------------------------
+    section("task mv")
+    # ---------------------------------------------------------------
+    run("mv", "task1", "task1rn")
+    run("add", "-N", "mvsrc1")
+    run("desk", "add", "-N", "tdsk2")
+    run("mv", "mvsrc1", "tdsk2/")  # move to a different desk
+    run("add", "-N", "mvsrc2")
+    run("mv", "mvsrc2", "baddesk/")  # nonexistent destination desk
+    run("add", "-N", "mvcur")
+    run("cd", "mvcur")
+    run("mv", "mvcur", "mvcurrn")  # rename the current task
+    run("add", "mvm1", "mvm2", "mvm3")
+    run("desk", "add", "-N", "tdsk3")
+    run("mv", "mvm1", "mvm2", "mvm3", "tdsk3/")  # move several at once
+    run("add", "-N", "mvdot")
+    run("cd", "mvdot")
+    run("mv", ".", "mvdotrn")  # "." shorthand for current task
+    run("mv")  # missing source
+    run("add", "-N", "mvnodst")
+    run("mv", "mvnodst")  # missing destination
+    run("add", "-N", "mvf")
+    run("mv", "-f", "mvf", "mvfdst")  # under development
+    run("add", "-N", "mvt")
+    run("mv", "-t", "somedesk", "mvt", "mvtdst")  # under development
+
+    # ---------------------------------------------------------------
+    section("task set")
+    # ---------------------------------------------------------------
+    run("add", "-N", "set1")
+    run("set", "-D", "New description", "set1")
+    run("set", "-T", "bugfix", "set1")
+    run("set", "-P", "high", "set1")
+    run("set", "-T", "invalidtype", "set1")
+    run("set", "-P", "bogus", "set1")
+    run("set", "-q", "-D", "New description", "nonexist")
+    run("set", "-i", "set1")  # under development
+    run("add", "-N", "set2")
+    run("add", "-N", "set3")
+    run("set", "-T", "bugfix", "-P", "high", "set2", "set3")
+
+    # ---------------------------------------------------------------
+    section("task rm")
+    # ---------------------------------------------------------------
+    run("add", "-N", "rm1")
+    run("rm", "-f", "rm1")
+    run("add", "-N", "rm2")
+    run("add", "-N", "rm3")
+    run("rm", "-f", "rm2", "rm3")
+    run("rm", "-f", "nonexist")
+    run("rm", "-q", "nonexist")
+    run("add", "-N", "rmv1")
+    run("rm", "-fv", "rmv1")
+    run("add", "-N", "rmi1")
+    y("rm", "-i", "rmi1")
+    run("add", "-N", "rmi2")
+    n("rm", "-i", "rmi2")
+    run("add", "rmI1", "rmI2", "rmI3", "rmI4")
+    y("rm", "-I", "rmI1", "rmI2", "rmI3", "rmI4")
+    run("add", "rmJ1", "rmJ2", "rmJ3", "rmJ4")
+    n("rm", "-I", "rmJ1", "rmJ2", "rmJ3", "rmJ4")
+    run("add", "rmK1", "rmK2", "rmK3")
+    run("rm", "-I", "rmK1", "rmK2", "rmK3")  # <= 3: no prompt
+
+    # ---------------------------------------------------------------
+    section("cleanup")
+    # ---------------------------------------------------------------
+    run("env", "rm", "-f", "main1")
+
+    print("\n%d passed, %d leaked (out of %d)" % (
+        stats["ok"], stats["err"], stats["ok"] + stats["err"]))
+    return 1 if stats["err"] else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

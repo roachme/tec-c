@@ -182,16 +182,22 @@ int main(int argc, const char **argv)
             argvec_add(&argvec, "version");
             break;
         case 'C':
-            if ((cfg->opts.color = toggle2bool(optarg)) == NONEBOOL)
-                return TEC_LOG_E(togfmt, c);
+            if ((cfg->opts.color = toggle2bool(optarg)) == NONEBOOL) {
+                status = TEC_LOG_E(togfmt, c);
+                goto err;
+            }
             break;
         case 'D':
-            if ((cfg->opts.debug = toggle2bool(optarg)) == NONEBOOL)
-                return TEC_LOG_E(togfmt, c);
+            if ((cfg->opts.debug = toggle2bool(optarg)) == NONEBOOL) {
+                status = TEC_LOG_E(togfmt, c);
+                goto err;
+            }
             break;
         case 'H':
-            if ((cfg->opts.hook = toggle2bool(optarg)) == NONEBOOL)
-                return TEC_LOG_E(togfmt, c);
+            if ((cfg->opts.hook = toggle2bool(optarg)) == NONEBOOL) {
+                status = TEC_LOG_E(togfmt, c);
+                goto err;
+            }
             break;
         case 'P':
             if (cfg->base.pgn)
@@ -205,10 +211,12 @@ int main(int argc, const char **argv)
             break;
         case ':':
             TEC_LOG_E(FMT_OPT_ARG_REQ, optopt);
-            return tec_cli_help_usage("tec");
+            status = tec_cli_help_usage("tec");
+            goto err;
         default:
             TEC_LOG_E(FMT_OPT_ARG_INV, optopt);
-            return tec_cli_help_usage("tec");
+            status = tec_cli_help_usage("tec");
+            goto err;
         }
     }
 

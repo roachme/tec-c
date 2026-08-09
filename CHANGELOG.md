@@ -1,3 +1,17 @@
+## [Unreleased]
+
+### Added
+
+- `tests/memleak`: Rewrite `memcheck` as a data-driven Python script exercising every builtin and `env`/`desk` subcommand, option, and error path (including `-i`/`-I` prompts) under valgrind, plus the alias and plugin dispatch paths that had no coverage at all
+- `tests/memleak/tec.cfg`: Add an isolated fixture config so memcheck results don't depend on the developer's real `~/.config/tec/tec.cfg`
+
+### Fixed
+
+- `tec`: Fix memory leak when an invalid global option or toggle value (`-C`/`-D`/`-H`) is given
+- `cli/cat`, `cli/desk`, `cli/env`: Fix memory leak on an invalid option to `cat`/`desk cat`/`env cat`
+- `cli/mv`: Fix memory leaks in `parse_path`/`parse_dest` not freeing the `env`/`desk`/`task` strings they allocate
+
+
 ## [0.13.0] - (2026-08-08)
 
 ### Added

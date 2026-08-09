@@ -524,10 +524,14 @@ static int _env_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
             break;
         case ':':
             TEC_LOG_E(FMT_OPT_ARG_REQ, optopt);
-            return tec_cli_help_usage("env-cat");
+            tec_cli_help_usage("env-cat");
+            retcode = EXIT_FAILURE;
+            goto err;
         default:
             TEC_LOG_E(FMT_OPT_ARG_INV, optopt);
-            return tec_cli_help_usage("env-cat");
+            tec_cli_help_usage("env-cat");
+            retcode = EXIT_FAILURE;
+            goto err;
         }
     }
     argvec->i = optind;
