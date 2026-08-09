@@ -42,6 +42,10 @@
 #define EFMT_ENV_RM         "cannot remove environment '%s': %s"
 #define EFMT_ENV_SET        "cannot set environment unit value '%s': %s"
 
+/**
+ * enum tec_cli_errno - CLI-specific error codes, chained after the lib's
+ * enum tec_errno so both ranges can share a single tec_strerror() lookup
+ */
 enum tec_cli_errno {
     ETEC_ALIAS = __ETEC_STATUS_LAST,
     ETEC_HOOK_EXEC,

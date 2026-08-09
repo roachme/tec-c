@@ -3,6 +3,14 @@
 
 #include <stdbool.h>
 
+/**
+ * struct argvec - dynamic, growable argv-style array of strings
+ * @i: index of the current argument (used while iterating)
+ * @used: number of populated slots (excluding the NULL terminator)
+ * @size: capacity of the backing @argv array
+ * @offset: cumulative element count shifted off the front by argvec_offset()
+ * @argv: heap-allocated, NULL-terminated array of owned argument strings
+ */
 typedef struct argvec {
     int i;                      /* index of current argument */
     int used;                   /* number of used slots in dynamic array */

@@ -9,6 +9,13 @@
  * logging because it is not a daemon, just a CLI util.
  */
 
+/**
+ * enum tec_cli_log_lvl - severity levels for CLI logging
+ * @TEC_LOG_PROMPT: prompt user for input
+ * @TEC_LOG_ERROR: error, no recovery, terminate immediately
+ * @TEC_LOG_INFO: info for user, what has been done
+ * @TEC_LOG_DEBUG: debug info
+ */
 typedef enum tec_cli_log_lvl {
     TEC_LOG_PROMPT,             /* Prompt user for input */
     TEC_LOG_ERROR,              /* Error, no recovery, terminate immediately */
@@ -16,9 +23,40 @@ typedef enum tec_cli_log_lvl {
     TEC_LOG_DEBUG,              /* Debug info */
 } tec_cli_log_lvl_t;
 
+/**
+ * TEC_LOG_E() - Log an error message
+ * @fmt: printf-style format string
+ * @...: arguments for @fmt
+ *
+ * Return: always EXIT_FAILURE (see tec_cli_log_error())
+ */
 #define TEC_LOG_E(fmt, ...) tec_cli_log_error(fmt, ##__VA_ARGS__)
+/**
+ * TEC_LOG_I() - Log an informational message
+ * @fmt: printf-style format string
+ * @...: arguments for @fmt
+ *
+ * Return: always EXIT_SUCCESS (see tec_cli_log_info())
+ */
 #define TEC_LOG_I(fmt, ...) tec_cli_log_info(fmt, ##__VA_ARGS__)
+/**
+ * TEC_LOG_D() - Log a debug message tagged with the call site
+ * @fmt: printf-style format string
+ * @...: arguments for @fmt
+ *
+ * Expands to a call carrying __FILE__ and __LINE__ of the call site;
+ * only prints when debug output is enabled (see tec_cli_log_debug()).
+ *
+ * Return: always EXIT_SUCCESS
+ */
 #define TEC_LOG_D(fmt, ...) tec_cli_log_debug(__FILE__, __LINE__, fmt, ##__VA_ARGS__)
+/**
+ * TEC_LOG_P() - Log a raw prompt message, no prefix or trailing newline
+ * @fmt: printf-style format string
+ * @...: arguments for @fmt
+ *
+ * Return: always EXIT_SUCCESS (see tec_cli_log_prompt())
+ */
 #define TEC_LOG_P(fmt, ...) tec_cli_log_prompt(fmt, ##__VA_ARGS__)
 
 int tec_cli_log_error(const char *fmt, ...);

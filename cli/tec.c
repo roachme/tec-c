@@ -52,6 +52,12 @@ static tec_cmd_t tec_cmds[] = {
     {.name = "_pgn_",.func = &tec_cli_pgn,.option = TEC_SETUP_SOFT},
 };
 
+/**
+ * toggle2bool() - Convert an "on"/"off" option argument to a boolean
+ * @tog: the raw option argument string
+ *
+ * Return: true for "on", false for "off", or NONEBOOL if @tog is neither
+ */
 static int toggle2bool(const char *tog)
 {
     size_t len = strlen(tog);
@@ -63,6 +69,16 @@ static int toggle2bool(const char *tog)
     return NONEBOOL;
 }
 
+/**
+ * cmd_setup() - Run the pre-dispatch setup required by a command's option level
+ * @setuplvl: one of the tec_setup_level values (TEC_SETUP_SOFT/_HARD/TEC_PAGER)
+ * @cfg: active configuration, used to locate the task database on disk
+ *
+ * TEC_SETUP_SOFT does nothing; TEC_SETUP_HARD verifies the on-disk task
+ * database exists via tec_check_db().
+ *
+ * Return: ETEC_OK on success, or the ETEC_* code from tec_check_db() on failure
+ */
 static int cmd_setup(int setuplvl, const tec_cfg_t *cfg)
 {
     int status = ETEC_OK;
@@ -75,6 +91,16 @@ static int cmd_setup(int setuplvl, const tec_cfg_t *cfg)
     return status;
 }
 
+/**
+ * cmd_is_naughty() - Check whether a command name is safe to look up
+ * @cmdname: the first argv token, i.e. the requested command name
+ *
+ * Rejects anything not starting with an alphabetic character (e.g. leading
+ * dashes or empty-looking tokens) before it is used to build a plugin path
+ * or matched against the builtin/alias tables.
+ *
+ * Return: true if @cmdname is rejected, false if it looks like a valid name
+ */
 static bool cmd_is_naughty(const char *cmdname)
 {
     if (!isalpha(cmdname[0]))
@@ -82,6 +108,17 @@ static bool cmd_is_naughty(const char *cmdname)
     return false;
 }
 
+/**
+ * cmd_get() - Resolve the requested command through the alias/plugin/builtin chain
+ * @argvec: parsed argv, whose argv[0] names the requested command
+ * @cfg: active configuration, needed to check aliases and the plugin dir
+ *
+ * Tries each entry of tec_cmd_types[] in turn (alias, then plugin, then
+ * builtin) and returns the first match.
+ *
+ * Return: pointer to the matching tec_cmd_t, or NULL if none of the
+ * resolvers recognize the command
+ */
 static tec_cmd_t *cmd_get(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     tec_cmd_t *cmd;
@@ -92,6 +129,16 @@ static tec_cmd_t *cmd_get(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return NULL;
 }
 
+/**
+ * path_generic() - Format a path into a fixed-size buffer, checking for truncation
+ * @buf: destination buffer
+ * @bufsiz: size of @buf in bytes
+ * @fmt: printf-style format string
+ * @...: arguments for @fmt
+ *
+ * Return: @buf on success, or NULL if the formatted string would have been
+ * truncated (vsnprintf() return value >= @bufsiz)
+ */
 static char *path_generic(char *buf, int bufsiz, const char *fmt, ...)
 {
     int len;
@@ -103,6 +150,18 @@ static char *path_generic(char *buf, int bufsiz, const char *fmt, ...)
     return len >= bufsiz ? NULL : buf;
 }
 
+/**
+ * path_pgn() - Build the path to a plugin binary inside the plugin directory
+ * @taskdir: configured plugin directory (cfg->base.pgn)
+ * @pgn: plugin/command name
+ *
+ * The plugin layout is "<taskdir>/<pgn>/<pgn>", i.e. each plugin lives in
+ * its own subdirectory named after itself. Uses a static internal buffer,
+ * so the result is only valid until the next call.
+ *
+ * Return: pointer to the internal static buffer holding the path, or NULL
+ * if the formatted path would exceed PATH_MAX
+ */
 static char *path_pgn(const char *taskdir, const char *pgn)
 {
     const char *fmt = "%s/%s/%s";
@@ -110,6 +169,14 @@ static char *path_pgn(const char *taskdir, const char *pgn)
     return path_generic(pathname, PATH_MAX, fmt, taskdir, pgn, pgn);
 }
 
+/**
+ * tec_cli_is_alias() - Check whether argv[0] names a user-defined alias
+ * @argvec: parsed argv, whose argv[0] names the requested command
+ * @cfg: active configuration, holding the linked list of configured aliases
+ *
+ * Return: pointer to the internal "_alias_" dispatch entry (whose func is
+ * tec_cli_alias()) if a matching alias is found, otherwise NULL
+ */
 tec_cmd_t *tec_cli_is_alias(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     tec_alias_t *head;
@@ -121,6 +188,17 @@ tec_cmd_t *tec_cli_is_alias(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return NULL;
 }
 
+/**
+ * tec_cli_is_plugin() - Check whether argv[0] names an installed plugin binary
+ * @argvec: parsed argv, whose argv[0] names the requested command
+ * @cfg: active configuration, providing the configured plugin directory
+ *
+ * Probes for a file at "<plugin dir>/<cmdname>/<cmdname>" by attempting to
+ * open it for reading.
+ *
+ * Return: pointer to the internal "_pgn_" dispatch entry (whose func is
+ * tec_cli_pgn()) if the plugin file exists, otherwise NULL
+ */
 tec_cmd_t *tec_cli_is_plugin(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     FILE *fp;
@@ -134,6 +212,15 @@ tec_cmd_t *tec_cli_is_plugin(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return NULL;
 }
 
+/**
+ * tec_cli_is_builtin() - Check whether argv[0] names a builtin command
+ * @argvec: parsed argv, whose argv[0] names the requested command
+ * @cfg: unused
+ *
+ * Linearly searches tec_cmds[] for a name matching argv[0].
+ *
+ * Return: pointer to the matching entry in tec_cmds[], or NULL if none match
+ */
 tec_cmd_t *tec_cli_is_builtin(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     (void)cfg;
@@ -145,6 +232,15 @@ tec_cmd_t *tec_cli_is_builtin(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return NULL;
 }
 
+/**
+ * tec_cli_cmd_run() - Run pre-dispatch setup then invoke a resolved command
+ * @cmd: the resolved dispatch-table entry to run
+ * @argvec: parsed argv to hand to @cmd's function
+ * @cfg: active configuration to hand to @cmd's function
+ *
+ * Return: EXIT_FAILURE (via TEC_LOG_E()) if cmd_setup() fails for @cmd's
+ * option level, otherwise whatever @cmd->func() returns
+ */
 int tec_cli_cmd_run(tec_cmd_t *cmd, tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int status = ETEC_OK;
@@ -154,6 +250,20 @@ int tec_cli_cmd_run(tec_cmd_t *cmd, tec_argvec_t *argvec, tec_cfg_t *cfg)
     return cmd->func(argvec, cfg);
 }
 
+/**
+ * main() - Program entry point: parse global options and dispatch a command
+ * @argc: argument count, as passed by the OS
+ * @argv: argument vector, as passed by the OS
+ *
+ * Parses tec's own options (-f config file, -h help, -v version, -C/-D/-H
+ * on/off toggles for color/debug/hook, -P plugin dir, -T task dir) with
+ * getopt() before the first non-option token, loads the config file, then
+ * resolves and runs the remaining argv as an alias, plugin, or builtin
+ * command via cmd_get()/tec_cli_cmd_run().
+ *
+ * Return: EXIT_SUCCESS if the resolved command (or -h/-v) succeeded,
+ * EXIT_FAILURE otherwise
+ */
 int main(int argc, const char **argv)
 {
     int c;

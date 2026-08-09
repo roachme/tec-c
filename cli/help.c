@@ -659,6 +659,11 @@ struct help helptab[] = {
     given, or a hook failed to execute.\n"},
 };
 
+/**
+ * show_cmd_section() - Print a titled section of helptab[] entries for `tec help`
+ * @title: section heading to print, e.g. "System"
+ * @tag: only helptab[] entries whose ->tag matches this are printed
+ */
 static void show_cmd_section(const char *title, const char *tag)
 {
     const char *name, *desc;
@@ -673,6 +678,13 @@ static void show_cmd_section(const char *title, const char *tag)
     }
 }
 
+/**
+ * help_list_short_commands() - Print every helptab[] entry's name and short description
+ *
+ * Used for `tec help -l`.
+ *
+ * Return: 0, always
+ */
 static int help_list_short_commands(void)
 {
     const char *name, *desc;
@@ -685,6 +697,17 @@ static int help_list_short_commands(void)
     return 0;
 }
 
+/**
+ * tec_cli_help_lookup() - Print help for a single command name
+ * @cmd: command name to look up in helptab[]
+ *
+ * Depending on the global helpctx flags set by tec_cli_help() (-s for
+ * synopsis-only, -d for short-description-only), prints just the
+ * synopsis, just "name - short description", or the full synopsis plus
+ * short and long descriptions.
+ *
+ * Return: 0 if @cmd was found in helptab[], 1 otherwise
+ */
 static int tec_cli_help_lookup(const char *cmd)
 {
     int found = false;
@@ -710,6 +733,16 @@ static int tec_cli_help_lookup(const char *cmd)
     return found == true ? 0 : 1;
 }
 
+/**
+ * tec_cli_help_list() - Print the top-level usage banner and command sections
+ *
+ * Used both as `tec help` with no arguments and as the fallback shown by
+ * main() when no command is given at all. Prints the "tec"/"help" hints
+ * followed by the System, Basic, and Object command sections via
+ * show_cmd_section().
+ *
+ * Return: 0, always
+ */
 int tec_cli_help_list(void)
 {
     printf("Usage: " PROGRAM " [OPTION]... COMMAND|PLUGIN\n");
@@ -723,12 +756,35 @@ int tec_cli_help_list(void)
     return 0;
 }
 
+/**
+ * tec_cli_help_usage() - Print a one-line "try help CMD" hint to stderr
+ * @cmd: command name to suggest running `tec help` on
+ *
+ * Used by other commands' getopt() error paths as a terse usage nudge.
+ *
+ * Return: EXIT_FAILURE, always (so callers can `return tec_cli_help_usage(...)`)
+ */
 int tec_cli_help_usage(const char *cmd)
 {
     fprintf(stderr, "Try '%s help %s' for more information.\n", PROGRAM, cmd);
     return EXIT_FAILURE;
 }
 
+/**
+ * tec_cli_help() - Implement `tec help`, showing usage for one or more commands
+ * @argvec: parsed argv; remaining positional args (after options) are the
+ *          command names to look up; with none given, prints the full
+ *          command list instead
+ * @cfg: unused
+ *
+ * Recognizes -d (short-description-only mode), -l (list every command's
+ * name and short description, then return), -s (synopsis-only mode).
+ * Looks up each requested command name via tec_cli_help_lookup(),
+ * logging an error for any that aren't found but continuing with the rest.
+ *
+ * Return: ETEC_OK if every requested command was found (or none were
+ * requested), otherwise the status of the last failed tec_cli_help_lookup() call
+ */
 int tec_cli_help(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c, i, status;

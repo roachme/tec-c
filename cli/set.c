@@ -16,6 +16,22 @@
 // "label"  /* list of labels */
 // "time"   /* time tracker */
 
+/**
+ * tec_cli_set() - Set one or more unit values on one or more tasks
+ * @argvec: parsed argv; remaining positional args (after options) are the
+ *          task IDs to update, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -d/-e (explicit desk/env), -h (help), -q (quiet errors), -i
+ * (interactive; currently unimplemented, always returns TEC_LOG_E(EFMT_DEV)),
+ * -T TYPE / -D DESC / -P PRIO to stage the "type"/"desc"/"prio" units
+ * (each validated with tec_aux_is_valid_type()/_desc()/_prio() and only
+ * staged once, first occurrence wins). The staged units are applied to
+ * every task argument via tec_task_set(), followed by the "set" hook.
+ *
+ * Return: EXIT_SUCCESS if every task and staged unit applied cleanly,
+ * otherwise EXIT_FAILURE; or the value of TEC_LOG_E(EFMT_DEV) if -i was given
+ */
 int tec_cli_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;

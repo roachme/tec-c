@@ -7,6 +7,19 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
+/**
+ * update_cwd() - Move the shell out of a task directory about to be removed
+ * @args: the task about to be removed
+ * @opts: rm options; ->change_dir is set to true when the user's CWD had
+ *        to be relocated, so the caller knows to refresh the pwd file
+ *
+ * If the user's current working directory is inside the task being
+ * removed (per tec_aux_do_change_user_cwd()), chdir()s to $HOME first so
+ * the shell session isn't left sitting in a directory that's about to
+ * disappear.
+ *
+ * Return: EXIT_FAILURE if $HOME can't be read or chdir() fails, ETEC_OK otherwise
+ */
 static int update_cwd(tec_arg_t *args, struct tec_cli_rm_options *opts)
 {
     char *home;
@@ -26,6 +39,13 @@ static int update_cwd(tec_arg_t *args, struct tec_cli_rm_options *opts)
     return status;
 }
 
+/**
+ * update_toggles() - Clear current/previous toggles pointing at a removed task
+ * @args: the task about to be removed
+ *
+ * Return: ETEC_OK if the task wasn't toggled or the toggle was cleared
+ * successfully, ETEC_TOGG_TASK_UNSET if clearing the toggle failed
+ */
 static int update_toggles(tec_arg_t *args)
 {
     int status = ETEC_OK;
@@ -37,6 +57,24 @@ static int update_toggles(tec_arg_t *args)
     return status == ETEC_OK ? ETEC_OK : ETEC_TOGG_TASK_UNSET;
 }
 
+/**
+ * tec_cli_rm() - Remove one or more tasks, with optional confirmation prompts
+ * @argvec: parsed argv; remaining positional args (after options) are the
+ *          task IDs to remove, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -d/-e (explicit desk/env), -f (never prompt, RMI_NEVER), -h
+ * (help), -i (always prompt per task, RMI_ALWAYS), -q (quiet errors), -v
+ * (verbose, log each successful removal), -I (prompt once up front when
+ * removing more than 3 tasks, RMI_SOMETIMES; this is the default mode).
+ * For each task: runs the "rm" hook, relocates the CWD out of the task
+ * if needed (update_cwd()), clears any current/previous toggle pointing
+ * at it (update_toggles()), then removes it via tec_task_rm(). Afterwards
+ * refreshes the pwd file if the CWD had to change.
+ *
+ * Return: EXIT_SUCCESS if every task was removed (or skipped by the user
+ * at a prompt) cleanly, otherwise EXIT_FAILURE
+ */
 int tec_cli_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;

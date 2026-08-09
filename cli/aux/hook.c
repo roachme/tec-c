@@ -11,6 +11,18 @@
 
 static char pathname[PATH_MAX + 1];
 
+/**
+ * _hook_cmd() - Build the shell command line to invoke a plugin hook
+ * @args: env/desk/task selection to pass to the plugin
+ * @name: plugin directory/binary name
+ * @cmd: plugin subcommand to invoke
+ *
+ * Formats "<pgnbase>/<name>/<name> -T <taskbase> <cmd> -e <env> -d
+ * <desk> <task>" into a static buffer.
+ *
+ * Return: pointer to a static buffer holding the built command line;
+ * overwritten on the next call to this function
+ */
 static char *_hook_cmd(tec_arg_t *args, char *name, char *cmd)
 {
     const char *fmt = "%s/%s/%s -T %s %s -e %s -d %s %s";
@@ -19,6 +31,20 @@ static char *_hook_cmd(tec_arg_t *args, char *name, char *cmd)
     return pathname;
 }
 
+/**
+ * hook_action() - Run every configured hook matching @cmd
+ * @args: env/desk/task selection passed through to each hook
+ * @cmd: hook command name to match against configured hooks (e.g. "add")
+ *
+ * No-op if hooks are globally disabled (teccfg.opts.hook == false).
+ * Otherwise walks teccfg.hooks and, for each entry whose cmd matches
+ * @cmd, shells out via system() to run it, continuing even if one
+ * invocation fails so all matching hooks get a chance to run.
+ *
+ * Return: ETEC_OK if every matching hook exited successfully (or
+ * hooks are disabled/none matched), ETEC_HOOK_EXEC if at least one
+ * hook's system() call failed
+ */
 int hook_action(tec_arg_t *args, char *cmd)
 {
     int retcode, status;
@@ -42,6 +68,23 @@ int hook_action(tec_arg_t *args, char *cmd)
     return retcode == ETEC_OK ? ETEC_OK : ETEC_HOOK_EXEC;
 }
 
+/**
+ * hook_cat() - Run every configured hook matching @cmd and collect its output
+ * @units: linked list to append parsed key/value output lines to
+ * @args: env/desk/task selection passed through to each hook
+ * @cmd: hook command name to match against configured hooks (e.g. "cat")
+ *
+ * No-op (success) if hooks are globally disabled
+ * (teccfg.opts.hook == false). Otherwise, for each configured hook
+ * whose cmd matches @cmd, shells out via popen() and parses every
+ * line of its stdout into *@units via tec_unit_parse(). Continues to
+ * the next hook even if one invocation fails to open or exits
+ * non-zero.
+ *
+ * Return: EXIT_SUCCESS if hooks are disabled or every matching hook's
+ * pipe opened and closed successfully, ETEC_HOOK_EXEC if at least one
+ * matching hook failed to open or exited non-zero
+ */
 int hook_cat(tec_unit_t **units, tec_arg_t *args, char *cmd)
 {
     FILE *pipe;

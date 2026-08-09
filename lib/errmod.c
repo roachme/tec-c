@@ -38,6 +38,17 @@ const char *errcodes[__ETEC_STATUS_LAST] = {
     [ETEC_UNIT_SET] = "cannot set unit values",
 };
 
+/**
+ * emod_set() - record the current error code and return it
+ * @errnum: an ETEC_* error code (or ETEC_OK) to store as the current error
+ *
+ * Stores @errnum in the module-level error state so it can be reported
+ * later. If @errnum is negative or larger than __ETEC_STATUS_LAST, the
+ * stored value is forced to -1 instead.
+ *
+ * Return: the value actually stored: @errnum when it is a valid code,
+ * or -1 when @errnum was out of range.
+ */
 int emod_set(int errnum)
 {
     errcode = errnum;
@@ -46,6 +57,14 @@ int emod_set(int errnum)
     return errcode;
 }
 
+/**
+ * emod_geterr() - get the human-readable message for an error code
+ * @errnum: an ETEC_* error code (or ETEC_OK) to translate
+ *
+ * Return: a pointer to a static buffer holding the message for @errnum,
+ * or "internal unknown error" if @errnum is out of range. The buffer is
+ * overwritten on the next call.
+ */
 char *emod_geterr(int errnum)
 {
     static char errmsg[ERRMOD_MSGSIZ + 1];

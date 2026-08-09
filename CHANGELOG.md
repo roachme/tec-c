@@ -11,6 +11,10 @@
 - `cli/cat`, `cli/desk`, `cli/env`: Fix memory leak on an invalid option to `cat`/`desk cat`/`env cat`
 - `cli/mv`: Fix memory leaks in `parse_path`/`parse_dest` not freeing the `env`/`desk`/`task` strings they allocate
 
+### Style
+
+- `cli`, `lib`: Add Linux kernel-doc style comments to every function definition and header struct/enum/macro
+
 
 ## [0.13.0] - (2026-08-08)
 

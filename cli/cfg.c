@@ -2,6 +2,12 @@
 #include "tec.h"
 #include "aux/config.h"
 
+/**
+ * _show_aliases() - Print every configured alias as "name\t\t: cmd"
+ * @aliases: head of the linked list of configured aliases
+ *
+ * Return: 0, always
+ */
 static int _show_aliases(tec_alias_t *aliases)
 {
     tec_alias_t *alias;
@@ -11,6 +17,15 @@ static int _show_aliases(tec_alias_t *aliases)
     return 0;
 }
 
+/**
+ * _act_hooks() - Print every configured hook that isn't a "cat" or "ls" hook
+ * @hooks: head of the linked list of configured hooks
+ *
+ * "Act" hooks are the ones run as a side effect of a command (e.g. add/rm/
+ * set/cd), as opposed to hooks that contribute output to `cat`/`ls`.
+ *
+ * Return: 0, always
+ */
 static int _act_hooks(struct tec_hook *hooks)
 {
     struct tec_hook *hook;
@@ -22,6 +37,12 @@ static int _act_hooks(struct tec_hook *hooks)
     return 0;
 }
 
+/**
+ * _cat_hooks() - Print every hook registered for the "cat" command
+ * @hooks: head of the linked list of configured hooks
+ *
+ * Return: 0, always
+ */
 static int _cat_hooks(struct tec_hook *hooks)
 {
     struct tec_hook *hook;
@@ -32,6 +53,12 @@ static int _cat_hooks(struct tec_hook *hooks)
     return 0;
 }
 
+/**
+ * _ls_hooks() - Print every hook registered for the "ls" command
+ * @hooks: head of the linked list of configured hooks
+ *
+ * Return: 0, always
+ */
 static int _ls_hooks(struct tec_hook *hooks)
 {
     struct tec_hook *hook;
@@ -43,6 +70,19 @@ static int _ls_hooks(struct tec_hook *hooks)
 
 }
 
+/**
+ * _cfg_get() - Implement `tec cfg get KEY...`
+ * @argvec: parsed argv with the "get" subcommand at index 0 and one or
+ *          more config key names following it
+ * @cfg: active configuration to read from
+ *
+ * Recognized keys: taskbase, pgnbase, opts.color, opts.debug, opts.hook,
+ * hook.cat, hook.ls, hook.act, alias. Each recognized key's value is
+ * printed to stdout; unrecognized keys log an error via TEC_LOG_E() but
+ * do not stop processing of the remaining keys.
+ *
+ * Return: the value of TEC_LOG_E() if no keys were given, otherwise 0
+ */
 static int _cfg_get(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     if (argvec->used == 0)
@@ -77,6 +117,12 @@ static int _cfg_get(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
 #define CFG_KEYW        10      /* fits the widest field name + padding.  */
 
+/**
+ * _cfg_section() - Print a section heading for `tec cfg ls` output
+ * @title: section title to print, e.g. "Paths"
+ * @first: skip the leading blank line when this is the first section printed
+ * @enabled: whether to colorize the output (forwarded to color_print_str())
+ */
 static void _cfg_section(const char *title, int first, int enabled)
 {
     if (!first)
@@ -84,6 +130,12 @@ static void _cfg_section(const char *title, int first, int enabled)
     color_print_str("%s:\n", (char *)title, BCYN, enabled);
 }
 
+/**
+ * _cfg_kv() - Print one aligned "key: value" row for `tec cfg ls` output
+ * @key: field name, left-padded to CFG_KEYW columns
+ * @val: field value
+ * @enabled: whether to colorize the output (forwarded to color_print_str())
+ */
 static void _cfg_kv(const char *key, const char *val, int enabled)
 {
     color_print_str("  %-" xstr(CFG_KEYW) "s", (char *)key, BBLU, enabled);
@@ -91,6 +143,18 @@ static void _cfg_kv(const char *key, const char *val, int enabled)
 }
 
 // TODO: show config values from config file. Not option set via CLI
+/**
+ * _cfg_ls() - Implement `tec cfg ls`, printing the whole active config
+ * @argvec: unused
+ * @cfg: active configuration to display
+ *
+ * Prints "Paths", "Options", "Hooks", and "Aliases" sections, each as
+ * aligned key/value rows, reflecting the config as currently loaded in
+ * memory (i.e. after CLI option overrides), not directly re-read from the
+ * config file.
+ *
+ * Return: 0, always
+ */
 static int _cfg_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     (void)argvec;
@@ -121,6 +185,13 @@ static int _cfg_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return 0;
 }
 
+/**
+ * _cfg_set() - Implement `tec cfg set` (currently a no-op stub)
+ * @argvec: unused
+ * @cfg: unused
+ *
+ * Return: 0, always
+ */
 static int _cfg_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     (void)argvec;
@@ -134,6 +205,14 @@ static const tec_cmd_t cfg_commands[] = {
     {.name = "set",.func = &_cfg_set},
 };
 
+/**
+ * tec_cli_cfg() - Dispatch `tec cfg get/ls/set` to its subcommand handler
+ * @argvec: parsed argv; argv[1] names the subcommand ("ls" if omitted)
+ * @cfg: active configuration
+ *
+ * Return: the subcommand handler's return value, or the value of
+ * TEC_LOG_E() if argv[1] doesn't match a known subcommand
+ */
 int tec_cli_cfg(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     const char *cmd = argvec->argv[1] != NULL ? argvec->argv[1] : "ls";

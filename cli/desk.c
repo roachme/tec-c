@@ -10,6 +10,14 @@
 #include "aux/config.h"
 
 // TODO: unify it (env, desk, task)
+/**
+ * valid_unitkeys() - Check that a desk's unit list only contains "desc"
+ * @units: linked list of desk units to validate, e.g. as returned by
+ *         tec_desk_get()
+ *
+ * Return: ETEC_OK if the keys match the expected order, ETEC_UNIT_INV_KEY
+ * on the first mismatch
+ */
 static int valid_unitkeys(tec_unit_t *units)
 {
     const char *keys[] = { "desc" };
@@ -22,6 +30,16 @@ static int valid_unitkeys(tec_unit_t *units)
 }
 
 // TODO: remove parameter 'quiet', return status, and let the caller to
+/**
+ * get_unit_desc() - Fetch a desk's "desc" unit value
+ * @ctx: filled in by tec_desk_get() with the desk's units on success
+ * @args: identifies the desk to fetch (args->desk must be set)
+ * @quiet: suppress TEC_LOG_E() output when set
+ * @cfg: active configuration
+ *
+ * Return: the desk's description string, or NULL if the desk couldn't be
+ * fetched or has no "desc" unit
+ */
 static char *get_unit_desc(tec_ctx_t *ctx, tec_arg_t *args, int quiet,
                            tec_cfg_t *cfg)
 {
@@ -38,6 +56,15 @@ static char *get_unit_desc(tec_ctx_t *ctx, tec_arg_t *args, int quiet,
     return desc;
 }
 
+/**
+ * generate_units() - Build the default unit set for a newly added desk
+ * @ctx: ->units is set to the newly-built unit list (just "desc")
+ * @desk: desk name used in the auto-generated description
+ * @desc: user-supplied -D description, or NULL to auto-generate one
+ *        ("Generated desciption for <desk>")
+ *
+ * Return: 0 on success, 1 if the resulting unit list is empty
+ */
 static int generate_units(tec_ctx_t *ctx, char *desk, char *desc)
 {
     struct tec_unit *units = NULL;
@@ -56,6 +83,23 @@ static int generate_units(tec_ctx_t *ctx, char *desk, char *desc)
 }
 
 // TODO: add support to generate desk name
+/**
+ * _desk_add() - Implement `tec desk add`, creating one or more desks
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the desk names to add, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -e (explicit env), -h (help), -n (don't update the
+ * current-desk toggle), -q (quiet errors), -D DESC (custom description),
+ * -N (neither change directory nor update the toggle). Unlike `tec add`,
+ * a desk name is required (no auto-generation). For each desk name:
+ * validates its length and format (tec_cli_len_valid()/tec_desk_valid()),
+ * rejects it if it already exists, builds its default units
+ * (generate_units()), creates it via tec_desk_add(), runs the
+ * "desk-add" hook, and (unless suppressed) sets it as the current desk.
+ *
+ * Return: EXIT_SUCCESS if every desk was added cleanly, otherwise EXIT_FAILURE
+ */
 static int _desk_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     char c;
@@ -161,6 +205,22 @@ static int _desk_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * _desk_rm() - Implement `tec desk rm`, removing one or more desks
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the desk names to remove, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -f (never prompt, RMI_NEVER), -h (help), -i (always prompt
+ * per desk, RMI_ALWAYS), -q (quiet errors), -v (verbose, log each
+ * removal), -I (prompt once up front when removing more than 3 desks,
+ * RMI_SOMETIMES; the default mode). For each desk: runs the "desk-rm"
+ * hook then removes it via tec_desk_rm(). Afterwards refreshes the pwd
+ * file if needed.
+ *
+ * Return: EXIT_SUCCESS if every desk was removed (or skipped by the user
+ * at a prompt) cleanly, otherwise EXIT_FAILURE
+ */
 static int _desk_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -257,6 +317,13 @@ static int _desk_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * cmp_desk_id() - qsort() comparator ordering tec_list_t entries by desk name
+ * @a: pointer to a tec_list_t element
+ * @b: pointer to a tec_list_t element
+ *
+ * Return: result of strcmp() on the two entries' ->name fields
+ */
 static int cmp_desk_id(const void *a, const void *b)
 {
     const tec_list_t *ea = a;
@@ -265,6 +332,21 @@ static int cmp_desk_id(const void *a, const void *b)
     return strcmp(ea->name, eb->name);
 }
 
+/**
+ * _desk_ls() - Implement `tec desk ls`, listing the desks in one or more environments
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the environment names to list, processed
+ *          in order
+ * @cfg: active configuration
+ *
+ * Recognizes -e (explicit env, though env is also read positionally per
+ * iteration), -h (help), -q (quiet errors). For each environment,
+ * fetches the desk list via tec_desk_list(), sorts it by name
+ * (cmp_desk_id()), and prints each desk's ID and description.
+ *
+ * Return: the status of the last processed environment (does not
+ * accumulate failures across multiple environment arguments)
+ */
 static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     char *desc = NULL;
@@ -339,6 +421,13 @@ static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return status;
 }
 
+/**
+ * _desk_mv() - Implement `tec desk mv` (currently unimplemented)
+ * @argvec: unused
+ * @cfg: unused
+ *
+ * Return: the value of TEC_LOG_E(), always
+ */
 static int _desk_mv(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     (void)argvec;
@@ -346,6 +435,19 @@ static int _desk_mv(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return TEC_LOG_E("%s: under development", __func__);
 }
 
+/**
+ * _desk_set() - Implement `tec desk set`, setting the "desc" unit on one or more desks
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the desk names to update, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -e (explicit env), -h (help), -q (quiet errors), -D DESC
+ * (staged "desc" unit, validated with tec_aux_is_valid_desc()). The
+ * staged unit is applied to every desk via tec_desk_set(), followed by
+ * the "desk-set" hook.
+ *
+ * Return: EXIT_SUCCESS if every desk updated cleanly, otherwise EXIT_FAILURE
+ */
 static int _desk_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -416,6 +518,21 @@ static int _desk_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * _desk_cat() - Implement `tec desk cat`, printing the units of one or more desks
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the desk names to cat, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -e (explicit env), -h (help), -k KEY (repeatable; restrict
+ * output to specific keys), -q (quiet errors). For each desk, validates
+ * it, sanity-checks its unit key order with valid_unitkeys(), fetches its
+ * units via tec_desk_get(), merges in any plugin-contributed units via
+ * hook_cat(), then prints either every unit or just the requested -k keys.
+ *
+ * Return: EXIT_SUCCESS if every desk and requested key resolved cleanly,
+ * otherwise EXIT_FAILURE
+ */
 static int _desk_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -523,6 +640,23 @@ static int _desk_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * _desk_cd() - Implement `tec desk cd`, switching the "current" desk
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the desk names to cd into, processed in
+ *          order; "-" means the previously-current desk
+ * @cfg: active configuration
+ *
+ * Recognizes -e (explicit env), -h (help), -n (don't update the
+ * current-desk toggle), -q (quiet errors), -N (neither change directory
+ * nor update the toggle). For each desk: validates it, runs the
+ * "desk-cd" hook, and (unless suppressed) sets it as the current desk.
+ * Finally updates the pwd file to point at the last successfully
+ * resolved desk.
+ *
+ * Return: EXIT_SUCCESS if every desk argument resolved cleanly, otherwise
+ * EXIT_FAILURE
+ */
 static int _desk_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -617,6 +751,14 @@ static const tec_cmd_t desk_commands[] = {
     {.name = "set",.func = &_desk_set},
 };
 
+/**
+ * tec_cli_desk() - Dispatch `tec desk add/cat/cd/ls/mv/rm/set` to its subcommand handler
+ * @argvec: parsed argv; argv[1] names the subcommand ("ls" if omitted)
+ * @cfg: active configuration
+ *
+ * Return: the subcommand handler's return value, or the value of
+ * TEC_LOG_E() if argv[1] doesn't match a known subcommand
+ */
 int tec_cli_desk(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     const char *cmd = argvec->argv[1] != NULL ? argvec->argv[1] : "ls";

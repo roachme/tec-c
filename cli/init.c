@@ -2,6 +2,14 @@
 #include "aux/errno.h"
 #include "aux/config.h"
 
+/**
+ * tec_cli_init() - Create the on-disk task database for the default env/desk
+ * @argvec: unused
+ * @cfg: unused
+ *
+ * Return: ETEC_OK on success, or the value of TEC_LOG_E() (logging and
+ * propagating the ETEC_* error from tec_make_db()) on failure
+ */
 int tec_cli_init(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     (void)cfg;

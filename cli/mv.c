@@ -29,13 +29,22 @@ Notes:
 '.' in arguments can be omited so use current arg by default.
 */
 
-/*
- * toggle_*_get_curr()/toggle_*_get_prev() point args->{env,desk,task} at
- * static buffers owned by cli/aux/toggle.c. parse_path()/parse_dest()
- * below also strdup() literal path components into the same fields, so
- * callers (tec_cli_mv) end up owning and free()ing whatever src/dst hold.
- * Duplicating the toggle result here makes every field parse_path()/
- * parse_dest() can set a heap pointer, so that free() is always safe.
+/**
+ * mv_toggle_env_curr() - Resolve the current env into a heap-owned string
+ * @cfg: active configuration, needed to resolve toggles
+ * @args: ->env is filled in with the current environment name on success
+ *
+ * toggle_env_get_curr() (cli/aux/toggle.c) points @args->env at a static
+ * buffer it owns, not a heap allocation. parse_path()/parse_dest() below
+ * also strdup() literal path components straight into the same fields,
+ * so tec_cli_mv() ends up owning and free()ing whatever src/dst hold.
+ * This wrapper (and its five siblings below) closes that gap by
+ * duplicating the toggle's result immediately, so every field
+ * parse_path()/parse_dest() can set is consistently a heap pointer and
+ * free() on it is always safe.
+ *
+ * Return: ETEC_OK on success (with ->env freshly allocated), or the
+ * toggle_env_get_curr() error code on failure (->env left untouched)
  */
 static int mv_toggle_env_curr(tec_cfg_t *cfg, tec_arg_t *args)
 {
@@ -45,6 +54,16 @@ static int mv_toggle_env_curr(tec_cfg_t *cfg, tec_arg_t *args)
     return status;
 }
 
+/**
+ * mv_toggle_env_prev() - Resolve the previous env into a heap-owned string
+ * @cfg: active configuration, needed to resolve toggles
+ * @args: ->env is filled in with the previous environment name on success
+ *
+ * See mv_toggle_env_curr() for why this duplicates the toggle result.
+ *
+ * Return: ETEC_OK on success (with ->env freshly allocated), or the
+ * toggle_env_get_prev() error code on failure (->env left untouched)
+ */
 static int mv_toggle_env_prev(tec_cfg_t *cfg, tec_arg_t *args)
 {
     int status = toggle_env_get_prev(cfg->base.task, args);
@@ -53,6 +72,16 @@ static int mv_toggle_env_prev(tec_cfg_t *cfg, tec_arg_t *args)
     return status;
 }
 
+/**
+ * mv_toggle_desk_curr() - Resolve the current desk into a heap-owned string
+ * @cfg: active configuration, needed to resolve toggles
+ * @args: ->desk is filled in with the current desk name on success
+ *
+ * See mv_toggle_env_curr() for why this duplicates the toggle result.
+ *
+ * Return: ETEC_OK on success (with ->desk freshly allocated), or the
+ * toggle_desk_get_curr() error code on failure (->desk left untouched)
+ */
 static int mv_toggle_desk_curr(tec_cfg_t *cfg, tec_arg_t *args)
 {
     int status = toggle_desk_get_curr(cfg->base.task, args);
@@ -61,6 +90,16 @@ static int mv_toggle_desk_curr(tec_cfg_t *cfg, tec_arg_t *args)
     return status;
 }
 
+/**
+ * mv_toggle_desk_prev() - Resolve the previous desk into a heap-owned string
+ * @cfg: active configuration, needed to resolve toggles
+ * @args: ->desk is filled in with the previous desk name on success
+ *
+ * See mv_toggle_env_curr() for why this duplicates the toggle result.
+ *
+ * Return: ETEC_OK on success (with ->desk freshly allocated), or the
+ * toggle_desk_get_prev() error code on failure (->desk left untouched)
+ */
 static int mv_toggle_desk_prev(tec_cfg_t *cfg, tec_arg_t *args)
 {
     int status = toggle_desk_get_prev(cfg->base.task, args);
@@ -69,6 +108,16 @@ static int mv_toggle_desk_prev(tec_cfg_t *cfg, tec_arg_t *args)
     return status;
 }
 
+/**
+ * mv_toggle_task_curr() - Resolve the current task into a heap-owned string
+ * @cfg: active configuration, needed to resolve toggles
+ * @args: ->task is filled in with the current task ID on success
+ *
+ * See mv_toggle_env_curr() for why this duplicates the toggle result.
+ *
+ * Return: ETEC_OK on success (with ->task freshly allocated), or the
+ * toggle_task_get_curr() error code on failure (->task left untouched)
+ */
 static int mv_toggle_task_curr(tec_cfg_t *cfg, tec_arg_t *args)
 {
     int status = toggle_task_get_curr(cfg->base.task, args);
@@ -77,6 +126,16 @@ static int mv_toggle_task_curr(tec_cfg_t *cfg, tec_arg_t *args)
     return status;
 }
 
+/**
+ * mv_toggle_task_prev() - Resolve the previous task into a heap-owned string
+ * @cfg: active configuration, needed to resolve toggles
+ * @args: ->task is filled in with the previous task ID on success
+ *
+ * See mv_toggle_env_curr() for why this duplicates the toggle result.
+ *
+ * Return: ETEC_OK on success (with ->task freshly allocated), or the
+ * toggle_task_get_prev() error code on failure (->task left untouched)
+ */
 static int mv_toggle_task_prev(tec_cfg_t *cfg, tec_arg_t *args)
 {
     int status = toggle_task_get_prev(cfg->base.task, args);
@@ -85,11 +144,23 @@ static int mv_toggle_task_prev(tec_cfg_t *cfg, tec_arg_t *args)
     return status;
 }
 
-/*
- * Parse a path argument into tec_arg_t components.
- * Format: [env/[desk/]]task or ././task
- * '.' means current, '..' means previous
- * Returns 0 on success, non-zero on error.
+/**
+ * parse_path() - Parse a source-style mv path argument into env/desk/task
+ * @path: path to parse; format is "[env/[desk/]]task", where any of
+ *        "env"/"desk"/"task" may instead be "." (current) or ".."
+ *        (previous); NULL or "" means "use current for all three"
+ * @args: filled in with the resolved env/desk/task; non-"."/".." parts
+ *        are heap-allocated via strdup() into ->env/->desk/->task, and
+ *        "." / ".." are resolved via the mv_toggle_*_curr()/
+ *        mv_toggle_*_prev() helpers above, which allocate too - every
+ *        field this function can set is a heap pointer the caller owns
+ * @errfmt: printf-style format forwarded to TEC_LOG_E() on error,
+ *          expecting two %s placeholders (the offending token and a
+ *          short reason)
+ * @cfg: active configuration, needed to resolve toggles
+ *
+ * Return: 0 on success, or the value of TEC_LOG_E() if a "."/".." toggle
+ * lookup fails
  */
 static int parse_path(const char *path, tec_arg_t *args, const char *errfmt,
                       tec_cfg_t *cfg)
@@ -228,9 +299,21 @@ static int parse_path(const char *path, tec_arg_t *args, const char *errfmt,
     return 0;
 }
 
-/*
- * Parse destination path which may be a directory (ends with '/') or a task path.
- * If is_dir is set to true, the destination is a directory and task should not be set.
+/**
+ * parse_dest() - Parse an mv destination argument, directory or task path
+ * @path: destination path; if it ends with '/' it names a directory
+ *        (env/, desk/, or env/desk/) rather than a task rename target
+ * @args: filled in with the resolved env/desk (and task, for non-directory
+ *        destinations); see parse_path() for allocation/toggle semantics -
+ *        every field this function can set is a heap pointer the caller owns
+ * @is_dir: set to true if @path was a directory-style destination (in
+ *          which case ->task is left unset), false otherwise
+ * @errfmt: printf-style format forwarded to TEC_LOG_E() on error, see
+ *          parse_path()
+ * @cfg: active configuration, needed to resolve toggles
+ *
+ * Return: 0 on success, or the value of TEC_LOG_E() on allocation failure
+ * or a "."/".." toggle lookup failure
  */
 static int parse_dest(const char *path, tec_arg_t *args, int *is_dir,
                       const char *errfmt, tec_cfg_t *cfg)
@@ -324,6 +407,34 @@ static int parse_dest(const char *path, tec_arg_t *args, int *is_dir,
     return parse_path(path, args, errfmt, cfg);
 }
 
+/**
+ * tec_cli_mv() - Move (rename) one or more tasks
+ * @argvec: parsed argv; positional args are one or more SRC paths
+ *          followed by a single DST path/directory (see the usage
+ *          comment at the top of this file for the SRC/DST syntax)
+ * @cfg: active configuration
+ *
+ * Recognizes -f and -t (both currently unimplemented, always error), -h
+ * (help), -q (quiet errors). The last positional argument is parsed as
+ * the destination via parse_dest(). With exactly two positional
+ * arguments and a non-directory destination, performs a single
+ * src->dst move via tec_task_move(), inheriting env/desk from the source
+ * when the destination didn't specify them. With more arguments (or a
+ * directory destination), moves each source task in turn into the
+ * destination directory, keeping each task's own ID. After each
+ * successful move, updates the current/previous task toggles: renames
+ * the toggle's task ID in place if env/desk didn't change, or clears it
+ * if the task moved to a different desk/env. Every env/desk/task string
+ * parse_path()/parse_dest() allocated into src/dst is free()d before
+ * returning, on every exit path (careful with the single-move case:
+ * dst->env/dst->desk may alias src's fields when inherited, so they're
+ * only freed once).
+ *
+ * Return: EXIT_SUCCESS-style 0 on success; for the single-move path, the
+ * ETEC_* status from parse_dest()/parse_path()/tec_task_move() on
+ * failure; for the multi-move path, the status of the last source that
+ * failed to parse or move (0 if all succeeded)
+ */
 int tec_cli_mv(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;

@@ -12,6 +12,15 @@
 
 // TODO: gotta add config checker so a program doesn't fail.
 
+/**
+ * config_set_default_options() - Fill unset boolean options with their defaults
+ * @cfg: config struct whose opts.color/opts.debug/opts.hook are normalized
+ *
+ * Any option still holding the sentinel NONEBOOL (not set via CLI or
+ * config file) is set to false.
+ *
+ * Return: always 0
+ */
 static int config_set_default_options(struct config *cfg)
 {
     if (cfg->opts.color == NONEBOOL)
@@ -23,6 +32,15 @@ static int config_set_default_options(struct config *cfg)
     return 0;
 }
 
+/**
+ * resolve_env_var_home() - Expand a leading "$HOME" in a path
+ * @dst: destination buffer, must be large enough to hold the expanded path
+ * @src: source path, may start with the literal "$HOME"
+ *
+ * If @src contains "$HOME", the $HOME environment variable's value is
+ * substituted for it and the remainder of @src is appended; otherwise
+ * @src is copied to @dst unchanged.
+ */
 static void resolve_env_var_home(char *dst, const char *src)
 {
     char *home = getenv("HOME");
@@ -36,6 +54,16 @@ static void resolve_env_var_home(char *dst, const char *src)
     }
 }
 
+/**
+ * tec_config_set_default_base() - Fill unset base directories with their defaults
+ * @tec_config: config struct whose base.task/base.pgn are normalized
+ *
+ * If base.task or base.pgn are still NULL, they are set to
+ * "$HOME/tectask" and "$HOME/.local/lib/tec/pgn" respectively (with
+ * $HOME expanded), each newly allocated with strdup().
+ *
+ * Return: always 0
+ */
 static int tec_config_set_default_base(tec_cfg_t *tec_config)
 {
     char pathname[PATH_MAX + 1] = { 0 };
@@ -51,6 +79,15 @@ static int tec_config_set_default_base(tec_cfg_t *tec_config)
     return 0;
 }
 
+/**
+ * tec_config_set_default_config() - Apply all defaults to an unset config
+ * @tec_config: config struct to fill in
+ *
+ * Convenience wrapper that runs tec_config_set_default_base() then
+ * config_set_default_options() over @tec_config.
+ *
+ * Return: always 0
+ */
 static int tec_config_set_default_config(tec_cfg_t *tec_config)
 {
     tec_config_set_default_base(tec_config);
@@ -58,6 +95,12 @@ static int tec_config_set_default_config(tec_cfg_t *tec_config)
     return 0;
 }
 
+/**
+ * make_hook() - Allocate and zero-initialize a hook entry
+ *
+ * Return: pointer to a newly malloc()'d, zeroed struct tec_hook, or
+ * NULL if allocation failed. Caller owns the returned memory.
+ */
 static struct tec_hook *make_hook()
 {
     struct tec_hook *hook;
@@ -68,6 +111,12 @@ static struct tec_hook *make_hook()
     return hook;
 }
 
+/**
+ * make_alias() - Allocate and zero-initialize an alias entry
+ *
+ * Return: pointer to a newly malloc()'d, zeroed tec_alias_t, or NULL
+ * if allocation failed. Caller owns the returned memory.
+ */
 static tec_alias_t *make_alias()
 {
     tec_alias_t *alias;
@@ -78,6 +127,20 @@ static tec_alias_t *make_alias()
     return alias;
 }
 
+/**
+ * tec_config_get_hooks() - Parse the "hooks.cat" and "hooks.action" sections
+ * @cfg: opened libconfig config to read from
+ * @tec_config: config struct whose hooks list is prepended to
+ *
+ * For every element under "hooks.cat" and "hooks.action", allocates a
+ * struct tec_hook, copies its bincmd/pgname/pgncmd fields, and pushes
+ * it onto the front of tec_config->hooks. Entries missing any of the
+ * three required string fields are skipped (and counted as a
+ * failure).
+ *
+ * Return: EXIT_SUCCESS if every entry parsed cleanly, EXIT_FAILURE if
+ * at least one entry was malformed
+ */
 static int tec_config_get_hooks(config_t *cfg, tec_cfg_t *tec_config)
 {
     unsigned int count;
@@ -136,6 +199,17 @@ static int tec_config_get_hooks(config_t *cfg, tec_cfg_t *tec_config)
     return retcode;
 }
 
+/**
+ * tec_config_get_aliases() - Parse the "alias" section into the alias list
+ * @cfg: opened libconfig config to read from
+ * @tec_config: config struct whose alias list is prepended to
+ *
+ * For every "name = value" setting under "alias", allocates a
+ * tec_alias_t, copies name and value, and pushes it onto the front of
+ * tec_config->alias. Does nothing if no "alias" section is present.
+ *
+ * Return: always 0
+ */
 static int tec_config_get_aliases(config_t *cfg, tec_cfg_t *tec_config)
 {
     tec_alias_t *alias;
@@ -161,6 +235,18 @@ static int tec_config_get_aliases(config_t *cfg, tec_cfg_t *tec_config)
     return 0;
 }
 
+/**
+ * tec_config_get_base() - Parse the "base" section (task/pgn directories)
+ * @cfg: opened libconfig config to read from
+ * @tec_config: config struct whose base.task/base.pgn are set
+ *
+ * Reads "base.task" and "base.pgn" strings, expands any leading
+ * "$HOME", and stores them in @tec_config — but only for fields not
+ * already set (i.e. CLI-supplied values take precedence over the
+ * config file).
+ *
+ * Return: always EXIT_SUCCESS
+ */
 static int tec_config_get_base(config_t *cfg, tec_cfg_t *tec_config)
 {
     const char *path = NULL;
@@ -186,6 +272,17 @@ static int tec_config_get_base(config_t *cfg, tec_cfg_t *tec_config)
     return EXIT_SUCCESS;
 }
 
+/**
+ * tec_config_get_options() - Parse the "options" section (color/debug/hook)
+ * @cfg: opened libconfig config to read from
+ * @tec_config: config struct whose opts.color/opts.debug/opts.hook are set
+ *
+ * Reads the "color", "debug" and "hook" booleans, but only for
+ * options still at the NONEBOOL sentinel (i.e. not already set via
+ * CLI options). Does nothing if no "options" section is present.
+ *
+ * Return: EXIT_SUCCESS (also returned when no "options" section exists)
+ */
 static int tec_config_get_options(config_t *cfg, tec_cfg_t *tec_config)
 {
     config_setting_t *setting;
@@ -203,6 +300,20 @@ static int tec_config_get_options(config_t *cfg, tec_cfg_t *tec_config)
     return EXIT_SUCCESS;
 }
 
+/**
+ * parseconf() - Load and parse a single config file into @tec_config
+ * @tec_config: config struct to populate
+ * @fname: path to the libconfig file to read
+ *
+ * Reads @fname with libconfig, then runs tec_config_get_base(),
+ * tec_config_get_options(), tec_config_get_hooks() and
+ * tec_config_get_aliases() over it in sequence (short-circuiting on
+ * the first that reports failure, each failure only logged via
+ * TEC_LOG_D). The libconfig handle is destroyed before returning.
+ *
+ * Return: the value returned by TEC_LOG_E() (non-zero) if @fname
+ * could not be read/parsed by libconfig, 0 otherwise
+ */
 static int parseconf(tec_cfg_t *tec_config, const char *fname)
 {
     config_t cfg;
@@ -227,6 +338,14 @@ static int parseconf(tec_cfg_t *tec_config, const char *fname)
     return 0;
 }
 
+/**
+ * tec_config_init() - Reset a config struct to its pre-parse zero state
+ * @cfg: config struct to initialize
+ *
+ * Sets alias/hooks lists to NULL, base paths to NULL, and the
+ * color/debug/hook options to the NONEBOOL sentinel (not yet decided
+ * by CLI or config file).
+ */
 void tec_config_init(tec_cfg_t *cfg)
 {
     cfg->alias = NULL;
@@ -243,6 +362,21 @@ void tec_config_init(tec_cfg_t *cfg)
 }
 
 // TODO: simplify this mess. add a separate function to find and check config file
+/**
+ * tec_config_parse() - Locate and parse the tec config file
+ * @tec_config: config struct to populate; base.cfg may already hold
+ *              an explicit path (e.g. from a CLI option)
+ *
+ * If tec_config->base.cfg is set, that exact file is required to
+ * exist and is parsed. Otherwise searches, in order,
+ * "$HOME/.tec/tec.cfg" and "$HOME/.config/tec/tec.cfg" and parses the
+ * first one found. Regardless of whether a file was found, remaining
+ * unset fields are filled in via tec_config_set_default_config().
+ *
+ * Return: EXIT_SUCCESS if a config file was located and parsed
+ * cleanly (or no explicit path was given), EXIT_FAILURE if an
+ * explicit base.cfg path does not exist or parsing failed
+ */
 int tec_config_parse(tec_cfg_t *tec_config)
 {
     int status = ETEC_OK;
@@ -271,6 +405,14 @@ int tec_config_parse(tec_cfg_t *tec_config)
     return status == EXIT_SUCCESS ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * tec_config_destroy() - Free all memory owned by a parsed config
+ * @tec_config: config struct to tear down
+ *
+ * Frees every node in the hooks and alias linked lists, plus
+ * base.cfg, base.task and base.pgn. Does not reset the struct's
+ * fields to NULL afterward.
+ */
 void tec_config_destroy(tec_cfg_t *tec_config)
 {
     tec_alias_t *alias;

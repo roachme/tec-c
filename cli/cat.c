@@ -14,6 +14,16 @@
 #include "aux/argvec.h"
 #include "aux/config.h"
 
+/**
+ * valid_unitkeys() - Check that a unit list's keys match the expected builtin order
+ * @units: linked list of task units to validate, e.g. as returned by
+ *         tec_task_get()
+ *
+ * Walks @units alongside the global unitkeys[] array (of length nunitkey)
+ * and confirms each unit's key matches the expected key at that position.
+ *
+ * Return: ETEC_OK if all keys line up, ETEC_UNIT_INV_KEY on the first mismatch
+ */
 static int valid_unitkeys(tec_unit_t *units)
 {
     for (size_t i = 0; units && i < nunitkey; units = units->next, ++i)
@@ -22,6 +32,22 @@ static int valid_unitkeys(tec_unit_t *units)
     return ETEC_OK;
 }
 
+/**
+ * tec_cli_cat() - Print the key/value units of one or more tasks
+ * @argvec: parsed argv; remaining positional args (after options) are the
+ *          task IDs to cat, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -d/-e (explicit desk/env), -h (help), -k KEY (repeatable;
+ * restrict output to specific keys instead of all of them), -q (quiet
+ * errors). For each task, validates env/desk/task, fetches its units via
+ * tec_task_get(), sanity-checks their key order with valid_unitkeys(),
+ * merges in any plugin-contributed units via hook_cat(), then prints
+ * either every unit or just the requested -k keys.
+ *
+ * Return: EXIT_SUCCESS if every task and requested key resolved cleanly,
+ * otherwise EXIT_FAILURE
+ */
 int tec_cli_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;

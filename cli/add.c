@@ -11,6 +11,17 @@
 #include "aux/config.h"
 #include "aux/toggle.h"
 
+/**
+ * generate_task() - Auto-generate an unused task ID and append it to argvec
+ * @args: ->task is set to point at the generated ID
+ * @argvec: the generated ID string is appended as a new argument, so the
+ *          normal per-task loop in tec_cli_add() picks it up
+ *
+ * Tries sequential zero-padded IDs (IDFMT) from 1 up to IDLIMIT-1 and uses
+ * the first one that doesn't already exist (tec_task_exist()).
+ *
+ * Return: 0 on success, 1 if every ID up to IDLIMIT is already taken
+ */
 static int generate_task(tec_arg_t *args, tec_argvec_t *argvec)
 {
     static char gentask[IDSIZ + 1] = { 0 };
@@ -27,6 +38,18 @@ static int generate_task(tec_arg_t *args, tec_argvec_t *argvec)
     return 1;
 }
 
+/**
+ * generate_units() - Build the default unit set for a newly added task
+ * @ctx: ->units is set to the newly-built unit list
+ * @args: ->task supplies the task ID used in the auto-generated description
+ * @desc: user-supplied -D description, or NULL to auto-generate one
+ *        ("Generated desciption for <task>")
+ *
+ * Populates the unitkeys[]-ordered values: a generated "mid", the task ID,
+ * today's date (YYYYMMDD), and the description.
+ *
+ * Return: 0 on success, 1 if the resulting unit list is empty
+ */
 static int generate_units(tec_ctx_t *ctx, tec_arg_t *args, char *desc)
 {
     char date[BUFSIZ + 1];
@@ -54,6 +77,25 @@ static int generate_units(tec_ctx_t *ctx, tec_arg_t *args, char *desc)
     return 0;
 }
 
+/**
+ * tec_cli_add() - Create one or more new tasks
+ * @argvec: parsed argv; remaining positional args (after options) are the
+ *          task IDs to add, processed in order; if none are given, a
+ *          single ID is auto-generated via generate_task()
+ * @cfg: active configuration
+ *
+ * Recognizes -d/-e (explicit desk/env), -h (help), -n (don't update the
+ * current-task toggle), -q (quiet errors), -v (verbose, log each add),
+ * -D DESC (custom description), -N (neither change directory nor update
+ * the toggle). For each task ID: validates its length and format
+ * (tec_cli_len_valid()/tec_task_valid()), rejects it if it already exists,
+ * builds its default units (generate_units()), creates it via
+ * tec_task_add(), runs the "add" hook, and (unless suppressed) cascades
+ * the current-env/desk/task toggles the same way `tec cd` does. Finally
+ * updates the pwd file to point at the last successfully added task.
+ *
+ * Return: EXIT_SUCCESS if every task was added cleanly, otherwise EXIT_FAILURE
+ */
 int tec_cli_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;

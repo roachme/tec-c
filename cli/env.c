@@ -13,6 +13,14 @@
 #include "aux/toggle.h"
 
 // TODO: unify it (env, desk, task)
+/**
+ * valid_unitkeys() - Check that an env's unit list only contains "desc"
+ * @units: linked list of env units to validate, e.g. as returned by
+ *         tec_env_get()
+ *
+ * Return: ETEC_OK if the keys match the expected order, ETEC_UNIT_INV_KEY
+ * on the first mismatch
+ */
 static int valid_unitkeys(tec_unit_t *units)
 {
     const char *keys[] = { "desc" };
@@ -24,6 +32,13 @@ static int valid_unitkeys(tec_unit_t *units)
     return ETEC_OK;
 }
 
+/**
+ * generate_units() - Build the default unit set for a newly added environment
+ * @ctx: ->units is set to the newly-built unit list (just "desc")
+ * @env: environment name used in the auto-generated description
+ *
+ * Return: 0 on success, 1 if the resulting unit list is empty
+ */
 static int generate_units(tec_ctx_t *ctx, char *env)
 {
     struct tec_unit *units = NULL;
@@ -37,11 +52,26 @@ static int generate_units(tec_ctx_t *ctx, char *env)
     return 0;
 }
 
-/*
- * Create the env's default desk by delegating to `desk add` itself,
- * instead of duplicating its unit-generation/validation logic here.
- * This also gives the default desk its own generated description
- * rather than reusing the env's.
+/**
+ * env_add_default_desk() - Create the env's default desk via `desk add`
+ * @args: ->env names the just-added environment, ->desk names the desk
+ *        to create in it
+ * @cfg: active configuration
+ * @quiet: forward -q to the synthesized `desk add` invocation
+ *
+ * Creates the env's default desk by delegating to `desk add` itself,
+ * instead of duplicating its unit-generation/validation logic here. This
+ * also gives the default desk its own generated description rather than
+ * reusing the env's. Builds a synthetic argv ("desk add -e ENV -N [-q]
+ * DESK") and runs it through tec_cli_desk(); -N is passed because this
+ * function's caller (_env_add()) owns updating toggles/pwd itself, not
+ * the delegated desk-add call. Resets getopt()'s internal scan state
+ * (optind = 0, glibc's documented full-reinit) before the nested call so
+ * a second invocation in the same loop iteration doesn't read stale state
+ * left by the previous argv.
+ *
+ * Return: ETEC_OK on success, ETEC_UNIT_GEN_FAIL if the delegated
+ * `desk add` did not return EXIT_SUCCESS
  */
 static int env_add_default_desk(tec_arg_t *args, tec_cfg_t *cfg, bool quiet)
 {
@@ -70,6 +100,26 @@ static int env_add_default_desk(tec_arg_t *args, tec_cfg_t *cfg, bool quiet)
     return status == EXIT_SUCCESS ? ETEC_OK : ETEC_UNIT_GEN_FAIL;
 }
 
+/**
+ * _env_add() - Implement `tec env add`, creating one or more environments
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the environment names to add, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -d DESK (name for the auto-created default desk, "desk" if
+ * omitted), -h (help), -n (don't update the current-env/desk toggles),
+ * -q (quiet errors), -D (not yet implemented, always errors), -N
+ * (neither change directory nor update the toggles). For each env name:
+ * validates its length and format (tec_cli_len_valid()/tec_env_valid()),
+ * rejects it if it already exists, builds its default units
+ * (generate_units()), creates it via tec_env_add(), then creates its
+ * default desk via env_add_default_desk(). After the loop, unless
+ * suppressed, sets the last processed env/desk as current, then
+ * refreshes the pwd file.
+ *
+ * Return: EXIT_SUCCESS if every environment was added cleanly, otherwise
+ * EXIT_FAILURE (or 1 if updating the current-env/desk toggle fails)
+ */
 static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     char c;
@@ -184,6 +234,23 @@ static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * _env_rm() - Implement `tec env rm`, removing one or more environments
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the environment names to remove, processed
+ *          in order
+ * @cfg: active configuration
+ *
+ * Recognizes -d (explicit desk, unused for env resolution here), -f
+ * (never prompt, RMI_NEVER), -h (help), -i (always prompt per env,
+ * RMI_ALWAYS), -q (quiet errors), -v (verbose, log each removal), -I
+ * (prompt once up front when removing more than 3 envs, RMI_SOMETIMES;
+ * the default mode). For each env: runs the "env-rm" hook then removes
+ * it via tec_env_rm(). Afterwards refreshes the pwd file if needed.
+ *
+ * Return: EXIT_SUCCESS if every environment was removed (or skipped by
+ * the user at a prompt) cleanly, otherwise EXIT_FAILURE
+ */
 static int _env_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -277,6 +344,13 @@ static int _env_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * cmp_env_id() - qsort() comparator ordering tec_list_t entries by env name
+ * @a: pointer to a tec_list_t element
+ * @b: pointer to a tec_list_t element
+ *
+ * Return: result of strcmp() on the two entries' ->name fields
+ */
 static int cmp_env_id(const void *a, const void *b)
 {
     const tec_list_t *ea = a;
@@ -285,6 +359,20 @@ static int cmp_env_id(const void *a, const void *b)
     return strcmp(ea->name, eb->name);
 }
 
+/**
+ * _env_ls() - Implement `tec env ls`, listing every environment
+ * @argvec: parsed argv (subcommand name already skipped)
+ * @cfg: active configuration
+ *
+ * Recognizes -h (help), -q (quiet errors), -t (only show the
+ * current/previous toggled environments, opts.togg), -v (unimplemented,
+ * always errors). Fetches the full env list via tec_env_list(), sorts it
+ * by name (cmp_env_id()), then prints each environment's ID and
+ * description, filtered to the toggled ones when -t is given.
+ *
+ * Return: EXIT_SUCCESS if listing and every environment's lookup
+ * succeeded, otherwise EXIT_FAILURE
+ */
 static int _env_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -362,6 +450,22 @@ static int _env_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * _env_rename() - Implement `tec env rename SRC DST`
+ * @argvec: parsed argv (subcommand name already skipped); expects exactly
+ *          two positional args, the source and destination env names
+ * @cfg: active configuration
+ *
+ * Recognizes -h (help), -q (quiet errors). Validates the source
+ * environment and that the destination doesn't already exist, renames it
+ * via tec_env_rename(), runs the "env-rename" hook, updates any
+ * current/previous env toggle pointing at the old name via
+ * toggle_env_update(), then refreshes the pwd file.
+ *
+ * Return: EXIT_FAILURE if argument count/validation fails; otherwise the
+ * ETEC_* status from tec_env_rename(), hook_action(), or
+ * toggle_env_update() on failure, or the value of tec_cli_pwd_set() on success
+ */
 static int _env_rename(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -428,6 +532,19 @@ static int _env_rename(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return tec_cli_pwd_set(&dst);
 }
 
+/**
+ * _env_set() - Implement `tec env set`, setting the "desc" unit on one or more environments
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the env names to update, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -d (explicit desk, unused for env resolution here), -h
+ * (help), -q (quiet errors), -D DESC (staged "desc" unit, validated with
+ * tec_aux_is_valid_desc()). The staged unit is applied to every
+ * environment via tec_env_set(), followed by the "env-set" hook.
+ *
+ * Return: EXIT_SUCCESS if every environment updated cleanly, otherwise EXIT_FAILURE
+ */
 static int _env_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -494,6 +611,22 @@ static int _env_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * _env_cat() - Implement `tec env cat`, printing the units of one or more environments
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the env names to cat, processed in order
+ * @cfg: active configuration
+ *
+ * Recognizes -d (explicit desk, unused for env resolution here), -h
+ * (help), -k KEY (repeatable; restrict output to specific keys), -q
+ * (quiet errors). For each env, validates it, fetches its units via
+ * tec_env_get(), sanity-checks their key order with valid_unitkeys(),
+ * merges in any plugin-contributed units via hook_cat(), then prints
+ * either every unit or just the requested -k keys.
+ *
+ * Return: EXIT_SUCCESS if every env and requested key resolved cleanly,
+ * otherwise EXIT_FAILURE
+ */
 static int _env_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -594,6 +727,23 @@ static int _env_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/**
+ * _env_cd() - Implement `tec env cd`, switching the "current" environment
+ * @argvec: parsed argv (subcommand name already skipped); remaining
+ *          positional args are the env names to cd into, processed in
+ *          order; "-" means the previously-current environment
+ * @cfg: active configuration
+ *
+ * Recognizes -d (explicit desk, unused for env resolution here), -h
+ * (help), -n (don't update the current-env toggle), -q (quiet errors),
+ * -N (neither change directory nor update the toggle). For each env:
+ * validates it, runs the "env-cd" hook, and (unless suppressed) sets it
+ * as the current environment. Finally updates the pwd file to point at
+ * the last successfully resolved environment.
+ *
+ * Return: EXIT_SUCCESS if every env argument resolved cleanly, otherwise
+ * EXIT_FAILURE
+ */
 static int _env_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
@@ -683,6 +833,14 @@ static const tec_cmd_t env_commands[] = {
     {.name = "set",.func = &_env_set},
 };
 
+/**
+ * tec_cli_env() - Dispatch `tec env add/cat/cd/ls/rename/rm/set` to its subcommand handler
+ * @argvec: parsed argv; argv[1] names the subcommand ("ls" if omitted)
+ * @cfg: active configuration
+ *
+ * Return: the subcommand handler's return value, or the value of
+ * TEC_LOG_E() if argv[1] doesn't match a known subcommand
+ */
 int tec_cli_env(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     const char *cmd = argvec->argv[1] != NULL ? argvec->argv[1] : "ls";

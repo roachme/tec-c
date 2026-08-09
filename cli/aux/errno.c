@@ -44,6 +44,16 @@ static const char *errcodes[__TEC_CLI_STATUS_LAST] = {
     //* togg
 };
 
+/**
+ * tec_strerror() - Translate an error code into a human-readable message
+ * @errnum: error code, either a lib tec_errno value or a CLI tec_cli_errno value
+ *
+ * Return: for @errnum in the lib error range, the string returned by
+ * tec_geterr(); for @errnum in the CLI error range, a pointer into a
+ * static buffer holding the matching message (overwritten on the
+ * next call); for any other value, a pointer to the same static
+ * buffer holding "cli internal unknown error"
+ */
 char *tec_strerror(int errnum)
 {
     static char errmsg[TEC_CLI_EBUF + 1];

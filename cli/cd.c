@@ -8,6 +8,25 @@
 #include "aux/toggle.h"
 #include "aux/config.h"
 
+/**
+ * tec_cli_cd() - Switch the "current" task to one or more given tasks
+ * @argvec: parsed argv; remaining positional args (after options) are the
+ *          task IDs to cd into, processed in order; "-" means the
+ *          previously-current task
+ * @cfg: active configuration, used to resolve current/previous toggles
+ *
+ * Recognizes -d/-e (explicit desk/env), -h (help), -n (don't update the
+ * current-task toggle), -p PATH (write the resolved pwd to PATH instead of
+ * the default pwd file), -q (quiet errors), -N (neither change directory
+ * nor update the toggle). For each task argument, validates env/desk/task
+ * with tec_cli_check_env()/check_desk()/check_task(), runs the "cd" hook,
+ * and (unless suppressed) cascades the current-env/desk/task toggles so
+ * later toggle-relative commands see the new location. Finally updates the
+ * pwd file to point at the last successfully resolved task.
+ *
+ * Return: EXIT_SUCCESS if every task argument resolved cleanly, otherwise
+ * EXIT_FAILURE (accumulated across all task arguments via RETUPD())
+ */
 int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     int c;
