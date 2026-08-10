@@ -13,6 +13,7 @@
 
 ### Fixed
 
+- `cli/aux/config`: Fix buffer overflow parsing `hooks`/`alias` config entries - `bincmd`/`pgname`/`pgncmd`/alias `name`/`cmd` were `strcpy()`'d into fixed-size (10/30 byte) struct fields with no length check, so an overlong value in the user's own config file could overflow them; now bounds-checked via `field_copy()` and the offending entry is rejected with an error instead
 - `cli/pgn`, `cli/aux/hook`: Fix shell command injection in plugin/hook dispatch - `system()`/`popen()` on a hand-built command string let unquoted plugin arguments be reinterpreted as shell syntax; now exec plugins/hooks directly via `fork()`+`execv()` with a real argv array
 - `cli/cd`: Fix `-p PATH` not checking that `PATH` exists inside the task directory
 - `tec`: Fix memory leak when an invalid global option or toggle value (`-C`/`-D`/`-H`) is given

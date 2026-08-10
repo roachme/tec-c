@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <libconfig.h>
 
 #include "../../lib/osdep.h"
@@ -96,6 +97,27 @@ static int tec_config_set_default_config(tec_cfg_t *tec_config)
 }
 
 /**
+ * field_copy() - Bounds-checked copy into a fixed-size config field
+ * @dst: destination field, @dstsiz bytes
+ * @dstsiz: size of @dst, including the NUL terminator
+ * @src: NUL-terminated source string read from the config file
+ *
+ * Unlike a bare strcpy(), refuses to write anything if @src (plus its
+ * NUL terminator) would not fit in @dst, so a long value in a
+ * user-editable config file can't overflow a fixed-size struct field.
+ *
+ * Return: true if @src fit in @dst and was copied, false if it was
+ * too long (@dst is left untouched)
+ */
+static bool field_copy(char *dst, size_t dstsiz, const char *src)
+{
+    if (strlen(src) >= dstsiz)
+        return false;
+    strcpy(dst, src);
+    return true;
+}
+
+/**
  * make_hook() - Allocate and zero-initialize a hook entry
  *
  * Return: pointer to a newly malloc()'d, zeroed struct tec_hook, or
@@ -163,9 +185,16 @@ static int tec_config_get_hooks(config_t *cfg, tec_cfg_t *tec_config)
                     retcode = EXIT_FAILURE;
                     continue;
                 }
-                strcpy(hook->cmd, bincmd);
-                strcpy(hook->pgname, pgname);
-                strcpy(hook->pgncmd, pgncmd);
+                if (!(field_copy(hook->cmd, sizeof(hook->cmd), bincmd)
+                      && field_copy(hook->pgname, sizeof(hook->pgname), pgname)
+                      && field_copy(hook->pgncmd, sizeof(hook->pgncmd), pgncmd))) {
+                    TEC_LOG_E("config: hook entry field too long "
+                             "(max %zu chars): '%s'/'%s'/'%s'",
+                             sizeof(hook->cmd) - 1, bincmd, pgname, pgncmd);
+                    free(hook);
+                    retcode = EXIT_FAILURE;
+                    continue;
+                }
                 hook->next = tec_config->hooks;
                 tec_config->hooks = hook;
             }
@@ -187,9 +216,16 @@ static int tec_config_get_hooks(config_t *cfg, tec_cfg_t *tec_config)
                     retcode = EXIT_FAILURE;
                     continue;
                 }
-                strcpy(hook->cmd, bincmd);
-                strcpy(hook->pgname, pgname);
-                strcpy(hook->pgncmd, pgncmd);
+                if (!(field_copy(hook->cmd, sizeof(hook->cmd), bincmd)
+                      && field_copy(hook->pgname, sizeof(hook->pgname), pgname)
+                      && field_copy(hook->pgncmd, sizeof(hook->pgncmd), pgncmd))) {
+                    TEC_LOG_E("config: hook entry field too long "
+                             "(max %zu chars): '%s'/'%s'/'%s'",
+                             sizeof(hook->cmd) - 1, bincmd, pgname, pgncmd);
+                    free(hook);
+                    retcode = EXIT_FAILURE;
+                    continue;
+                }
                 hook->next = tec_config->hooks;
                 tec_config->hooks = hook;
             }
@@ -225,8 +261,15 @@ static int tec_config_get_aliases(config_t *cfg, tec_cfg_t *tec_config)
         name = config_setting_name(_setting);
         if (config_setting_lookup_string(setting, name, &value)) {
             if ((alias = make_alias()) != NULL) {
-                strcpy(alias->name, name);
-                strcpy(alias->cmd, value);
+                if (!(field_copy(alias->name, sizeof(alias->name), name)
+                      && field_copy(alias->cmd, sizeof(alias->cmd), value))) {
+                    TEC_LOG_E("config: alias entry field too long "
+                             "(name max %zu, cmd max %zu): '%s' = '%s'",
+                             sizeof(alias->name) - 1, sizeof(alias->cmd) - 1,
+                             name, value);
+                    free(alias);
+                    continue;
+                }
                 alias->next = tec_config->alias;
                 tec_config->alias = alias;
             }
