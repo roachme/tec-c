@@ -22,7 +22,7 @@
 static int pgn_path(char *path, tec_cfg_t *cfg, const char *name)
 {
     int len = snprintf(path, PATH_MAX + 1, "%s/%s/%s", cfg->base.pgn, name,
-                        name);
+                       name);
 
     return (len < 0 || len >= PATH_MAX + 1) ? EXIT_FAILURE : EXIT_SUCCESS;
 }

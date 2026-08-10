@@ -28,7 +28,7 @@ static char *hook_argv[10];
 static char *hook_path(char *name)
 {
     int len = snprintf(pathname, sizeof(pathname), "%s/%s/%s",
-                        teccfg.base.pgn, name, name);
+                       teccfg.base.pgn, name, name);
 
     return (len < 0 || (size_t)len >= sizeof(pathname)) ? NULL : pathname;
 }
@@ -234,7 +234,9 @@ int hook_cat(tec_unit_t **units, tec_arg_t *args, char *cmd)
         }
 
         TEC_LOG_D("hook: exec %s", path);
-        if (!(pipe = hook_popen(hook_argv_build(path, args, hooks->pgncmd), &pid))) {
+        if (!
+            (pipe =
+             hook_popen(hook_argv_build(path, args, hooks->pgncmd), &pid))) {
             // TODO: add quiet option and show error message of plugin
             retcode = EXIT_FAILURE;
             continue;

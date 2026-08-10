@@ -187,10 +187,11 @@ static int tec_config_get_hooks(config_t *cfg, tec_cfg_t *tec_config)
                 }
                 if (!(field_copy(hook->cmd, sizeof(hook->cmd), bincmd)
                       && field_copy(hook->pgname, sizeof(hook->pgname), pgname)
-                      && field_copy(hook->pgncmd, sizeof(hook->pgncmd), pgncmd))) {
+                      && field_copy(hook->pgncmd, sizeof(hook->pgncmd),
+                                    pgncmd))) {
                     TEC_LOG_E("config: hook entry field too long "
-                             "(max %zu chars): '%s'/'%s'/'%s'",
-                             sizeof(hook->cmd) - 1, bincmd, pgname, pgncmd);
+                              "(max %zu chars): '%s'/'%s'/'%s'",
+                              sizeof(hook->cmd) - 1, bincmd, pgname, pgncmd);
                     free(hook);
                     retcode = EXIT_FAILURE;
                     continue;
@@ -218,10 +219,11 @@ static int tec_config_get_hooks(config_t *cfg, tec_cfg_t *tec_config)
                 }
                 if (!(field_copy(hook->cmd, sizeof(hook->cmd), bincmd)
                       && field_copy(hook->pgname, sizeof(hook->pgname), pgname)
-                      && field_copy(hook->pgncmd, sizeof(hook->pgncmd), pgncmd))) {
+                      && field_copy(hook->pgncmd, sizeof(hook->pgncmd),
+                                    pgncmd))) {
                     TEC_LOG_E("config: hook entry field too long "
-                             "(max %zu chars): '%s'/'%s'/'%s'",
-                             sizeof(hook->cmd) - 1, bincmd, pgname, pgncmd);
+                              "(max %zu chars): '%s'/'%s'/'%s'",
+                              sizeof(hook->cmd) - 1, bincmd, pgname, pgncmd);
                     free(hook);
                     retcode = EXIT_FAILURE;
                     continue;
@@ -264,9 +266,9 @@ static int tec_config_get_aliases(config_t *cfg, tec_cfg_t *tec_config)
                 if (!(field_copy(alias->name, sizeof(alias->name), name)
                       && field_copy(alias->cmd, sizeof(alias->cmd), value))) {
                     TEC_LOG_E("config: alias entry field too long "
-                             "(name max %zu, cmd max %zu): '%s' = '%s'",
-                             sizeof(alias->name) - 1, sizeof(alias->cmd) - 1,
-                             name, value);
+                              "(name max %zu, cmd max %zu): '%s' = '%s'",
+                              sizeof(alias->name) - 1, sizeof(alias->cmd) - 1,
+                              name, value);
                     free(alias);
                     continue;
                 }
