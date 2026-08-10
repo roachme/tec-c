@@ -13,6 +13,7 @@
 
 ### Fixed
 
+- `cli/pgn`, `cli/aux/hook`: Fix shell command injection in plugin/hook dispatch - `system()`/`popen()` on a hand-built command string let unquoted plugin arguments be reinterpreted as shell syntax; now exec plugins/hooks directly via `fork()`+`execv()` with a real argv array
 - `cli/cd`: Fix `-p PATH` not checking that `PATH` exists inside the task directory
 - `tec`: Fix memory leak when an invalid global option or toggle value (`-C`/`-D`/`-H`) is given
 - `cli/cat`, `cli/desk`, `cli/env`: Fix memory leak on an invalid option to `cat`/`desk cat`/`env cat`
