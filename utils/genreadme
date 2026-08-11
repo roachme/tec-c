@@ -73,9 +73,14 @@ MACRO_CODE
 There is a MACRO_INLINE_CODE nine MACRO_INLINE_CODE plugin manager to install plugins.
 
 Here are some plugins to check out \
-[nine](https://github.com/roachme/tec-nine.git) - Tec plugin manager \
+[conv](https://github.com/roachme/tec-conv.git) - Workflow engine \
+[find](https://github.com/roachme/tec-find.git) - Find stuff in tasks \
+[fsck](https://github.com/roachme/tec-fsck.git) - Check and repair filesystem \
 [gmux](https://github.com/roachme/tec-gmux.git) - Manage a bunch of git repos \
-[find](https://github.com/roachme/tec-find.git) - Find stuff in tasks
+[link](https://github.com/roachme/tec-link.git) - Link tasks \
+[nine](https://github.com/roachme/tec-nine.git) - Tec plugin manager \
+[note](https://github.com/roachme/tec-note.git) - Note taking plugin \
+[tar](https://github.com/roachme/tec-tar.git) - Tec archiver
 
 
 ## ⇁  Install plugin manager

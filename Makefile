@@ -48,7 +48,7 @@ init:
 $(PROGRAM): $(OBJS)
 	$(CC) -o $@ $^ $(LFLAGS)
 
-generate: $(PROGRAM)
+generate: init $(PROGRAM)
 	$(shell m4 -DSHELLNAME=$(SHELLNAME) -DPWDFILE=$(PWDFILE) ./utils/genshell > $(SHELLSCRIPT))
 	$(shell m4 ./utils/genreadme > $(README))
 

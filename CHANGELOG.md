@@ -6,6 +6,7 @@
 - `tests/memleak/tec.cfg`: Add an isolated fixture config so memcheck results don't depend on the developer's real `~/.config/tec/tec.cfg`
 - `utils/release`: Automate publishing GitHub releases - builds the release tarball, extracts the matching `CHANGELOG.md` section as notes, and calls `gh release create`/`gh release upload` (supports `-n` for a dry run)
 - `shell/_tec.zsh`: Add zsh completion for installed plugins - discovers them from `pgnbase` and shows each one's `desc`, with dedicated subcommand/option completers for `gmux` and `conv`
+- `tec`: Add new plugins into README.md
 
 ### Changed
 
