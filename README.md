@@ -5,6 +5,11 @@
         Terminal project and task manager
     <br />
   </p>
+
+[![C CI](https://github.com/roachme/tec/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/roachme/tec/actions/workflows/c-cpp.yml)
+[![Latest tag](https://img.shields.io/github/v/tag/roachme/tec)](https://github.com/roachme/tec/tags)
+[![License: GPL v3](https://img.shields.io/github/license/roachme/tec)](LICENSE)
+
 </div>
 
 <br/>
@@ -169,3 +174,9 @@ Note: \
 ## ⇁  Tips
 1. Use ` tec help ` to get a list of commands.
 2. Or ` tec help COMMAND ` to get help on a specified command.
+
+
+## ⇁  Feedback
+Tec is under active development and I'd like to hear how it fits (or doesn't fit) your workflow.
+- Found a bug or have a feature idea? [Open an issue](https://github.com/roachme/tec/issues/new)
+- Have thoughts, questions, or a workflow you'd like to share? [Start a discussion](https://github.com/roachme/tec/discussions)
