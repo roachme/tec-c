@@ -10,7 +10,9 @@ jobs:
       with:
         submodules: 'recursive'
     - name: Install dependencies
-      run: sudo apt install -y indent cppcheck libconfig-dev python3-pip valgrind
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends indent cppcheck libconfig-dev python3-pip valgrind
     - name: Install Python dependencies
       run: pip3 install -r tests/usage/requirements.txt
     - name: make
