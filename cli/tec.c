@@ -17,15 +17,6 @@
         optind = 0;         \
     } while (0)             \
 
-/*
-typedef struct tec_cli_status {
-    const char *fmt;
-    char *obj;
-    char *msg;
-    int status;
-} tec_cli_status_t;
-*/
-
 struct config teccfg;
 
 static tec_cmd_t tec_cmd_types[] = {
