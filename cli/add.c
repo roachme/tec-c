@@ -16,20 +16,21 @@
  * @args: ->task is set to point at the generated ID
  * @argvec: the generated ID string is appended as a new argument, so the
  *          normal per-task loop in tec_cli_add() picks it up
+ * @cfg: active configuration
  *
  * Tries sequential zero-padded IDs (IDFMT) from 1 up to IDLIMIT-1 and uses
  * the first one that doesn't already exist (tec_task_exist()).
  *
  * Return: 0 on success, 1 if every ID up to IDLIMIT is already taken
  */
-static int generate_task(tec_arg_t *args, tec_argvec_t *argvec)
+static int generate_task(tec_arg_t *args, tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     static char gentask[IDSIZ + 1] = { 0 };
 
     args->task = gentask;
     for (register unsigned int i = 1; i < IDLIMIT; ++i) {
         sprintf(gentask, IDFMT, i);
-        if (tec_task_exist(teccfg.base.task, args) != ETEC_OK) {
+        if (tec_task_exist(cfg->base.task, args) != ETEC_OK) {
             argvec_add(argvec, gentask);
             args->task = argvec->argv[argvec->used];
             return 0;
@@ -146,17 +147,17 @@ int tec_cli_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (opts.help == true)
         return tec_cli_help_usage("add");
-    else if ((status = tec_cli_check_env(&args))) {
+    else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_ADD, args.env, tec_strerror(status));
         return EXIT_FAILURE;
-    } else if ((status = tec_cli_check_desk(&args))) {
+    } else if ((status = tec_cli_check_desk(&args, cfg))) {
         args.desk = args.desk ? args.desk : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_ADD, args.desk, tec_strerror(status));
         return EXIT_FAILURE;
-    } else if (optind == argvec->used && generate_task(&args, argvec)) {
+    } else if (optind == argvec->used && generate_task(&args, argvec, cfg)) {
         if (opts.quiet == false)
             TEC_LOG_E("cannot generate task ID: limit is %d", IDLIMIT);
         return EXIT_FAILURE;
@@ -192,7 +193,7 @@ int tec_cli_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
         if ((status = tec_task_add(cfg->base.task, &args, &ctx))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_ADD, args.task, tec_strerror(status));
-        } else if ((status = hook_action(&args, "add"))) {
+        } else if ((status = hook_action(&args, "add", cfg))) {
             // TODO: remove task directory if hook has failed
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_ADD, args.task, tec_strerror(status));
@@ -218,6 +219,6 @@ int tec_cli_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir)
-        retcode = tec_cli_pwd_set(&args);
+        retcode = tec_cli_pwd_set(&args, cfg);
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }

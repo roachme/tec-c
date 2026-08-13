@@ -9,6 +9,7 @@
 #include "aux/aux.h"
 #include "aux/log.h"
 #include "aux/pwd.h"
+#include "aux/opts.h"
 #include "aux/errno.h"
 #include "aux/argvec.h"
 
@@ -16,8 +17,6 @@
     do {                    \
         optind = 0;         \
     } while (0)             \
-
-struct config teccfg;
 
 static tec_cmd_t tec_cmd_types[] = {
     {.name = "alias",.type = tec_cli_is_alias},
@@ -258,23 +257,24 @@ int tec_cli_cmd_run(tec_cmd_t *cmd, tec_argvec_t *argvec, tec_cfg_t *cfg)
 int main(int argc, const char **argv)
 {
     int c;
+    tec_cfg_t cfg;
     tec_cmd_t *cmd;
-    int status = ETEC_OK;
     tec_argvec_t argvec;
-    tec_cfg_t *cfg = &teccfg;
+    int status = ETEC_OK;
     const char *cmdname = NULL;
     const char *togfmt = "option `-%c' accepts either 'on' or 'off'";
 
-    tec_config_init(cfg);
+    TEC_LOG_INIT(&cfg);
     tec_cli_pwd_unset();
     argvec_init(&argvec);
+    tec_cli_option_init(&cfg);
     argvec_parse(&argvec, argc, argv);
 
     /* Parse util itself options.  */
     while ((c = getopt(argvec.used, argvec.argv, "+:f:hvC:D:H:P:T:")) != -1) {
         switch (c) {
         case 'f':
-            cfg->base.cfg = strdup(optarg);
+            cfg.base.cfg = strdup(optarg);
             break;
         case 'h':
             argvec_add(&argvec, "help");
@@ -283,32 +283,32 @@ int main(int argc, const char **argv)
             argvec_add(&argvec, "version");
             break;
         case 'C':
-            if ((cfg->opts.color = toggle2bool(optarg)) == NONEBOOL) {
+            if ((cfg.opts.color = toggle2bool(optarg)) == NONEBOOL) {
                 status = TEC_LOG_E(togfmt, c);
                 goto err;
             }
             break;
         case 'D':
-            if ((cfg->opts.debug = toggle2bool(optarg)) == NONEBOOL) {
+            if ((cfg.opts.debug = toggle2bool(optarg)) == NONEBOOL) {
                 status = TEC_LOG_E(togfmt, c);
                 goto err;
             }
             break;
         case 'H':
-            if ((cfg->opts.hook = toggle2bool(optarg)) == NONEBOOL) {
+            if ((cfg.opts.hook = toggle2bool(optarg)) == NONEBOOL) {
                 status = TEC_LOG_E(togfmt, c);
                 goto err;
             }
             break;
         case 'P':
-            if (cfg->base.pgn)
-                free(cfg->base.pgn);
-            cfg->base.pgn = strdup(optarg);
+            if (cfg.base.pgn)
+                free(cfg.base.pgn);
+            cfg.base.pgn = strdup(optarg);
             break;
         case 'T':
-            if (cfg->base.task)
-                free(cfg->base.task);
-            cfg->base.task = strdup(optarg);
+            if (cfg.base.task)
+                free(cfg.base.task);
+            cfg.base.task = strdup(optarg);
             break;
         case ':':
             TEC_LOG_E(FMT_OPT_ARG_REQ, optopt);
@@ -325,7 +325,7 @@ int main(int argc, const char **argv)
     tec_getopt_unset();
     argvec_offset(&argvec, argvec.i);   /* Skip program name and options if any.  */
 
-    if (tec_config_parse(cfg)) {
+    if (tec_config_parse(&cfg)) {
         status = TEC_LOG_E("cannot parse config file");
         goto err;
     } else if ((cmdname = argvec.argv[0]) == NULL) {
@@ -335,15 +335,15 @@ int main(int argc, const char **argv)
     } else if (cmd_is_naughty(cmdname) == true) {
         status = TEC_LOG_E("'%s': naughty command", cmdname);
         goto err;
-    } else if ((cmd = cmd_get(&argvec, cfg)) == NULL) {
+    } else if ((cmd = cmd_get(&argvec, &cfg)) == NULL) {
         status = TEC_LOG_E("'%s': no such command, alias or plugin", cmdname);
         goto err;
-    } else if ((status = tec_cli_cmd_run(cmd, &argvec, cfg))) {
+    } else if ((status = tec_cli_cmd_run(cmd, &argvec, &cfg))) {
         goto err;
     }
 
  err:
-    tec_config_destroy(cfg);
+    tec_config_destroy(&cfg);
     argvec_deinit(&argvec);
     return status == EXIT_SUCCESS ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -10,6 +10,14 @@
  */
 
 /**
+ * TEC_LOG_INIT() - Bind the logger to the active config's debug flag
+ * @cfg: active configuration (see tec_cli_log_init())
+ *
+ * Must be called once before any TEC_LOG_D() use.
+ */
+#define TEC_LOG_INIT(cfg) tec_cli_log_init((cfg))
+
+/**
  * enum tec_cli_log_lvl - severity levels for CLI logging
  * @TEC_LOG_PROMPT: prompt user for input
  * @TEC_LOG_ERROR: error, no recovery, terminate immediately
@@ -59,6 +67,7 @@ typedef enum tec_cli_log_lvl {
  */
 #define TEC_LOG_P(fmt, ...) tec_cli_log_prompt(fmt, ##__VA_ARGS__)
 
+void tec_cli_log_init(tec_cfg_t * cfg);
 int tec_cli_log_error(const char *fmt, ...);
 int tec_cli_log_debug(const char *fname, int line, const char *fmt, ...);
 int tec_cli_log_info(const char *fmt, ...);

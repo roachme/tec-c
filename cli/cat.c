@@ -97,13 +97,13 @@ int tec_cli_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
         retcode = ETEC_OK;
         tec_cli_help_usage("cat");
         goto err;
-    } else if ((status = tec_cli_check_env(&args))) {
+    } else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_CAT, args.env, tec_strerror(status));
         retcode = EXIT_FAILURE;
         goto err;
-    } else if ((status = tec_cli_check_desk(&args))) {
+    } else if ((status = tec_cli_check_desk(&args, cfg))) {
         args.desk = args.desk ? args.desk : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_CAT, args.desk, tec_strerror(status));
@@ -114,7 +114,7 @@ int tec_cli_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.task = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_task(&args))) {
+        if ((status = tec_cli_check_task(&args, cfg))) {
             retcode = EXIT_FAILURE;
             args.task = args.task ? args.task : ETEC_NOCURR;
             if (opts.quiet == false)
@@ -130,7 +130,7 @@ int tec_cli_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_CAT, args.task, tec_strerror(status));
             continue;
-        } else if ((status = hook_cat(&unitpgn, &args, "cat"))) {
+        } else if ((status = hook_cat(&unitpgn, &args, "cat", cfg))) {
             retcode = EXIT_FAILURE;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_CAT, args.task, tec_strerror(status));

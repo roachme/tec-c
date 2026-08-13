@@ -9,6 +9,7 @@
  *        any NULL field is treated as an empty path component
  * @path: optional subdirectory appended after the task ID, or NULL
  *        for none
+ * @cfg: active configuration
  *
  * Overwrites PWDFILE with a single line of the form
  * "<taskbase>/<env>/<desk>/<task>[/<path>]\n" so the shell wrapper can
@@ -17,10 +18,10 @@
  * Return: 0 on success, 1 if PWDFILE could not be opened for writing,
  * or whatever fclose() returns (non-zero) if closing it failed
  */
-static int pwd_write(tec_arg_t *args, const char *path)
+static int pwd_write(tec_arg_t *args, const char *path, tec_cfg_t *cfg)
 {
     FILE *fp;
-    char *taskdir = teccfg.base.task;
+    char *taskdir = cfg->base.task;
     const char *fmt = "%s/%s/%s/%s%s%s\n";
     const char *fmtdebug = "pwd: env='%s', desk='%s', task='%s', path='%s'";
 
@@ -41,24 +42,26 @@ static int pwd_write(tec_arg_t *args, const char *path)
 /**
  * tec_cli_pwd_set() - Record the current env/desk/task as the shell's next directory
  * @args: env/desk/task selection to write out
+ * @cfg: active configuration
  *
  * Return: 0 on success, non-zero on failure (see pwd_write())
  */
-int tec_cli_pwd_set(tec_arg_t *args)
+int tec_cli_pwd_set(tec_arg_t *args, tec_cfg_t *cfg)
 {
-    return pwd_write(args, NULL);
+    return pwd_write(args, NULL, cfg);
 }
 
 /**
  * tec_cli_pwd_set_path() - Record env/desk/task plus a subdirectory as the shell's next directory
  * @args: env/desk/task selection to write out
  * @path: subdirectory inside the task directory to append
+ * @cfg: active configuration
  *
  * Return: 0 on success, non-zero on failure (see pwd_write())
  */
-int tec_cli_pwd_set_path(tec_arg_t *args, const char *path)
+int tec_cli_pwd_set_path(tec_arg_t *args, const char *path, tec_cfg_t *cfg)
 {
-    return pwd_write(args, path);
+    return pwd_write(args, path, cfg);
 }
 
 /**

@@ -10,6 +10,7 @@
 #include "log.h"
 #include "config.h"
 #include "hook.h"
+#include "opts.h"
 
 // TODO: gotta add config checker so a program doesn't fail.
 
@@ -381,29 +382,6 @@ static int parseconf(tec_cfg_t *tec_config, const char *fname)
 
     config_destroy(&cfg);
     return 0;
-}
-
-/**
- * tec_config_init() - Reset a config struct to its pre-parse zero state
- * @cfg: config struct to initialize
- *
- * Sets alias/hooks lists to NULL, base paths to NULL, and the
- * color/debug/hook options to the NONEBOOL sentinel (not yet decided
- * by CLI or config file).
- */
-void tec_config_init(tec_cfg_t *cfg)
-{
-    cfg->alias = NULL;
-
-    cfg->opts.color = NONEBOOL;
-    cfg->opts.debug = NONEBOOL;
-    cfg->opts.hook = NONEBOOL;
-
-    cfg->base.cfg = NULL;
-    cfg->base.pgn = NULL;
-    cfg->base.task = NULL;
-
-    cfg->hooks = NULL;
 }
 
 // TODO: simplify this mess. add a separate function to find and check config file

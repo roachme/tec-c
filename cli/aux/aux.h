@@ -2,6 +2,7 @@
 #define TEC_CLI_AUX_H
 
 #include <stdbool.h>
+#include "config.h"
 #include "../../lib/libtec.h"
 #include "argvec.h"
 
@@ -51,7 +52,7 @@ extern char *unitkeys[];
 extern unsigned int nunitkey;
 
 bool tec_aux_yesno(void);
-bool tec_aux_do_change_user_cwd(tec_arg_t * args);
+bool tec_aux_do_change_user_cwd(tec_arg_t * args, tec_cfg_t * cfg);
 
 int tec_cli_help_list(void);
 int tec_cli_help_usage(const char *cmd);

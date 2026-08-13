@@ -94,12 +94,12 @@ int tec_cli_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (opts.help == true)
         return tec_cli_help_usage("set");
-    else if ((status = tec_cli_check_env(&args))) {
+    else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_SET, args.env, tec_strerror(status));
         return EXIT_FAILURE;
-    } else if ((status = tec_cli_check_desk(&args))) {
+    } else if ((status = tec_cli_check_desk(&args, cfg))) {
         args.desk = args.desk ? args.desk : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_SET, args.desk, tec_strerror(status));
@@ -109,7 +109,7 @@ int tec_cli_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.task = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_task(&args))) {
+        if ((status = tec_cli_check_task(&args, cfg))) {
             args.task = args.task ? args.task : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_SET, args.task, tec_strerror(status));
@@ -121,7 +121,7 @@ int tec_cli_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
             args.task = args.task ? args.task : "NOCURR";
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_SET, args.task, tec_strerror(status));
-        } else if ((status = hook_action(&args, "set"))) {
+        } else if ((status = hook_action(&args, "set", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_SET, args.task, tec_strerror(status));
         }

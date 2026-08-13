@@ -35,17 +35,18 @@ bool tec_aux_yesno(void)
 /**
  * tec_aux_do_change_user_cwd() - Check whether the shell is already inside the target task dir
  * @args: env/desk/task selection whose on-disk task directory is checked
+ * @cfg: active configuration
  *
- * Builds the expected task directory path from teccfg.base.task and
+ * Builds the expected task directory path from cfg->base.task and
  * @args, and compares it against the shell's current working
  * directory (via tec_cli_osdep_getenv_cwd()).
  *
  * Return: true if the process' current working directory already
  * matches the task's directory, false otherwise
  */
-bool tec_aux_do_change_user_cwd(tec_arg_t *args)
+bool tec_aux_do_change_user_cwd(tec_arg_t *args, tec_cfg_t *cfg)
 {
-    char *base = teccfg.base.task;
+    char *base = cfg->base.task;
     char buf[FILENAME_MAX + 1] = { 0 };
 
     sprintf(buf, "%s/%s/%s/%s", base, args->env, args->desk, args->task);

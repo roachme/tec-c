@@ -228,7 +228,7 @@ static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
     }
 
     if (retcode == ETEC_OK && opts.change_dir) {
-        status = tec_cli_pwd_set(&args);
+        status = tec_cli_pwd_set(&args, cfg);
         RETUPD(retcode, status);
     }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -308,7 +308,7 @@ static int _env_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.env = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_env(&args))) {
+        if ((status = tec_cli_check_env(&args, cfg))) {
             args.env = args.env ? args.env : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_RM, args.env, tec_strerror(status));
@@ -320,7 +320,7 @@ static int _env_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
                 continue;
         }
 
-        if ((status = hook_action(&args, "env-rm"))) {
+        if ((status = hook_action(&args, "env-rm", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_RM, args.env, tec_strerror(status));
         } else if ((status = tec_env_rm(cfg->base.task, &args, &ctx))) {
@@ -336,7 +336,7 @@ static int _env_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (retcode == ETEC_OK && opts.change_dir) {
         args.env = NULL;        /* Force to get current environment.  */
-        status = tec_cli_pwd_set(&args);
+        status = tec_cli_pwd_set(&args, cfg);
         if (toggle_env_get_curr(cfg->base.task, &args))
             args.env = "";
         RETUPD(retcode, status);
@@ -423,7 +423,7 @@ static int _env_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
         args.env = obj->name;
 
-        if ((status = tec_env_get(teccfg.base.task, &args, &ctx))) {
+        if ((status = tec_env_get(cfg->base.task, &args, &ctx))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_LS, args.env, tec_strerror(status));
             continue;
@@ -435,11 +435,11 @@ static int _env_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
         }
 
         if (opts.togg && toggle_env_is_curr(cfg->base.task, &args)) {
-            LIST_OBJ_UNITS(obj->name, "", desc, ENVSIZ, teccfg.opts.color);
+            LIST_OBJ_UNITS(obj->name, "", desc, ENVSIZ, cfg->opts.color);
         } else if (opts.togg && toggle_env_is_prev(cfg->base.task, &args)) {
-            LIST_OBJ_UNITS(obj->name, "", desc, ENVSIZ, teccfg.opts.color);
+            LIST_OBJ_UNITS(obj->name, "", desc, ENVSIZ, cfg->opts.color);
         } else if (!opts.togg) {
-            LIST_OBJ_UNITS(obj->name, "", desc, ENVSIZ, teccfg.opts.color);
+            LIST_OBJ_UNITS(obj->name, "", desc, ENVSIZ, cfg->opts.color);
         }
 
         RETUPD(retcode, status);
@@ -497,12 +497,12 @@ static int _env_rename(tec_argvec_t *argvec, tec_cfg_t *cfg)
     src.env = argvec->argv[optind];
     dst.env = argvec->argv[optind + 1];
 
-    if ((status = tec_cli_check_env(&src))) {
+    if ((status = tec_cli_check_env(&src, cfg))) {
         src.env = src.env ? src.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_ENV_REN, src.env, tec_strerror(status));
         return EXIT_FAILURE;
-    } else if ((status = tec_cli_check_env(&src))) {
+    } else if ((status = tec_cli_check_env(&src, cfg))) {
         src.env = src.env ? src.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_ENV_REN, src.env, tec_strerror(status));
@@ -517,7 +517,7 @@ static int _env_rename(tec_argvec_t *argvec, tec_cfg_t *cfg)
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_ENV_REN, "ENV", tec_strerror(status));
         return status;
-    } else if ((status = hook_action(&dst, "env-rename"))) {
+    } else if ((status = hook_action(&dst, "env-rename", cfg))) {
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_ENV_REN, dst.env, tec_strerror(status));
         return status;
@@ -529,7 +529,7 @@ static int _env_rename(tec_argvec_t *argvec, tec_cfg_t *cfg)
         return status;
     }
     // FIXME: unify return code logic with the rest of the commands
-    return tec_cli_pwd_set(&dst);
+    return tec_cli_pwd_set(&dst, cfg);
 }
 
 /**
@@ -589,7 +589,7 @@ static int _env_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.env = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_env(&args))) {
+        if ((status = tec_cli_check_env(&args, cfg))) {
             args.env = args.env ? args.env : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_SET, args.env, tec_strerror(status));
@@ -600,7 +600,7 @@ static int _env_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
         if ((status = tec_env_set(cfg->base.task, &args, &ctx))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_SET, args.env, tec_strerror(status));
-        } else if ((status = hook_action(&args, "env-set"))) {
+        } else if ((status = hook_action(&args, "env-set", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_SET, args.task, tec_strerror(status));
         }
@@ -678,7 +678,7 @@ static int _env_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.env = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_env(&args))) {
+        if ((status = tec_cli_check_env(&args, cfg))) {
             args.env = args.env ? args.env : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_CAT, args.env, tec_strerror(status));
@@ -694,7 +694,7 @@ static int _env_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_CAT, args.env, tec_strerror(status));
             continue;
-        } else if ((status = hook_cat(&unitpgn, &args, "env-cat"))) {
+        } else if ((status = hook_cat(&unitpgn, &args, "env-cat", cfg))) {
             retcode = EXIT_FAILURE;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_CAT, args.env, tec_strerror(status));
@@ -796,7 +796,7 @@ static int _env_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.env = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_env(&args))) {
+        if ((status = tec_cli_check_env(&args, cfg))) {
             args.env = args.env ? args.env : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_CD, args.env, tec_strerror(status));
@@ -804,7 +804,7 @@ static int _env_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
             continue;
         }
 
-        if ((status = hook_action(&args, "env-cd"))) {
+        if ((status = hook_action(&args, "env-cd", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_CD, args.task, tec_strerror(status));
         } else if (opts.change_tog == true) {
@@ -817,7 +817,7 @@ static int _env_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir) {
-        status = tec_cli_pwd_set(&args);
+        status = tec_cli_pwd_set(&args, cfg);
         RETUPD(retcode, status);
     }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;

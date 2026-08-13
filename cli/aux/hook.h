@@ -1,6 +1,7 @@
 #ifndef TEC_CLI_HOOK_H
 #define TEC_CLI_HOOK_H
 
+#include "config.h"
 #include "../../lib/libtec.h"
 
 /**
@@ -22,8 +23,8 @@ struct tec_hook {
     struct tec_hook *next;
 };
 
-int hook_action(tec_arg_t * args, char *cmd);
-int hook_cat(tec_unit_t ** units, tec_arg_t * args, char *cmd);
+int hook_action(tec_arg_t * args, char *cmd, tec_cfg_t * cfg);
+int hook_cat(tec_unit_t ** units, tec_arg_t * args, char *cmd, tec_cfg_t * cfg);
 /* TODO: under development.  */
 char *hook_list(struct tec_hook *hooks, char *pgnout, char *env, char *id);
 

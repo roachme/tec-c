@@ -63,9 +63,6 @@ typedef struct config {
 
 #define TEC_CONFIG_SET_OPTS { .opts.color = NONEBOOL, .opts.hook = NONEBOOL, }
 
-extern tec_cfg_t teccfg;
-
-void tec_config_init(tec_cfg_t * cfg);
 int tec_config_parse(tec_cfg_t * tec_config);
 void tec_config_destroy(tec_cfg_t * tec_config);
 

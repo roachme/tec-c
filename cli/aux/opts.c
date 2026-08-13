@@ -3,6 +3,26 @@
 #include "opts.h"
 
 /**
+ * tec_cli_option_init() - Reset a config struct to its pre-parse zero state
+ * @cfg: config struct to initialize
+ *
+ * Sets alias/hooks lists to NULL, base paths to NULL, and the
+ * color/debug/hook options to the NONEBOOL sentinel (not yet decided
+ * by CLI or config file).
+ */
+void tec_cli_option_init(tec_cfg_t *cfg)
+{
+    cfg->alias = NULL;
+    cfg->hooks = NULL;
+    cfg->base.cfg = NULL;
+    cfg->base.pgn = NULL;
+    cfg->base.task = NULL;
+    cfg->opts.color = NONEBOOL;
+    cfg->opts.hook = NONEBOOL;
+    cfg->opts.debug = NONEBOOL;
+}
+
+/**
  * tec_cli_cat_option_init() - Set default values for `cat` command options
  * @opts: options struct to initialize
  */

@@ -12,6 +12,7 @@
  * @args: the task about to be removed
  * @opts: rm options; ->change_dir is set to true when the user's CWD had
  *        to be relocated, so the caller knows to refresh the pwd file
+ * @cfg: active configuration
  *
  * If the user's current working directory is inside the task being
  * removed (per tec_aux_do_change_user_cwd()), chdir()s to $HOME first so
@@ -20,13 +21,14 @@
  *
  * Return: EXIT_FAILURE if $HOME can't be read or chdir() fails, ETEC_OK otherwise
  */
-static int update_cwd(tec_arg_t *args, struct tec_cli_rm_options *opts)
+static int update_cwd(tec_arg_t *args, struct tec_cli_rm_options *opts,
+                      tec_cfg_t *cfg)
 {
     char *home;
     int status = ETEC_OK;
 
     /* Not to break shell session in case user CWD gets deleted.  */
-    if (tec_aux_do_change_user_cwd(args) == true) {
+    if (tec_aux_do_change_user_cwd(args, cfg) == true) {
         if ((home = tec_cli_osdep_getenv_home()) == NULL) {
             TEC_LOG_D("cannot get env 'HOME' variable");
             status = EXIT_FAILURE;
@@ -46,14 +48,14 @@ static int update_cwd(tec_arg_t *args, struct tec_cli_rm_options *opts)
  * Return: ETEC_OK if the task wasn't toggled or the toggle was cleared
  * successfully, ETEC_TOGG_TASK_UNSET if clearing the toggle failed
  */
-static int update_toggles(tec_arg_t *args)
+static int update_toggles(tec_arg_t *args, tec_cfg_t *cfg)
 {
     int status = ETEC_OK;
 
-    if (toggle_task_is_curr(teccfg.base.task, args))
-        status = toggle_task_unset_curr(teccfg.base.task, args);
-    else if (toggle_task_is_prev(teccfg.base.task, args))
-        status = toggle_task_unset_prev(teccfg.base.task, args);
+    if (toggle_task_is_curr(cfg->base.task, args))
+        status = toggle_task_unset_curr(cfg->base.task, args);
+    else if (toggle_task_is_prev(cfg->base.task, args))
+        status = toggle_task_unset_prev(cfg->base.task, args);
     return status == ETEC_OK ? ETEC_OK : ETEC_TOGG_TASK_UNSET;
 }
 
@@ -125,12 +127,12 @@ int tec_cli_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (opts.help == true)
         return tec_cli_help_usage("rm");
-    else if ((status = tec_cli_check_env(&args))) {
+    else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_RM, args.env, tec_strerror(status));
         return EXIT_FAILURE;
-    } else if ((status = tec_cli_check_desk(&args))) {
+    } else if ((status = tec_cli_check_desk(&args, cfg))) {
         args.desk = args.desk ? args.desk : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_RM, args.desk, tec_strerror(status));
@@ -147,7 +149,7 @@ int tec_cli_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.task = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_task(&args))) {
+        if ((status = tec_cli_check_task(&args, cfg))) {
             args.task = args.task ? args.task : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_RM, args.task, tec_strerror(status));
@@ -159,13 +161,13 @@ int tec_cli_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
                 continue;
         }
 
-        if ((status = hook_action(&args, "rm"))) {
+        if ((status = hook_action(&args, "rm", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_RM, args.task, tec_strerror(status));
-        } else if ((status = update_cwd(&args, &opts))) {
+        } else if ((status = update_cwd(&args, &opts, cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_RM, args.task, "cannot update CWD");
-        } else if ((status = update_toggles(&args))) {
+        } else if ((status = update_toggles(&args, cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_RM, args.task, tec_strerror(status));
         } else if ((status = tec_task_rm(cfg->base.task, &args, &ctx))) {
@@ -180,7 +182,7 @@ int tec_cli_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (retcode == ETEC_OK && opts.change_dir) {
         args.task = NULL;       /* Force to get current task ID.  */
-        status = tec_cli_pwd_set(&args);
+        status = tec_cli_pwd_set(&args, cfg);
         if (toggle_task_get_curr(cfg->base.task, &args))
             args.task = "";
         RETUPD(retcode, status);

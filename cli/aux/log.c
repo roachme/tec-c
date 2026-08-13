@@ -5,6 +5,20 @@
 #include "log.h"
 #include "config.h"
 
+static const int *debug_enabled;
+
+/**
+ * tec_cli_log_init() - Bind the logger to the active config's debug flag
+ * @cfg: active configuration; cfg->opts.debug is read by tec_cli_log_debug()
+ *
+ * Must be called before any TEC_LOG_D()/tec_cli_log_debug() call, since
+ * those dereference debug_enabled without a NULL check.
+ */
+void tec_cli_log_init(tec_cfg_t *cfg)
+{
+    debug_enabled = &cfg->opts.debug;
+}
+
 /**
  * tec_cli_log_error() - Print an error message to stderr, prefixed with the program name
  * @fmt: printf-style format string
@@ -47,7 +61,7 @@ int tec_cli_log_info(const char *fmt, ...)
  * @fmt: printf-style format string
  * @...: arguments for @fmt
  *
- * No-op unless teccfg.opts.debug is true.
+ * No-op unless the config bound via tec_cli_log_init() has opts.debug true.
  *
  * Return: always EXIT_SUCCESS
  */
@@ -55,7 +69,7 @@ int tec_cli_log_debug(const char *fname, int line, const char *fmt, ...)
 {
     va_list arg;
 
-    if (teccfg.opts.debug == false)
+    if (*debug_enabled == false)
         return EXIT_SUCCESS;
 
     va_start(arg, fmt);

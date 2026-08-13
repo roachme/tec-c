@@ -2,6 +2,7 @@
 #define TEC_CLI_OPTS_H
 
 #include <stdbool.h>
+#include "../tec.h"
 
 /**
  * enum tec_cli_rm_mode - when `rm` should prompt before removing
@@ -83,6 +84,7 @@ struct tec_cli_set_options {
     bool quiet;                 /* Do not write anything to standard output */
 };
 
+void tec_cli_option_init(tec_cfg_t * cfg);
 void tec_cli_cat_option_init(struct tec_cli_cat_options *opts);
 void tec_cli_cd_option_init(struct tec_cli_cd_options *opts);
 void tec_cli_ls_option_init(struct tec_cli_ls_options *opts);

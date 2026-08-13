@@ -146,7 +146,7 @@ static int _desk_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
         return tec_cli_help_usage("desk-add");
     else if (optind == argvec->used)
         return TEC_LOG_E(tec_strerror(ETEC_ARG_DESK_REQ));
-    else if ((status = tec_cli_check_env(&args))) {
+    else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_DESK_ADD, args.env, tec_strerror(status));
@@ -185,7 +185,7 @@ static int _desk_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_ADD, args.desk, tec_strerror(status));
             ctx.units = tec_unit_free(ctx.units);
-        } else if ((status = hook_action(&args, "desk-add"))) {
+        } else if ((status = hook_action(&args, "desk-add", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_ADD, args.task, tec_strerror(status));
         } else if (opts.change_tog == true) {
@@ -199,7 +199,7 @@ static int _desk_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir) {
-        status = tec_cli_pwd_set(&args);
+        status = tec_cli_pwd_set(&args, cfg);
         RETUPD(retcode, status);
     }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -265,7 +265,7 @@ static int _desk_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (opts.help)
         return tec_cli_help_usage("desk-rm");
-    else if ((status = tec_cli_check_env(&args))) {
+    else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_DESK_RM, args.env, tec_strerror(status));
@@ -282,7 +282,7 @@ static int _desk_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.desk = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_desk(&args))) {
+        if ((status = tec_cli_check_desk(&args, cfg))) {
             args.desk = args.desk ? args.desk : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_RM, args.desk, tec_strerror(status));
@@ -294,7 +294,7 @@ static int _desk_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
                 continue;
         }
         // TODO: update current directory if current env got deleted.
-        if ((status = hook_action(&args, "desk-rm"))) {
+        if ((status = hook_action(&args, "desk-rm", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_RM, args.desk, tec_strerror(status));
         } else if ((status = tec_desk_rm(cfg->base.task, &args, &ctx))) {
@@ -309,7 +309,7 @@ static int _desk_rm(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (retcode == ETEC_OK && opts.change_dir) {
         args.desk = NULL;       /* Force to get current task ID.  */
-        status = tec_cli_pwd_set(&args);
+        status = tec_cli_pwd_set(&args, cfg);
         if (toggle_desk_get_curr(cfg->base.task, &args))
             args.desk = "";
         RETUPD(retcode, status);
@@ -376,7 +376,7 @@ static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (opt_help == true)
         return tec_cli_help_usage("desk-ls");
-    else if ((status = tec_cli_check_env(&args))) {
+    else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opt_quiet == false)
             TEC_LOG_E(EFMT_DESK_LS, args.env, tec_strerror(status));
@@ -388,7 +388,7 @@ static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
         args.env = argvec->argv[i];
 
         // TODO: why check env twice? it was done above
-        if ((status = tec_cli_check_env(&args))) {
+        if ((status = tec_cli_check_env(&args, cfg))) {
             args.env = args.env ? args.env : ETEC_NOCURR;
             if (opt_quiet == false)
                 TEC_LOG_E(EFMT_DESK_LS, args.env, tec_strerror(status));
@@ -411,7 +411,7 @@ static int _desk_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
             if ((desc = get_unit_desc(&ctx, &args, opt_quiet, cfg)) == NULL) {
                 continue;
             }
-            LIST_OBJ_UNITS(obj->name, "", desc, DESKSIZ, teccfg.opts.color);
+            LIST_OBJ_UNITS(obj->name, "", desc, DESKSIZ, cfg->opts.color);
             ctx.units = tec_unit_free(ctx.units);
         }
         ctx.list = tec_list_free(ctx.list);
@@ -485,7 +485,7 @@ static int _desk_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (opts.help)
         return tec_cli_help_usage("desk-set");
-    else if ((status = tec_cli_check_env(&args))) {
+    else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_DESK_SET, args.env, tec_strerror(status));
@@ -495,7 +495,7 @@ static int _desk_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.desk = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_desk(&args))) {
+        if ((status = tec_cli_check_desk(&args, cfg))) {
             args.desk = args.desk ? args.desk : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_SET, args.desk, tec_strerror(status));
@@ -506,7 +506,7 @@ static int _desk_set(tec_argvec_t *argvec, tec_cfg_t *cfg)
         if ((status = tec_desk_set(cfg->base.task, &args, &ctx))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_SET, args.desk, tec_strerror(status));
-        } else if ((status = hook_action(&args, "desk-set"))) {
+        } else if ((status = hook_action(&args, "desk-set", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_SET, args.task, tec_strerror(status));
         }
@@ -579,7 +579,7 @@ static int _desk_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
         retcode = ETEC_OK;
         tec_cli_help_usage("desk-cat");
         goto err;
-    } else if ((status = tec_cli_check_env(&args))) {
+    } else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_DESK_CAT, args.env, tec_strerror(status));
@@ -590,7 +590,7 @@ static int _desk_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.desk = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_desk(&args))) {
+        if ((status = tec_cli_check_desk(&args, cfg))) {
             args.desk = args.desk ? args.desk : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_CAT, args.desk, tec_strerror(status));
@@ -607,7 +607,7 @@ static int _desk_cat(tec_argvec_t *argvec, tec_cfg_t *cfg)
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_CAT, args.desk, tec_strerror(status));
             continue;
-        } else if ((status = hook_cat(&unitpgn, &args, "desk-cat"))) {
+        } else if ((status = hook_cat(&unitpgn, &args, "desk-cat", cfg))) {
             retcode = EXIT_FAILURE;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_CAT, args.desk, tec_strerror(status));
@@ -696,7 +696,7 @@ static int _desk_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (opts.help == true)
         return tec_cli_help_usage("desk-cd");
-    else if ((status = tec_cli_check_env(&args))) {
+    else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_DESK_CD, args.env, tec_strerror(status));
@@ -714,7 +714,7 @@ static int _desk_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.desk = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_desk(&args))) {
+        if ((status = tec_cli_check_desk(&args, cfg))) {
             args.desk = args.desk ? args.desk : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_CD, args.desk, tec_strerror(status));
@@ -722,7 +722,7 @@ static int _desk_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
             continue;
         }
 
-        if ((status = hook_action(&args, "desk-cd"))) {
+        if ((status = hook_action(&args, "desk-cd", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_DESK_CD, args.task, tec_strerror(status));
         } else if (opts.change_tog == true) {
@@ -735,7 +735,7 @@ static int _desk_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir) {
-        status = tec_cli_pwd_set(&args);
+        status = tec_cli_pwd_set(&args, cfg);
         RETUPD(retcode, status);
     }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;

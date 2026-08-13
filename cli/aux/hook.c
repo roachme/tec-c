@@ -19,16 +19,17 @@ static char *hook_argv[10];
 /**
  * hook_path() - Resolve a hook's plugin binary path
  * @name: plugin directory/binary name
+ * @cfg: active configuration
  *
  * Formats "<pgnbase>/<name>/<name>" into a static buffer.
  *
  * Return: pointer to a static buffer holding the path (overwritten on
  * the next call), or NULL if the path would overflow the buffer
  */
-static char *hook_path(char *name)
+static char *hook_path(char *name, tec_cfg_t *cfg)
 {
     int len = snprintf(pathname, sizeof(pathname), "%s/%s/%s",
-                       teccfg.base.pgn, name, name);
+                       cfg->base.pgn, name, name);
 
     return (len < 0 || (size_t)len >= sizeof(pathname)) ? NULL : pathname;
 }
@@ -38,6 +39,7 @@ static char *hook_path(char *name)
  * @path: plugin binary path, used as argv[0]
  * @args: env/desk/task selection to pass to the plugin
  * @cmd: plugin subcommand to invoke
+ * @cfg: active configuration
  *
  * Fills a static NULL-terminated argv array: "<path> -T <taskbase>
  * <cmd> -e <env> -d <desk> <task>". No shell is involved, so each of
@@ -46,11 +48,12 @@ static char *hook_path(char *name)
  *
  * Return: pointer to a static argv array, overwritten on the next call
  */
-static char **hook_argv_build(char *path, tec_arg_t *args, char *cmd)
+static char **hook_argv_build(char *path, tec_arg_t *args, char *cmd,
+                              tec_cfg_t *cfg)
 {
     hook_argv[0] = path;
     hook_argv[1] = "-T";
-    hook_argv[2] = teccfg.base.task;
+    hook_argv[2] = cfg->base.task;
     hook_argv[3] = cmd;
     hook_argv[4] = "-e";
     hook_argv[5] = args->env;
@@ -151,9 +154,10 @@ static int hook_pclose(FILE *pipe, pid_t pid)
  * hook_action() - Run every configured hook matching @cmd
  * @args: env/desk/task selection passed through to each hook
  * @cmd: hook command name to match against configured hooks (e.g. "add")
+ * @cfg: active configuration
  *
- * No-op if hooks are globally disabled (teccfg.opts.hook == false).
- * Otherwise walks teccfg.hooks and, for each entry whose cmd matches
+ * No-op if hooks are globally disabled (cfg->opts.hook == false).
+ * Otherwise walks cfg->hooks and, for each entry whose cmd matches
  * @cmd, execs it directly (no shell involved) via hook_exec(),
  * continuing even if one invocation fails so all matching hooks get a
  * chance to run.
@@ -162,20 +166,20 @@ static int hook_pclose(FILE *pipe, pid_t pid)
  * hooks are disabled/none matched), ETEC_HOOK_EXEC if at least one
  * hook failed to build or run
  */
-int hook_action(tec_arg_t *args, char *cmd)
+int hook_action(tec_arg_t *args, char *cmd, tec_cfg_t *cfg)
 {
     int retcode, status;
-    struct tec_hook *hooks = teccfg.hooks;
+    struct tec_hook *hooks = cfg->hooks;
 
     retcode = status = ETEC_OK;
 
     /* Execute hooks only if they are enabled.  */
-    if (teccfg.opts.hook == false)
+    if (cfg->opts.hook == false)
         return 0;
 
     for (; hooks; hooks = hooks->next) {
         if (strcmp(cmd, hooks->cmd) == 0) {
-            char *path = hook_path(hooks->pgname);
+            char *path = hook_path(hooks->pgname, cfg);
 
             if (!path) {
                 retcode = ETEC_HOOK_EXEC;
@@ -183,7 +187,7 @@ int hook_action(tec_arg_t *args, char *cmd)
             }
 
             TEC_LOG_D("hook: exec %s", path);
-            status = hook_exec(hook_argv_build(path, args, hooks->pgncmd));
+            status = hook_exec(hook_argv_build(path, args, hooks->pgncmd, cfg));
             retcode = status == ETEC_OK ? retcode : status;
         }
     }
@@ -196,9 +200,10 @@ int hook_action(tec_arg_t *args, char *cmd)
  * @units: linked list to append parsed key/value output lines to
  * @args: env/desk/task selection passed through to each hook
  * @cmd: hook command name to match against configured hooks (e.g. "cat")
+ * @cfg: active configuration
  *
  * No-op (success) if hooks are globally disabled
- * (teccfg.opts.hook == false). Otherwise, for each configured hook
+ * (cfg->opts.hook == false). Otherwise, for each configured hook
  * whose cmd matches @cmd, execs it directly (no shell involved) via
  * hook_popen() and parses every line of its stdout into *@units via
  * tec_unit_parse(). Continues to the next hook even if one invocation
@@ -208,25 +213,25 @@ int hook_action(tec_arg_t *args, char *cmd)
  * pipe opened and closed successfully, ETEC_HOOK_EXEC if at least one
  * matching hook failed to open or exited non-zero
  */
-int hook_cat(tec_unit_t **units, tec_arg_t *args, char *cmd)
+int hook_cat(tec_unit_t **units, tec_arg_t *args, char *cmd, tec_cfg_t *cfg)
 {
     FILE *pipe;
     pid_t pid;
     int retcode, status;
     char line[BUFSIZ + 1] = { 0 };
-    struct tec_hook *hooks = teccfg.hooks;
+    struct tec_hook *hooks = cfg->hooks;
 
     retcode = status = ETEC_OK;
 
     /* Execute hooks only if they are enabled.  */
-    if (teccfg.opts.hook == false)
+    if (cfg->opts.hook == false)
         return EXIT_SUCCESS;
 
     for (; hooks; hooks = hooks->next) {
         if (strcmp(hooks->cmd, cmd) != 0)
             continue;
 
-        char *path = hook_path(hooks->pgname);
+        char *path = hook_path(hooks->pgname, cfg);
 
         if (!path) {
             retcode = EXIT_FAILURE;
@@ -236,7 +241,8 @@ int hook_cat(tec_unit_t **units, tec_arg_t *args, char *cmd)
         TEC_LOG_D("hook: exec %s", path);
         if (!
             (pipe =
-             hook_popen(hook_argv_build(path, args, hooks->pgncmd), &pid))) {
+             hook_popen(hook_argv_build
+                        (path, args, hooks->pgncmd, cfg), &pid))) {
             // TODO: add quiet option and show error message of plugin
             retcode = EXIT_FAILURE;
             continue;
@@ -250,14 +256,15 @@ int hook_cat(tec_unit_t **units, tec_arg_t *args, char *cmd)
 }
 
 /*
-char *hook_list(struct tec_hook *hooks, char *pgnout, char *env, char *task)
+char *hook_list(struct tec_hook *hooks, char *pgnout, char *env, char *task,
+                tec_cfg_t *cfg)
 {
     FILE *pipe;
     char *prefix = "  ";
     char line[BUFSIZ + 1] = { 0 };
 
     // Execute hooks only if they are enabled.
-    if (teccfg.opts.hook == true)
+    if (cfg->opts.hook == true)
         return 0;
 
     for (; hooks; hooks = hooks->next) {

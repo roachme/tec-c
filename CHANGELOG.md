@@ -1,8 +1,13 @@
 ## [Unreleased]
 
+### Added
+
 ### Changed
 
 - `shell`: Rename tec.sh to .tecrc
+- `cli`: Remove global variable teccfg
+
+### Fixed
 
 
 ## [0.14.0] - (2026-08-11)

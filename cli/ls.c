@@ -36,16 +36,18 @@ static int check_filters(void)
  * @ctx: filled in by tec_task_get() with the task's units on success
  * @args: identifies the task to fetch (args->task must be set)
  * @quiet: suppress TEC_LOG_E() output when set
+ * @cfg: active configuration
  *
  * Return: the task's description string, or NULL if the task couldn't be
  * fetched or has no "desc" unit
  */
-static char *get_unit_desc(tec_ctx_t *ctx, tec_arg_t *args, int quiet)
+static char *get_unit_desc(tec_ctx_t *ctx, tec_arg_t *args, int quiet,
+                           tec_cfg_t *cfg)
 {
     int status;
     char *desc = NULL;
 
-    if ((status = tec_task_get(teccfg.base.task, args, ctx))) {
+    if ((status = tec_task_get(cfg->base.task, args, ctx))) {
         if (quiet == false)
             TEC_LOG_E("'%s': %s one", args->task, tec_strerror(status));
     } else if ((desc = tec_unit_get(ctx->units, "desc")) == NULL) {
@@ -62,18 +64,19 @@ static char *get_unit_desc(tec_ctx_t *ctx, tec_arg_t *args, int quiet)
  * @args: scratch args; ->task is set to @obj's name for the lookup
  * @obj: the list entry to print, or NULL to do nothing
  * @quiet: suppress TEC_LOG_E() output when set
+ * @cfg: active configuration
  */
 static void show_row(tec_ctx_t *ctx, tec_arg_t *args, tec_list_t *obj,
-                     int quiet)
+                     int quiet, tec_cfg_t *cfg)
 {
     if (obj != NULL) {
         char *desc = NULL;
         args->task = obj->name;
 
-        if ((desc = get_unit_desc(ctx, args, quiet)) == NULL)
+        if ((desc = get_unit_desc(ctx, args, quiet, cfg)) == NULL)
             return;
 
-        LIST_OBJ_UNITS(obj->name, "", desc, IDSIZ, teccfg.opts.color);
+        LIST_OBJ_UNITS(obj->name, "", desc, IDSIZ, cfg->opts.color);
         ctx->units = tec_unit_free(ctx->units);
     }
 }
@@ -86,36 +89,37 @@ static void show_row(tec_ctx_t *ctx, tec_arg_t *args, tec_list_t *obj,
  * Used for `ls -t`. Looks up the current-task and previous-task toggles
  * with toggle_task_get_curr()/toggle_task_get_prev() and prints a row for
  * each one found, after validating it still resolves to a real task.
+ * @cfg: active configuration
  *
  * Return: the status of the last toggle_task_get_prev() call
  */
-static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args)
+static int show_toggles(tec_ctx_t *ctx, tec_arg_t *args, tec_cfg_t *cfg)
 {
     int status;
     tec_list_t obj;
     int opt_quiet = 0;          /* TODO: sync it with option passed to CLI.  */
 
     args->task = NULL;
-    if ((status = toggle_task_get_curr(teccfg.base.task, args)) == 0) {
-        if ((status = tec_cli_check_task(args))) {
+    if ((status = toggle_task_get_curr(cfg->base.task, args)) == 0) {
+        if ((status = tec_cli_check_task(args, cfg))) {
             if (opt_quiet == false)
                 TEC_LOG_E(EFMT_TASK_LS, args->task, tec_strerror(status));
         } else {
             obj.status = ETEC_OK;
             obj.name = args->task;
-            show_row(ctx, args, &obj, false);
+            show_row(ctx, args, &obj, false, cfg);
         }
     }
 
     args->task = NULL;
-    if ((status = toggle_task_get_prev(teccfg.base.task, args)) == 0) {
-        if ((status = tec_cli_check_task(args))) {
+    if ((status = toggle_task_get_prev(cfg->base.task, args)) == 0) {
+        if ((status = tec_cli_check_task(args, cfg))) {
             if (opt_quiet == false)
                 TEC_LOG_E(EFMT_TASK_LS, args->task, tec_strerror(status));
         } else {
             obj.status = ETEC_OK;
             obj.name = args->task;
-            show_row(ctx, args, &obj, false);
+            show_row(ctx, args, &obj, false, cfg);
         }
     }
     return status;
@@ -142,9 +146,10 @@ static int cmp_task_id(const void *a, const void *b)
  * @args: scratch args forwarded to show_row()
  * @list: the task list to display, as filled in by tec_task_list()
  * @quiet: suppress TEC_LOG_E() output when set
+ * @cfg: active configuration
  */
 static void show_rows(tec_ctx_t *ctx, tec_arg_t *args,
-                      tec_listarr_t *list, int quiet)
+                      tec_listarr_t *list, int quiet, tec_cfg_t *cfg)
 {
     size_t count = list_size(list);
 
@@ -152,7 +157,7 @@ static void show_rows(tec_ctx_t *ctx, tec_arg_t *args,
         qsort(list->items, count, sizeof(*list->items), cmp_task_id);
 
     for (size_t i = 0; i < count; i++) {
-        show_row(ctx, args, &list->items[i], quiet);
+        show_row(ctx, args, &list->items[i], quiet, cfg);
     }
 }
 
@@ -222,12 +227,12 @@ int tec_cli_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.env = argvec->argv[i];
 
-        if ((status = tec_cli_check_env(&args))) {
+        if ((status = tec_cli_check_env(&args, cfg))) {
             args.env = args.env ? args.env : ETEC_NOCURR;
             if (quiet == false)
                 TEC_LOG_E(EFMT_TASK_LS, args.task, tec_strerror(status));
             continue;
-        } else if ((status = tec_cli_check_desk(&args))) {
+        } else if ((status = tec_cli_check_desk(&args, cfg))) {
             args.desk = args.desk ? args.desk : ETEC_NOCURR;
             if (quiet == false)
                 TEC_LOG_E(EFMT_TASK_LS, args.task, tec_strerror(status));
@@ -246,9 +251,9 @@ int tec_cli_ls(tec_argvec_t *argvec, tec_cfg_t *cfg)
         // TODO: optimize data structure load (it uses too much malloc)
 
         if (filter.toggle) {
-            show_toggles(&ctx, &args);
+            show_toggles(&ctx, &args, cfg);
         } else {
-            show_rows(&ctx, &args, ctx.list, quiet);
+            show_rows(&ctx, &args, ctx.list, quiet, cfg);
         }
 
         ctx.list = tec_list_free(ctx.list);

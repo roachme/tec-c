@@ -14,18 +14,19 @@
  * check_cd_path() - Validate that PATH exists inside the target task
  * @args: env/desk/task selection identifying the task directory to look inside
  * @path: PATH given to `cd -p`, checked relative to the task directory
+ * @cfg: active configuration
  *
  * Return: ETEC_OK if @path names an existing directory inside the task
  * directory, otherwise ETEC_ARG_PATH_NOSUCH (including if the combined
  * path would exceed PATH_MAX)
  */
-static int check_cd_path(tec_arg_t *args, const char *path)
+static int check_cd_path(tec_arg_t *args, const char *path, tec_cfg_t *cfg)
 {
     int len;
     char pathname[PATH_MAX + 1];
 
     len = snprintf(pathname, sizeof(pathname), "%s/%s/%s/%s/%s",
-                   teccfg.base.task, args->env, args->desk, args->task, path);
+                   cfg->base.task, args->env, args->desk, args->task, path);
     if (len < 0 || (size_t)len >= sizeof(pathname))
         return ETEC_ARG_PATH_NOSUCH;
 
@@ -98,12 +99,12 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
 
     if (opts.help == true)
         return tec_cli_help_usage("cd");
-    else if ((status = tec_cli_check_env(&args))) {
+    else if ((status = tec_cli_check_env(&args, cfg))) {
         args.env = args.env ? args.env : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_CD, args.env, tec_strerror(status));
         return EXIT_FAILURE;
-    } else if ((status = tec_cli_check_desk(&args))) {
+    } else if ((status = tec_cli_check_desk(&args, cfg))) {
         args.desk = args.desk ? args.desk : ETEC_NOCURR;
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_CD, args.desk, tec_strerror(status));
@@ -121,7 +122,7 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
     do {
         args.task = argvec->argv[argvec->i];
 
-        if ((status = tec_cli_check_task(&args))) {
+        if ((status = tec_cli_check_task(&args, cfg))) {
             args.task = args.task ? args.task : ETEC_NOCURR;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_CD, args.task, tec_strerror(status));
@@ -129,7 +130,7 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
             continue;
         }
 
-        if ((status = hook_action(&args, "cd"))) {
+        if ((status = hook_action(&args, "cd", cfg))) {
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_TASK_CD, args.task, tec_strerror(status));
         } else if (opts.change_tog == true) {
@@ -149,13 +150,13 @@ int tec_cli_cd(tec_argvec_t *argvec, tec_cfg_t *cfg)
     } while (++argvec->i < argvec->used);
 
     if (retcode == ETEC_OK && opts.change_dir && opts.path &&
-        (status = check_cd_path(&args, opts.path))) {
+        (status = check_cd_path(&args, opts.path, cfg))) {
         if (opts.quiet == false)
             TEC_LOG_E(EFMT_TASK_CD, opts.path, tec_strerror(status));
         retcode = status;
     } else if (retcode == ETEC_OK && opts.change_dir) {
-        retcode = opts.path ? tec_cli_pwd_set_path(&args, opts.path)
-            : tec_cli_pwd_set(&args);
+        retcode = opts.path ? tec_cli_pwd_set_path(&args, opts.path, cfg)
+            : tec_cli_pwd_set(&args, cfg);
     }
     return retcode == ETEC_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
