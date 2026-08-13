@@ -16,7 +16,7 @@ CFLAGS=-I cli -Wall -fbounds-check -Wpedantic -Wextra
 
 VERSION=$(shell cat VERSION)
 README=README.md
-SHELLSCRIPT=shell/tec.sh
+SHELLSCRIPT=shell/.tecrc
 SHELLNAME=bash
 PWDFILE=/tmp/tecpwd
 

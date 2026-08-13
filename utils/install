@@ -4,7 +4,7 @@ CMD="$1"
 PROGRAM=_tec
 SRCPATH="build"
 DSTPATH="$HOME/.local/bin"
-SOURCESTR="source $(pwd)/shell/tec.sh"
+SOURCESTR="source $(pwd)/shell/.tecrc"
 
 function install_help()
 {

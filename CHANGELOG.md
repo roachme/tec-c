@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Changed
+
+- `shell`: Rename tec.sh to .tecrc
+
+
 ## [0.14.0] - (2026-08-11)
 
 ### Added

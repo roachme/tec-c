@@ -55,10 +55,10 @@ MACRO_CODE
 
 ## ⇁  Installation
 1. Once you have compiled successfully, put the executable MACRO_INLINE_CODE _tec MACRO_INLINE_CODE into one of the directories defined in the env variable MACRO_INLINE_CODE PATH MACRO_INLINE_CODE . I put it in MACRO_INLINE_CODE ~/.local/bin MACRO_INLINE_CODE .
-2. Copy the content of tec.sh into your shell rc file. It's MACRO_INLINE_CODE ~/.bashrc MACRO_INLINE_CODE , MACRO_INLINE_CODE .zshrc MACRO_INLINE_CODE , etc.
+2. Copy the content of .tecrc into your shell rc file. It's MACRO_INLINE_CODE ~/.bashrc MACRO_INLINE_CODE , MACRO_INLINE_CODE .zshrc MACRO_INLINE_CODE , etc.
 
 MACRO_CODE bash
-include(shell/tec.sh)dnl
+include(shell/.tecrc)dnl
 MACRO_CODE
 
 3. Create a basic Tec config file, either in MACRO_INLINE_CODE ~/.tec/tec.cfg MACRO_INLINE_CODE or MACRO_INLINE_CODE ~/.config/tec/tec.cfg MACRO_INLINE_CODE, and fill it with the content below

@@ -51,7 +51,7 @@ make
 
 ## ⇁  Installation
 1. Once you have compiled successfully, put the executable ` _tec ` into one of the directories defined in the env variable ` PATH ` . I put it in ` ~/.local/bin ` .
-2. Copy the content of tec.sh into your shell rc file. It's ` ~/.bashrc ` , ` .zshrc ` , etc.
+2. Copy the content of .tecrc into your shell rc file. It's ` ~/.bashrc ` , ` .zshrc ` , etc.
 
 ``` bash
 #!/usr/bin/env bash
