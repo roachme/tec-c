@@ -86,7 +86,7 @@ function build_artifact()
     rm -rf "$DIRNAME"
     mkdir -p "$DIRNAME"
     cp build/_tec "$DIRNAME/"
-    cp shell/tec.sh "$DIRNAME/"
+    cp shell/.tecrc "$DIRNAME/"
     cp shell/tec.cfg "$DIRNAME/"
     cp README.md "$DIRNAME/"
 
