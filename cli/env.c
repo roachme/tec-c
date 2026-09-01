@@ -36,15 +36,22 @@ static int valid_unitkeys(tec_unit_t *units)
  * generate_units() - Build the default unit set for a newly added environment
  * @ctx: ->units is set to the newly-built unit list (just "desc")
  * @env: environment name used in the auto-generated description
+ * @desc: user-supplied -D description, or NULL to auto-generate one
+ *        ("Generated desciption for environment <env>")
  *
  * Return: 0 on success, 1 if the resulting unit list is empty
  */
-static int generate_units(tec_ctx_t *ctx, char *env)
+static int generate_units(tec_ctx_t *ctx, char *env, char *desc)
 {
     struct tec_unit *units = NULL;
-    char desc[100] = "Generated desciption for environment ";
+    char _desc[100] = "Generated desciption for environment ";
 
-    strcat(desc, env);
+    /* Set custom description if provided.  */
+    if (desc == NULL) {         /* Generate description.  */
+        strcat(_desc, env);
+        desc = _desc;
+    }
+
     units = tec_unit_add(units, "desc", desc);
 
     if ((ctx->units = units) == NULL)
@@ -108,8 +115,9 @@ static int env_add_default_desk(tec_arg_t *args, tec_cfg_t *cfg, bool quiet)
  *
  * Recognizes -d DESK (name for the auto-created default desk, "desk" if
  * omitted), -h (help), -n (don't update the current-env/desk toggles),
- * -q (quiet errors), -D (not yet implemented, always errors), -N
- * (neither change directory nor update the toggles). For each env name:
+ * -q (quiet errors), -D DESC (custom description for the environment,
+ * auto-generated if omitted), -N (neither change directory nor update
+ * the toggles). For each env name:
  * validates its length and format (tec_cli_len_valid()/tec_env_valid()),
  * rejects it if it already exists, builds its default units
  * (generate_units()), creates it via tec_env_add(), then creates its
@@ -123,6 +131,7 @@ static int env_add_default_desk(tec_arg_t *args, tec_cfg_t *cfg, bool quiet)
 static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
 {
     char c;
+    char *desc = NULL;
     int status = ETEC_OK;
     int retcode = ETEC_OK;
     tec_ctx_t ctx = CTX_INIT();
@@ -145,7 +154,8 @@ static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
             opts.quiet = true;
             break;
         case 'D':
-            return TEC_LOG_E("'%c': this option is not implemented yet", c);
+            desc = optarg;
+            break;
         case 'N':
             opts.change_dir = false;
             opts.change_tog = false;
@@ -191,7 +201,7 @@ static int _env_add(tec_argvec_t *argvec, tec_cfg_t *cfg)
             continue;
         }
 
-        if (generate_units(&ctx, args.env)) {
+        if (generate_units(&ctx, args.env, desc)) {
             status = ETEC_UNIT_GEN_FAIL;
             if (opts.quiet == false)
                 TEC_LOG_E(EFMT_ENV_ADD, args.env, tec_strerror(status));

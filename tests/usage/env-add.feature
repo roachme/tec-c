@@ -67,7 +67,14 @@ Feature: env add
     And the PWD file should be empty
     And the current environment should be "envnbase2"
 
-  Scenario: -D is not implemented yet
-    When I run "env add -D 'some desc' envdopt"
-    Then the exit code should be 1
-    And stderr should contain "not implemented yet"
+  Scenario: Add with a custom description via -D
+    When I run "env add -D 'custom env desc' envdopt"
+    Then the exit code should be 0
+    And stdout should be
+      """
+      """
+    When I run "env cat -k desc envdopt"
+    Then stdout should be
+      """
+      custom env desc
+      """

@@ -2,6 +2,8 @@
 
 ### Added
 
+- `cli/env`: Add option -D for description
+
 ### Changed
 
 - `shell`: Rename tec.sh to .tecrc
